@@ -1,0 +1,60 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function myProfile() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return signedIn() && myProfile().role == 'ADMIN';
+    }
+
+    function isSecurity() {
+      return signedIn() && myProfile().role == 'SECURITY';
+    }
+
+    // ---------- users ----------
+    match /users/{uid} {
+      // A user reads only their own profile; staff read everyone.
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin() || isSecurity());
+
+      // Self-registration is allowed, but never with an elevated role.
+      allow create: if signedIn()
+                    && request.auth.uid == uid
+                    && request.resource.data.role == 'USER'
+                    && request.resource.data.active == true;
+
+      // Users may only flip their own faceEnrolled flag; admins may edit anything.
+      allow update: if isAdmin()
+                    || (signedIn() && request.auth.uid == uid
+                        && request.resource.data.diff(resource.data)
+                             .affectedKeys().hasOnly(['faceEnrolled', 'fcmToken']));
+
+      allow delete: if isAdmin();
+    }
+
+    // ---------- lockers ----------
+    match /lockers/{lockerId} {
+      allow read: if signedIn();
+      allow create, delete: if isAdmin();
+      // Only admins reassign or remotely unlock.
+      allow update: if isAdmin();
+    }
+
+    // ---------- access logs ----------
+    match /access_logs/{logId} {
+      // Users see their own history; admins and security see everything.
+      allow read: if isAdmin() || isSecurity()
+                  || (signedIn() && resource.data.uid == request.auth.uid);
+
+      // Logs are written server-side only (Cloud Function with admin SDK),
+      // so no client may create, edit, or erase the audit trail.
+      allow write: if false;
+    }
+  }
+}

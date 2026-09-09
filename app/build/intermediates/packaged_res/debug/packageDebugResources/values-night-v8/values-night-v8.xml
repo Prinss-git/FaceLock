@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="http://schemas.android.com/tools">
+    <color name="accent">#2ED3BA</color>
+    <color name="accent_dark">#5FE3CD</color>
+    <color name="accent_soft">#1E4A45</color>
+    <color name="accent_wash">#12312D</color>
+    <color name="background">#080D13</color>
+    <color name="denied">#FF8074</color>
+    <color name="denied_wash">#331512</color>
+    <color name="divider">#23303F</color>
+    <color name="granted">#4CD79B</color>
+    <color name="granted_wash">#0F2E22</color>
+    <color name="info">#7FA6FF</color>
+    <color name="info_wash">#16233F</color>
+    <color name="ink_600">#33506E</color>
+    <color name="ink_700">#22354A</color>
+    <color name="ink_800">#141F2B</color>
+    <color name="ink_900">#0E1620</color>
+    <color name="ink_950">#0A1017</color>
+    <color name="neutral_wash">#1B2634</color>
+    <color name="outline">#314154</color>
+    <color name="scrim">#B3000000</color>
+    <color name="surface">#111A24</color>
+    <color name="surface_sunken">#0D141C</color>
+    <color name="surface_variant">#16212D</color>
+    <color name="text_on_dark">#FFFFFF</color>
+    <color name="text_on_dark_muted">#A6BACF</color>
+    <color name="text_primary">#E9EEF4</color>
+    <color name="text_secondary">#A2B2C3</color>
+    <color name="text_tertiary">#71839A</color>
+    <color name="warning">#EDB55A</color>
+    <color name="warning_wash">#332512</color>
+    <color name="white">#FFFFFF</color>
+    <style name="Btn.Primary" parent="Widget.Material3.Button">
+        <item name="android:layout_height">@dimen/button_height</item>
+        <item name="cornerRadius">@dimen/field_radius</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="backgroundTint">@color/accent</item>
+        <item name="android:textColor">@color/ink_950</item>
+        <item name="iconTint">@color/ink_950</item>
+        <item name="rippleColor">@color/ink_700</item>
+    </style>
+    <style name="Fab" parent="Widget.Material3.ExtendedFloatingActionButton.Primary">
+        <item name="backgroundTint">@color/accent</item>
+        <item name="android:textColor">@color/ink_950</item>
+        <item name="iconTint">@color/ink_950</item>
+        <item name="elevation">3dp</item>
+    </style>
+    <style name="Theme.FaceLock" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/ink_800</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/accent_wash</item>
+        <item name="colorOnPrimaryContainer">@color/accent_dark</item>
+        <item name="colorSecondary">@color/accent</item>
+        <item name="colorOnSecondary">@color/ink_950</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurfaceVariant">@color/surface_sunken</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorOutline">@color/outline</item>
+        <item name="colorError">@color/denied</item>
+        <item name="colorOnError">@color/ink_950</item>
+        <item name="android:colorBackground">@color/background</item>
+
+        <item name="android:statusBarColor">@color/ink_950</item>
+        <item name="android:windowLightStatusBar" ns1:targetApi="m">false</item>
+        <item name="android:navigationBarColor">@color/surface</item>
+        
+        <item name="android:windowLightNavigationBar" ns1:targetApi="o_mr1">false</item>
+
+        <item name="materialCardViewStyle">@style/Card</item>
+        <item name="materialAlertDialogTheme">@style/AlertDialog</item>
+        <item name="android:textColorHighlight">@color/accent_soft</item>
+    </style>
+</resources>

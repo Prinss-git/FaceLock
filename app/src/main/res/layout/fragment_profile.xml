@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:fillViewport="true"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- ===================== Identity ===================== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_hero_rounded"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:paddingTop="@dimen/space_lg"
+            android:paddingBottom="@dimen/space_xl"
+            android:paddingHorizontal="@dimen/screen_margin">
+
+            <FrameLayout
+                android:layout_width="@dimen/avatar_size_lg"
+                android:layout_height="@dimen/avatar_size_lg"
+                android:background="@drawable/bg_avatar_dark">
+                <TextView
+                    android:id="@+id/tvInitials"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:textSize="30sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/accent"
+                    tools:text="SC" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tvName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_ms"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:letterSpacing="-0.02"
+                android:textColor="@color/text_on_dark"
+                tools:text="Sam Cortes" />
+
+            <TextView
+                android:id="@+id/tvEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textSize="13sp"
+                android:textColor="@color/text_on_dark_muted"
+                tools:text="sam@example.com" />
+
+            <TextView
+                android:id="@+id/tvRoleBadge"
+                style="@style/Pill"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_ms"
+                android:background="@drawable/pill_accent"
+                android:textColor="@color/accent_dark"
+                tools:text="Member" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/screen_margin">
+
+            <!-- ===================== Account ===================== -->
+            <TextView
+                style="@style/T.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_sm"
+                android:text="@string/section_account" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_padding">
+
+                    <!-- Assigned locker -->
+                    <LinearLayout
+                        android:id="@+id/rowLocker"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical">
+
+                        <FrameLayout
+                            android:layout_width="@dimen/icon_badge"
+                            android:layout_height="@dimen/icon_badge"
+                            android:background="@drawable/bg_icon_circle">
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_locker"
+                                app:tint="@color/text_secondary"
+                                android:importantForAccessibility="no" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="@dimen/space_ms"
+                            android:orientation="vertical">
+                            <TextView
+                                style="@style/T.Subtitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/assigned_locker" />
+                            <TextView
+                                android:id="@+id/tvLocker"
+                                style="@style/T.Caption"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                tools:text="LKR-01" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/dividerLocker"
+                        style="@style/Divider"
+                        android:layout_marginVertical="@dimen/space_ms" />
+
+                    <!-- Face enrollment -->
+                    <LinearLayout
+                        android:id="@+id/rowFace"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical">
+
+                        <FrameLayout
+                            android:layout_width="@dimen/icon_badge"
+                            android:layout_height="@dimen/icon_badge"
+                            android:background="@drawable/bg_icon_circle">
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_face"
+                                app:tint="@color/text_secondary"
+                                android:importantForAccessibility="no" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="@dimen/space_ms"
+                            android:orientation="vertical">
+                            <TextView
+                                style="@style/T.Subtitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/face_template" />
+                            <TextView
+                                android:id="@+id/tvFaceSub"
+                                style="@style/T.Caption"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                tools:text="Your face template is on file" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvFaceStatus"
+                            style="@style/Pill"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text="Enrolled"
+                            tools:background="@drawable/pill_granted" />
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/dividerFace"
+                        style="@style/Divider"
+                        android:layout_marginVertical="@dimen/space_ms" />
+
+                    <!-- Member since -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical">
+
+                        <FrameLayout
+                            android:layout_width="@dimen/icon_badge"
+                            android:layout_height="@dimen/icon_badge"
+                            android:background="@drawable/bg_icon_circle">
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_history"
+                                app:tint="@color/text_secondary"
+                                android:importantForAccessibility="no" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="@dimen/space_ms"
+                            android:orientation="vertical">
+                            <TextView
+                                style="@style/T.Subtitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/member_since" />
+                            <TextView
+                                android:id="@+id/tvJoined"
+                                style="@style/T.Caption"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                tools:text="Aug 24, 2026  10:02 PM" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnEnroll"
+                        style="@style/Btn.Outline"
+                        android:layout_width="match_parent"
+                        android:layout_height="46dp"
+                        android:layout_marginTop="@dimen/space_md"
+                        app:icon="@drawable/ic_camera"
+                        app:iconGravity="textStart"
+                        tools:text="Enroll my face" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ===================== Admin / security stats ===================== -->
+            <LinearLayout
+                android:id="@+id/adminSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <TextView
+                    style="@style/T.Label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_lg"
+                    android:layout_marginBottom="@dimen/space_sm"
+                    android:text="@string/section_system" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_stat"
+                        android:orientation="vertical"
+                        android:padding="@dimen/space_ms">
+                        <TextView
+                            android:id="@+id/tvStatUsers"
+                            style="@style/T.Stat"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text="12" />
+                        <TextView
+                            style="@style/T.Label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/stat_users" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="@dimen/space_sm"
+                        android:background="@drawable/bg_stat"
+                        android:orientation="vertical"
+                        android:padding="@dimen/space_ms">
+                        <TextView
+                            android:id="@+id/tvStatLockers"
+                            style="@style/T.Stat"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text="8" />
+                        <TextView
+                            style="@style/T.Label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/stat_lockers" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_sm"
+                    android:baselineAligned="false">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_stat"
+                        android:orientation="vertical"
+                        android:padding="@dimen/space_ms">
+                        <TextView
+                            android:id="@+id/tvStatAssigned"
+                            style="@style/T.Stat"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text="5" />
+                        <TextView
+                            style="@style/T.Label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/stat_assigned" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="@dimen/space_sm"
+                        android:background="@drawable/bg_stat"
+                        android:orientation="vertical"
+                        android:padding="@dimen/space_ms">
+                        <TextView
+                            android:id="@+id/tvStatDenied"
+                            style="@style/T.Stat"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/denied"
+                            tools:text="1" />
+                        <TextView
+                            style="@style/T.Label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/stat_denied_today" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ===================== Security ===================== -->
+            <TextView
+                style="@style/T.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_lg"
+                android:layout_marginBottom="@dimen/space_sm"
+                android:text="@string/section_security" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_padding">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnChangePassword"
+                        style="@style/Btn.Outline"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        app:icon="@drawable/ic_shield"
+                        app:iconGravity="textStart"
+                        android:text="@string/change_password_title" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnResetPassword"
+                        style="@style/Btn.Outline"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="@dimen/space_sm"
+                        app:icon="@drawable/ic_mail"
+                        app:iconGravity="textStart"
+                        android:text="@string/email_reset_link" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnLogout"
+                        style="@style/Btn.Danger"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="@dimen/space_sm"
+                        app:icon="@drawable/ic_logout"
+                        app:iconGravity="textStart"
+                        android:text="@string/action_sign_out" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/tvVersion"
+                style="@style/T.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_lg"
+                android:gravity="center"
+                tools:text="FaceLock v1.0" />
+
+            <TextView
+                style="@style/T.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xs"
+                android:gravity="center"
+                android:textSize="11sp"
+                android:text="@string/privacy_footer" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

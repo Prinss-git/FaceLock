@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Light palette. Every name here has a counterpart in values-night/colors.xml,
+  so layouts and adapters can keep referencing @color/... directly and still
+  theme correctly. Never hardcode a hex in a layout — add a token here instead.
+-->
+<resources>
+    <!-- Brand: near-black navy ramp. Used for headers and primary surfaces. -->
+    <color name="ink_950">#060B12</color>
+    <color name="ink_900">#0B1420</color>
+    <color name="ink_800">#12202F</color>
+    <color name="ink_700">#1B3047</color>
+    <color name="ink_600">#294662</color>
+
+    <!-- Accent: electric teal. accent_dark is the on-light text/icon variant. -->
+    <color name="accent">#00C2A8</color>
+    <color name="accent_dark">#00786A</color>
+    <color name="accent_soft">#B5E9E0</color>
+    <color name="accent_wash">#DEF5F1</color>
+
+    <!-- Neutrals -->
+    <color name="background">#F4F6F9</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_variant">#F8FAFC</color>
+    <color name="surface_sunken">#EAEEF4</color>
+    <color name="divider">#E2E7EE</color>
+    <color name="outline">#CFD8E3</color>
+
+    <!-- Text -->
+    <color name="text_primary">#0C141E</color>
+    <color name="text_secondary">#566373</color>
+    <color name="text_tertiary">#8493A5</color>
+    <color name="text_on_dark">#FFFFFF</color>
+    <color name="text_on_dark_muted">#A6BACF</color>
+
+    <!-- Semantic. *_wash is the tinted chip/pill background for each. -->
+    <color name="granted">#0A7A50</color>
+    <color name="granted_wash">#DAF2E7</color>
+    <color name="denied">#C1352A</color>
+    <color name="denied_wash">#FBE4E1</color>
+    <color name="warning">#8F5D00</color>
+    <color name="warning_wash">#FAEFD6</color>
+    <color name="info">#1F4FBF</color>
+    <color name="info_wash">#E2EAFC</color>
+    <color name="neutral_wash">#E8ECF2</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="scrim">#8A000000</color>
+</resources>

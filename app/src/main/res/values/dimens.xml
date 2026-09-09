@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4dp spacing scale. Layouts use these names only — no loose dp values. -->
+<resources>
+    <dimen name="space_xs">4dp</dimen>
+    <dimen name="space_sm">8dp</dimen>
+    <dimen name="space_ms">12dp</dimen>
+    <dimen name="space_md">16dp</dimen>
+    <dimen name="space_lg">24dp</dimen>
+    <dimen name="space_xl">32dp</dimen>
+    <dimen name="space_xxl">44dp</dimen>
+
+    <dimen name="screen_margin">20dp</dimen>
+    <dimen name="card_padding">16dp</dimen>
+    <dimen name="card_radius">18dp</dimen>
+    <dimen name="field_radius">14dp</dimen>
+    <dimen name="button_height">54dp</dimen>
+    <dimen name="avatar_size">44dp</dimen>
+    <dimen name="avatar_size_lg">88dp</dimen>
+    <dimen name="icon_badge">40dp</dimen>
+    <dimen name="icon_size">20dp</dimen>
+    <dimen name="touch_target">48dp</dimen>
+
+    <!-- Face enrollment framing oval. -->
+    <dimen name="enroll_oval_width">250dp</dimen>
+    <dimen name="enroll_oval_height">310dp</dimen>
+
+    <!-- Keeps the last list row clear of the FAB and the bottom nav. -->
+    <dimen name="list_bottom_inset">96dp</dimen>
+</resources>

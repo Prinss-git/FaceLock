@@ -1,0 +1,2 @@
+-keepattributes Signature
+-keepclassmembers class com.eldroid.facelock.data.model.** { *; }

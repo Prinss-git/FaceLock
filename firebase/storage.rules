@@ -1,0 +1,21 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Face enrollment images: a user may upload only to their own folder,
+    // and nobody may read them back from the client. The recognition
+    // backend reads them with admin credentials and deletes the raw image
+    // once the embedding is generated.
+    match /face_templates/{uid}/{fileName} {
+      allow write: if signedIn()
+                   && request.auth.uid == uid
+                   && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+      allow read: if false;
+    }
+  }
+}

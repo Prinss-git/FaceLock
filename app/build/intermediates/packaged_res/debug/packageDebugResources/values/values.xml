@@ -1,0 +1,500 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="http://schemas.android.com/tools">
+    <color name="accent">#00C2A8</color>
+    <color name="accent_dark">#00786A</color>
+    <color name="accent_soft">#B5E9E0</color>
+    <color name="accent_wash">#DEF5F1</color>
+    <color name="background">#F4F6F9</color>
+    <color name="denied">#C1352A</color>
+    <color name="denied_wash">#FBE4E1</color>
+    <color name="divider">#E2E7EE</color>
+    <color name="granted">#0A7A50</color>
+    <color name="granted_wash">#DAF2E7</color>
+    <color name="info">#1F4FBF</color>
+    <color name="info_wash">#E2EAFC</color>
+    <color name="ink_600">#294662</color>
+    <color name="ink_700">#1B3047</color>
+    <color name="ink_800">#12202F</color>
+    <color name="ink_900">#0B1420</color>
+    <color name="ink_950">#060B12</color>
+    <color name="neutral_wash">#E8ECF2</color>
+    <color name="outline">#CFD8E3</color>
+    <color name="scrim">#8A000000</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_sunken">#EAEEF4</color>
+    <color name="surface_variant">#F8FAFC</color>
+    <color name="text_on_dark">#FFFFFF</color>
+    <color name="text_on_dark_muted">#A6BACF</color>
+    <color name="text_primary">#0C141E</color>
+    <color name="text_secondary">#566373</color>
+    <color name="text_tertiary">#8493A5</color>
+    <color name="warning">#8F5D00</color>
+    <color name="warning_wash">#FAEFD6</color>
+    <color name="white">#FFFFFF</color>
+    <dimen name="avatar_size">44dp</dimen>
+    <dimen name="avatar_size_lg">88dp</dimen>
+    <dimen name="button_height">54dp</dimen>
+    <dimen name="card_padding">16dp</dimen>
+    <dimen name="card_radius">18dp</dimen>
+    <dimen name="enroll_oval_height">310dp</dimen>
+    <dimen name="enroll_oval_width">250dp</dimen>
+    <dimen name="field_radius">14dp</dimen>
+    <dimen name="icon_badge">40dp</dimen>
+    <dimen name="icon_size">20dp</dimen>
+    <dimen name="list_bottom_inset">96dp</dimen>
+    <dimen name="screen_margin">20dp</dimen>
+    <dimen name="space_lg">24dp</dimen>
+    <dimen name="space_md">16dp</dimen>
+    <dimen name="space_ms">12dp</dimen>
+    <dimen name="space_sm">8dp</dimen>
+    <dimen name="space_xl">32dp</dimen>
+    <dimen name="space_xs">4dp</dimen>
+    <dimen name="space_xxl">44dp</dimen>
+    <dimen name="touch_target">48dp</dimen>
+    <plurals name="locker_count">
+        <item quantity="one">%d locker</item>
+        <item quantity="other">%d lockers</item>
+    </plurals>
+    <plurals name="user_count">
+        <item quantity="one">%d user</item>
+        <item quantity="other">%d users</item>
+    </plurals>
+    <string name="action_add">Add</string>
+    <string name="action_assign">Assign</string>
+    <string name="action_back">Back</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_close">Close</string>
+    <string name="action_profile">Profile</string>
+    <string name="action_reassign">Reassign</string>
+    <string name="action_remove">Remove user</string>
+    <string name="action_remove_short">Remove</string>
+    <string name="action_restore">Restore</string>
+    <string name="action_role">Role</string>
+    <string name="action_sign_out">Sign out</string>
+    <string name="action_suspend">Suspend</string>
+    <string name="action_unlock">Unlock</string>
+    <string name="active">Active</string>
+    <string name="add_locker">Add locker</string>
+    <string name="add_user">Add user</string>
+    <string name="app_name">FaceLock</string>
+    <string name="assign_locker">Assign %1$s</string>
+    <string name="assigned_locker">Assigned locker</string>
+    <string name="assigned_to">Assigned to %1$s</string>
+    <string name="back_to_sign_in">Back to sign in</string>
+    <string name="camera_error_body">FaceLock could not start the camera. Close any other app using it and try again.</string>
+    <string name="camera_error_title">Camera unavailable</string>
+    <string name="camera_retry">Retry</string>
+    <string name="capture">Capture</string>
+    <string name="change_password_title">Change password</string>
+    <string name="check_your_email">Check your email</string>
+    <string name="checking_photo">Checking photo…</string>
+    <string name="confirm_new_password">Confirm new password</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="create_account">Create account</string>
+    <string name="create_user">Create account</string>
+    <string name="creating">Creating…</string>
+    <string name="current_password">Current password</string>
+    <string name="default_notification_channel_id">facelock_alerts</string>
+    <string name="email">Email address</string>
+    <string name="email_reset_link">Email me a reset link</string>
+    <string name="empty_denied_body">Every access attempt so far has been authorized.</string>
+    <string name="empty_denied_title">No denied attempts</string>
+    <string name="empty_granted_body">Successful unlocks will be listed here.</string>
+    <string name="empty_granted_title">No granted access yet</string>
+    <string name="empty_lockers_body_admin">Add your first locker unit to start assigning it.</string>
+    <string name="empty_lockers_body_staff">An administrator has not configured any lockers.</string>
+    <string name="empty_lockers_title">No lockers yet</string>
+    <string name="empty_logs_body">Access attempts will appear here as they happen.</string>
+    <string name="empty_logs_title">No activity yet</string>
+    <string name="empty_my_history_body">Unlock your locker and your access history will show up here.</string>
+    <string name="empty_my_history_title">No access yet</string>
+    <string name="empty_search_body">Nothing here matches your search. Try a different term.</string>
+    <string name="empty_search_title">No matches</string>
+    <string name="empty_users_body">Provision an account to give someone locker access.</string>
+    <string name="empty_users_title">No users yet</string>
+    <string name="enroll_capture_failed_body">The camera could not take the photo. Try again.</string>
+    <string name="enroll_checking">Checking your photo…</string>
+    <string name="enroll_done">Done</string>
+    <string name="enroll_failed_title">Enrollment failed</string>
+    <string name="enroll_many_faces_body">Only you should be in the frame. Ask others to step out of view and try again.</string>
+    <string name="enroll_many_faces_title">More than one face</string>
+    <string name="enroll_my_face">Enroll my face</string>
+    <string name="enroll_no_face_body">Hold the phone at eye level with your face inside the oval, then capture again.</string>
+    <string name="enroll_no_face_title">No face detected</string>
+    <string name="enroll_privacy">The photo is converted to a template and then deleted</string>
+    <string name="enroll_retry">Try again</string>
+    <string name="enroll_success_body">Your face template is on file. You can open your locker without a key.</string>
+    <string name="enroll_success_title">Face enrolled</string>
+    <string name="enroll_title">Face enrollment</string>
+    <string name="enroll_upload_failed_body">Your photo could not be saved. Check your connection and try again.</string>
+    <string name="enroll_uploading">Saving your face template…</string>
+    <string name="enrolled">Enrolled</string>
+    <string name="face_enrolled_short">Face enrolled</string>
+    <string name="face_on_file">Your face template is on file</string>
+    <string name="face_pending">Enroll to unlock without a key</string>
+    <string name="face_template">Face template</string>
+    <string name="filter_all">All</string>
+    <string name="filter_denied">Denied</string>
+    <string name="filter_granted">Granted</string>
+    <string name="first_name">First name</string>
+    <string name="forgot_current_password">I forgot my current password</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="forgot_password_body">Enter the email address on your FaceLock account and we\'ll send you a link to set a new password.</string>
+    <string name="forgot_password_title">Reset password</string>
+    <string name="full_name">Full name</string>
+    <string name="gcm_defaultSenderId" translatable="false">716776332252</string>
+    <string name="generate_password">Generate a strong password</string>
+    <string name="get_started">Get started</string>
+    <string name="google_api_key" translatable="false">AIzaSyABbbrr38kbba_MeeDHCRprLKpQzsxtAy0</string>
+    <string name="google_app_id" translatable="false">1:716776332252:android:9455b46f8a398e047d0d19</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyABbbrr38kbba_MeeDHCRprLKpQzsxtAy0</string>
+    <string name="google_storage_bucket" translatable="false">facelock-eldroid.firebasestorage.app</string>
+    <string name="label_your_locker">Your locker</string>
+    <string name="last_name">Last name</string>
+    <string name="last_opened">Last opened %1$s</string>
+    <string name="load_failed_title">Couldn\'t load</string>
+    <string name="locker_id">Locker ID</string>
+    <string name="locker_id_help">Use the ID printed on the unit, e.g. LKR-01.</string>
+    <string name="locker_id_required">Enter a locker ID</string>
+    <string name="locker_id_taken">A locker with that ID already exists</string>
+    <string name="locker_named">Locker %1$s</string>
+    <string name="match_percent">Match %1$d%%</string>
+    <string name="member_since">Member since</string>
+    <string name="name_you">%1$s (you)</string>
+    <string name="nav_history">History</string>
+    <string name="nav_lockers">Lockers</string>
+    <string name="nav_logs">Logs</string>
+    <string name="nav_my_locker">My Locker</string>
+    <string name="nav_users">Users</string>
+    <string name="new_account">New account</string>
+    <string name="new_here">New here?</string>
+    <string name="new_password">New password</string>
+    <string name="no_account">Don\'t have an account? Register</string>
+    <string name="no_assignable_users">No active member accounts to assign to.</string>
+    <string name="no_location">No location set</string>
+    <string name="no_locker">No locker</string>
+    <string name="no_locker_assigned">No locker assigned</string>
+    <string name="no_locker_body">An administrator has not assigned you a locker yet.</string>
+    <string name="not_enrolled">Not enrolled</string>
+    <string name="not_now">Not now</string>
+    <string name="password">Password</string>
+    <string name="password_generate_failed">Could not generate a password. Try again.</string>
+    <string name="password_generated">Strong password generated</string>
+    <string name="perm_allow">Allow camera</string>
+    <string name="perm_blocked_body">Camera access is turned off for FaceLock. Enable it in Settings to enroll your face.</string>
+    <string name="perm_blocked_title">Camera is blocked</string>
+    <string name="perm_body">FaceLock uses the camera once, to record your face template. The photo is never stored.</string>
+    <string name="perm_open_settings">Open settings</string>
+    <string name="perm_title">Camera access needed</string>
+    <string name="privacy_footer">Face data is stored as a mathematical template, never as a photo. RA 10173 compliant.</string>
+    <string name="project_id" translatable="false">facelock-eldroid</string>
+    <string name="reenroll_my_face">Re-enroll my face</string>
+    <string name="register_subtitle">Registering creates a standard member account. Admin and security roles are assigned by an administrator.</string>
+    <string name="remote_unlock">Remote unlock</string>
+    <string name="remote_unlock_body">Send an unlock command to %1$s? This is recorded in the access log.</string>
+    <string name="remove_body">Their profile, locker assignment and face template are deleted. Access logs are kept for audit.</string>
+    <string name="remove_title">Remove %1$s?</string>
+    <string name="resend_link">Resend link</string>
+    <string name="reset_link_hint">The link expires in one hour. If it isn\'t in your inbox, check your spam folder.</string>
+    <string name="role">Role</string>
+    <string name="role_admin">Administrator</string>
+    <string name="role_hint_admin">Administrator: full control over lockers, users and roles.</string>
+    <string name="role_hint_security">Security: read-only access to every locker and access log.</string>
+    <string name="role_hint_user">Member: sees only their own locker and access history.</string>
+    <string name="role_member">Member</string>
+    <string name="role_security">Security</string>
+    <string name="scan_many_faces">Only you should be in frame</string>
+    <string name="scan_no_face">Center your face in the oval</string>
+    <string name="scan_ready">Looking good — hold still</string>
+    <string name="scan_starting">Starting camera…</string>
+    <string name="scan_too_far">Move a little closer</string>
+    <string name="search_hint">Search</string>
+    <string name="search_lockers">Search lockers</string>
+    <string name="search_users">Search users</string>
+    <string name="section_account">Account</string>
+    <string name="section_confirm_its_you">Confirm it\'s you</string>
+    <string name="section_face_id">Face ID</string>
+    <string name="section_new_password">New password</string>
+    <string name="section_password">Password</string>
+    <string name="section_recent_access">Recent access</string>
+    <string name="section_role">Access level</string>
+    <string name="section_security">Security</string>
+    <string name="section_system">System overview</string>
+    <string name="section_temp_password">Temporary password</string>
+    <string name="section_your_details">Your details</string>
+    <string name="send_reset_link">Send reset link</string>
+    <string name="set_role_for">Access level for %1$s</string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_in_subtitle">Sign in to check your locker and access history.</string>
+    <string name="signing_in">Signing in…</string>
+    <string name="stat_assigned">Assigned</string>
+    <string name="stat_denied">Denied</string>
+    <string name="stat_denied_today">Denied today</string>
+    <string name="stat_granted">Granted</string>
+    <string name="stat_lockers">Lockers</string>
+    <string name="stat_today">Today</string>
+    <string name="stat_total">Total</string>
+    <string name="stat_users">Users</string>
+    <string name="suspend_body">They will be signed out and refused locker access until you restore the account.</string>
+    <string name="suspend_title">Suspend %1$s?</string>
+    <string name="suspended">Suspended</string>
+    <string name="tagline">Facial Recognition Locker System</string>
+    <string name="unassign">— Unassign —</string>
+    <string name="unassigned">Unassigned</string>
+    <string name="unrecognized_person">Unrecognized person</string>
+    <string name="update_password">Update password</string>
+    <string name="user_form_footer">The new account starts with no locker and no face template.</string>
+    <string name="user_form_subtitle">Accounts created here can be given any role. The member signs in with the temporary password and can change it from their profile.</string>
+    <string name="view_all">View all</string>
+    <string name="welcome_back">Welcome back</string>
+    <style name="AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorSurface">@color/surface</item>
+        <item name="android:colorBackground">@color/surface</item>
+        <item name="buttonBarPositiveButtonStyle">@style/DialogButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/DialogButton.Neutral</item>
+        <item name="shapeAppearanceOverlay">@style/DialogShape</item>
+    </style>
+    <style name="BottomNav" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:background">@color/surface</item>
+        <item name="itemActiveIndicatorStyle">@style/NavIndicator</item>
+        <item name="itemIconTint">@color/nav_item</item>
+        <item name="itemTextColor">@color/nav_item</item>
+        <item name="labelVisibilityMode">labeled</item>
+        <item name="elevation">0dp</item>
+    </style>
+    <style name="Btn.Accent" parent="Btn.Primary">
+        <item name="backgroundTint">@color/accent</item>
+        <item name="android:textColor">@color/ink_950</item>
+        <item name="iconTint">@color/ink_950</item>
+    </style>
+    <style name="Btn.Danger" parent="Btn.Outline">
+        <item name="strokeColor">@color/denied</item>
+        <item name="android:textColor">@color/denied</item>
+        <item name="iconTint">@color/denied</item>
+    </style>
+    <style name="Btn.Outline" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:layout_height">@dimen/button_height</item>
+        <item name="cornerRadius">@dimen/field_radius</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="strokeColor">@color/outline</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="iconTint">@color/text_secondary</item>
+        <item name="rippleColor">@color/accent_wash</item>
+    </style>
+    <style name="Btn.Primary" parent="Widget.Material3.Button">
+        <item name="android:layout_height">@dimen/button_height</item>
+        <item name="cornerRadius">@dimen/field_radius</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="backgroundTint">@color/ink_800</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="iconTint">@color/white</item>
+        <item name="rippleColor">@color/accent_soft</item>
+    </style>
+    <style name="Btn.Small" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:layout_height">40dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="strokeColor">@color/outline</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="iconSize">16dp</item>
+        <item name="iconPadding">6dp</item>
+        <item name="iconTint">@color/text_secondary</item>
+    </style>
+    <style name="Btn.Small.Danger">
+        <item name="strokeColor">@color/denied</item>
+        <item name="android:textColor">@color/denied</item>
+        <item name="iconTint">@color/denied</item>
+    </style>
+    <style name="Btn.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">@color/accent_dark</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">14sp</item>
+        <item name="rippleColor">@color/accent_wash</item>
+    </style>
+    <style name="Card" parent="Widget.Material3.CardView.Outlined">
+        <item name="cardCornerRadius">@dimen/card_radius</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeColor">@color/divider</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="cardBackgroundColor">@color/surface</item>
+    </style>
+    <style name="Card.Clickable">
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="rippleColor">@color/accent_soft</item>
+    </style>
+    <style name="Chip.Filter" parent="Widget.Material3.Chip.Filter">
+        <item name="chipBackgroundColor">@color/chip_background</item>
+        <item name="android:textColor">@color/chip_text</item>
+        <item name="chipStrokeColor">@color/divider</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="chipCornerRadius">12dp</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+    <style name="DialogButton" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/accent_dark</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="DialogButton.Neutral">
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+    <style name="DialogShape" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">22dp</item>
+    </style>
+    <style name="Divider" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@color/divider</item>
+    </style>
+    <style name="Fab" parent="Widget.Material3.ExtendedFloatingActionButton.Primary">
+        <item name="backgroundTint">@color/ink_800</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="iconTint">@color/white</item>
+        <item name="elevation">3dp</item>
+    </style>
+    <style name="Field" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxCornerRadiusTopStart">@dimen/field_radius</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/field_radius</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/field_radius</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/field_radius</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidthFocused">2dp</item>
+        <item name="boxStrokeColor">@color/field_stroke</item>
+        <item name="boxBackgroundColor">@color/surface</item>
+        <item name="hintTextColor">@color/accent_dark</item>
+        <item name="android:textColorHint">@color/text_tertiary</item>
+        <item name="errorTextColor">@color/denied</item>
+        <item name="errorIconTint">@color/denied</item>
+        <item name="boxStrokeErrorColor">@color/denied</item>
+        <item name="endIconTint">@color/text_tertiary</item>
+        <item name="startIconTint">@color/text_tertiary</item>
+        <item name="materialThemeOverlay">@style/FieldOverlay</item>
+    </style>
+    <style name="Field.Search" parent="Field">
+        <item name="boxBackgroundColor">@color/surface</item>
+        <item name="startIconDrawable">@drawable/ic_search</item>
+        <item name="hintTextColor">@color/text_tertiary</item>
+    </style>
+    <style name="FieldEditText" parent="Widget.Material3.TextInputEditText.OutlinedBox">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingBottom">16dp</item>
+    </style>
+    <style name="FieldOverlay" parent="">
+        <item name="editTextStyle">@style/FieldEditText</item>
+    </style>
+    <style name="NavIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/accent_wash</item>
+    </style>
+    <style name="Pill" parent="">
+        <item name="android:textSize">10sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.07</item>
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingEnd">10dp</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingBottom">5dp</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+    <style name="Progress" parent="Widget.Material3.CircularProgressIndicator">
+        <item name="indicatorColor">@color/accent</item>
+        <item name="trackColor">@color/surface_sunken</item>
+        <item name="indicatorSize">32dp</item>
+        <item name="trackThickness">3dp</item>
+    </style>
+    <style name="T.Body" parent="">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:lineSpacingMultiplier">1.35</item>
+    </style>
+    <style name="T.Caption" parent="">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/text_tertiary</item>
+    </style>
+    <style name="T.Display" parent="">
+        <item name="android:textSize">30sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:letterSpacing">-0.03</item>
+        <item name="android:lineSpacingMultiplier">1.05</item>
+    </style>
+    <style name="T.Label" parent="">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.09</item>
+        <item name="android:textColor">@color/text_tertiary</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+    <style name="T.Stat" parent="">
+        <item name="android:textSize">26sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:letterSpacing">-0.03</item>
+    </style>
+    <style name="T.Subtitle" parent="">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+    <style name="T.Title" parent="">
+        <item name="android:textSize">19sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:letterSpacing">-0.015</item>
+    </style>
+    <style name="Theme.FaceLock" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/ink_800</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/accent_wash</item>
+        <item name="colorOnPrimaryContainer">@color/accent_dark</item>
+        <item name="colorSecondary">@color/accent</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurfaceVariant">@color/surface_sunken</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorOutline">@color/outline</item>
+        <item name="colorError">@color/denied</item>
+        <item name="colorOnError">@color/white</item>
+        <item name="android:colorBackground">@color/background</item>
+
+        
+        <item name="android:statusBarColor">@color/ink_950</item>
+        <item name="android:windowLightStatusBar" ns1:targetApi="m">false</item>
+        <item name="android:navigationBarColor">@color/surface</item>
+        <item name="android:windowLightNavigationBar" ns1:targetApi="o_mr1">true</item>
+
+        <item name="materialCardViewStyle">@style/Card</item>
+        <item name="materialAlertDialogTheme">@style/AlertDialog</item>
+        <item name="android:textColorHighlight">@color/accent_soft</item>
+    </style>
+    <style name="Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="android:background">@color/ink_950</item>
+        <item name="titleTextColor">@color/text_on_dark</item>
+        <item name="subtitleTextColor">@color/text_on_dark_muted</item>
+        <item name="navigationIconTint">@color/text_on_dark</item>
+        <item name="titleTextAppearance">@style/Toolbar.Title</item>
+        <item name="subtitleTextAppearance">@style/Toolbar.Subtitle</item>
+    </style>
+    <style name="Toolbar.Subtitle" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textSize">12sp</item>
+    </style>
+    <style name="Toolbar.Title" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textSize">19sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">-0.01</item>
+    </style>
+</resources>

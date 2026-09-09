@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The whole design system lives here: one theme, one type scale, one set of
+  component styles. Screens should compose these rather than restyling views
+  inline — if a screen needs a new look, add a style here first.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Theme.FaceLock" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/ink_800</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/accent_wash</item>
+        <item name="colorOnPrimaryContainer">@color/accent_dark</item>
+        <item name="colorSecondary">@color/accent</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurfaceVariant">@color/surface_sunken</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorOutline">@color/outline</item>
+        <item name="colorError">@color/denied</item>
+        <item name="colorOnError">@color/white</item>
+        <item name="android:colorBackground">@color/background</item>
+
+        <!-- Headers are the dark ink ramp in both themes, so the status bar
+             icons stay light in both. -->
+        <item name="android:statusBarColor">@color/ink_950</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="android:navigationBarColor">@color/surface</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+
+        <item name="materialCardViewStyle">@style/Card</item>
+        <item name="materialAlertDialogTheme">@style/AlertDialog</item>
+        <item name="android:textColorHighlight">@color/accent_soft</item>
+    </style>
+
+    <!-- ================= Surfaces ================= -->
+
+    <!-- Flat, hairline-outlined card. Elevation is not used anywhere in the
+         app: depth comes from the outline and the sunken background. -->
+    <style name="Card" parent="Widget.Material3.CardView.Outlined">
+        <item name="cardCornerRadius">@dimen/card_radius</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeColor">@color/divider</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="cardBackgroundColor">@color/surface</item>
+    </style>
+
+    <!-- Tappable card: same look, plus a ripple and a real touch target. -->
+    <style name="Card.Clickable">
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="rippleColor">@color/accent_soft</item>
+    </style>
+
+    <style name="Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="android:background">@color/ink_950</item>
+        <item name="titleTextColor">@color/text_on_dark</item>
+        <item name="subtitleTextColor">@color/text_on_dark_muted</item>
+        <item name="navigationIconTint">@color/text_on_dark</item>
+        <item name="titleTextAppearance">@style/Toolbar.Title</item>
+        <item name="subtitleTextAppearance">@style/Toolbar.Subtitle</item>
+    </style>
+
+    <style name="Toolbar.Title" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textSize">19sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">-0.01</item>
+    </style>
+
+    <style name="Toolbar.Subtitle" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="BottomNav" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:background">@color/surface</item>
+        <item name="itemActiveIndicatorStyle">@style/NavIndicator</item>
+        <item name="itemIconTint">@color/nav_item</item>
+        <item name="itemTextColor">@color/nav_item</item>
+        <item name="labelVisibilityMode">labeled</item>
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="NavIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/accent_wash</item>
+    </style>
+
+    <!-- ================= Typography ================= -->
+
+    <style name="T.Display" parent="">
+        <item name="android:textSize">30sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:letterSpacing">-0.03</item>
+        <item name="android:lineSpacingMultiplier">1.05</item>
+    </style>
+
+    <style name="T.Title" parent="">
+        <item name="android:textSize">19sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:letterSpacing">-0.015</item>
+    </style>
+
+    <style name="T.Subtitle" parent="">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <style name="T.Body" parent="">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:lineSpacingMultiplier">1.35</item>
+    </style>
+
+    <style name="T.Caption" parent="">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/text_tertiary</item>
+    </style>
+
+    <!-- Small all-caps section header. Sits above a card group. -->
+    <style name="T.Label" parent="">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.09</item>
+        <item name="android:textColor">@color/text_tertiary</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <!-- Big numeral for the dashboard counters. -->
+    <style name="T.Stat" parent="">
+        <item name="android:textSize">26sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:letterSpacing">-0.03</item>
+    </style>
+
+    <style name="Pill" parent="">
+        <item name="android:textSize">10sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.07</item>
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingEnd">10dp</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingBottom">5dp</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <!-- ================= Inputs ================= -->
+
+    <style name="Field" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxCornerRadiusTopStart">@dimen/field_radius</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/field_radius</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/field_radius</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/field_radius</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidthFocused">2dp</item>
+        <item name="boxStrokeColor">@color/field_stroke</item>
+        <item name="boxBackgroundColor">@color/surface</item>
+        <item name="hintTextColor">@color/accent_dark</item>
+        <item name="android:textColorHint">@color/text_tertiary</item>
+        <item name="errorTextColor">@color/denied</item>
+        <item name="errorIconTint">@color/denied</item>
+        <item name="boxStrokeErrorColor">@color/denied</item>
+        <item name="endIconTint">@color/text_tertiary</item>
+        <item name="startIconTint">@color/text_tertiary</item>
+        <item name="materialThemeOverlay">@style/FieldOverlay</item>
+    </style>
+
+    <style name="FieldOverlay" parent="">
+        <item name="editTextStyle">@style/FieldEditText</item>
+    </style>
+
+    <style name="FieldEditText" parent="Widget.Material3.TextInputEditText.OutlinedBox">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingBottom">16dp</item>
+    </style>
+
+    <!-- Search box: shorter, filled, no floating label. -->
+    <style name="Field.Search" parent="Field">
+        <item name="boxBackgroundColor">@color/surface</item>
+        <item name="startIconDrawable">@drawable/ic_search</item>
+        <item name="hintTextColor">@color/text_tertiary</item>
+    </style>
+
+    <!-- ================= Buttons ================= -->
+
+    <style name="Btn.Primary" parent="Widget.Material3.Button">
+        <item name="android:layout_height">@dimen/button_height</item>
+        <item name="cornerRadius">@dimen/field_radius</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="backgroundTint">@color/ink_800</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="iconTint">@color/white</item>
+        <item name="rippleColor">@color/accent_soft</item>
+    </style>
+
+    <style name="Btn.Accent" parent="Btn.Primary">
+        <item name="backgroundTint">@color/accent</item>
+        <item name="android:textColor">@color/ink_950</item>
+        <item name="iconTint">@color/ink_950</item>
+    </style>
+
+    <style name="Btn.Outline" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:layout_height">@dimen/button_height</item>
+        <item name="cornerRadius">@dimen/field_radius</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="strokeColor">@color/outline</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="iconTint">@color/text_secondary</item>
+        <item name="rippleColor">@color/accent_wash</item>
+    </style>
+
+    <!-- Destructive outline: suspend, remove, sign out. -->
+    <style name="Btn.Danger" parent="Btn.Outline">
+        <item name="strokeColor">@color/denied</item>
+        <item name="android:textColor">@color/denied</item>
+        <item name="iconTint">@color/denied</item>
+    </style>
+
+    <!-- Compact outline used inside list rows, where 56dp would dominate. -->
+    <style name="Btn.Small" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:layout_height">40dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="strokeColor">@color/outline</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="iconSize">16dp</item>
+        <item name="iconPadding">6dp</item>
+        <item name="iconTint">@color/text_secondary</item>
+    </style>
+
+    <style name="Btn.Small.Danger">
+        <item name="strokeColor">@color/denied</item>
+        <item name="android:textColor">@color/denied</item>
+        <item name="iconTint">@color/denied</item>
+    </style>
+
+    <style name="Btn.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">@color/accent_dark</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">14sp</item>
+        <item name="rippleColor">@color/accent_wash</item>
+    </style>
+
+    <style name="Fab" parent="Widget.Material3.ExtendedFloatingActionButton.Primary">
+        <item name="backgroundTint">@color/ink_800</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="iconTint">@color/white</item>
+        <item name="elevation">3dp</item>
+    </style>
+
+    <!-- ================= Misc ================= -->
+
+    <style name="Chip.Filter" parent="Widget.Material3.Chip.Filter">
+        <item name="chipBackgroundColor">@color/chip_background</item>
+        <item name="android:textColor">@color/chip_text</item>
+        <item name="chipStrokeColor">@color/divider</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="chipCornerRadius">12dp</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="Progress" parent="Widget.Material3.CircularProgressIndicator">
+        <item name="indicatorColor">@color/accent</item>
+        <item name="trackColor">@color/surface_sunken</item>
+        <item name="indicatorSize">32dp</item>
+        <item name="trackThickness">3dp</item>
+    </style>
+
+    <style name="Divider" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@color/divider</item>
+    </style>
+
+    <style name="AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorSurface">@color/surface</item>
+        <item name="android:colorBackground">@color/surface</item>
+        <item name="buttonBarPositiveButtonStyle">@style/DialogButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/DialogButton.Neutral</item>
+        <item name="shapeAppearanceOverlay">@style/DialogShape</item>
+    </style>
+
+    <style name="DialogShape" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">22dp</item>
+    </style>
+
+    <style name="DialogButton" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/accent_dark</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="DialogButton.Neutral">
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+</resources>

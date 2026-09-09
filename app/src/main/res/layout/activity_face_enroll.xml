@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Camera-first screen: the preview fills the frame and everything else floats
+  over it, so the user's face is never competing with UI for space.
+
+  Four mutually exclusive layers sit on top of the preview, one per step of the
+  flow: scanning (the default), processing, result, and permission. Each is a
+  full group toggled by FaceEnrollActivity.render(); none of them is a Toast,
+  because a two-second toast over a camera preview is unreadable and leaves the
+  user with nothing to act on.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ink_950">
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/previewView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:scaleType="fillCenter" />
+
+    <!-- ===================== Scanning ===================== -->
+    <FrameLayout
+        android:id="@+id/groupScanning"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <View
+            android:id="@+id/ovalFrame"
+            android:layout_width="@dimen/enroll_oval_width"
+            android:layout_height="@dimen/enroll_oval_height"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_focus_frame" />
+
+        <!-- Live framing hint. A polite live region so TalkBack reads each
+             change without interrupting the user mid-sentence. -->
+        <LinearLayout
+            android:id="@+id/guidancePanel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginTop="80dp"
+            android:layout_marginHorizontal="@dimen/screen_margin"
+            android:background="@drawable/bg_guidance"
+            android:gravity="center_vertical"
+            android:minHeight="@dimen/touch_target"
+            android:paddingHorizontal="@dimen/space_md"
+            android:paddingVertical="@dimen/space_sm"
+            android:accessibilityLiveRegion="polite">
+
+            <ImageView
+                android:id="@+id/ivGuidance"
+                android:layout_width="@dimen/icon_size"
+                android:layout_height="@dimen/icon_size"
+                android:src="@drawable/ic_face"
+                app:tint="@color/text_on_dark_muted"
+                android:importantForAccessibility="no" />
+
+            <TextView
+                android:id="@+id/tvGuidance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_sm"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_on_dark"
+                tools:text="Center your face in the oval" />
+        </LinearLayout>
+
+        <!-- Capture -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:background="@drawable/bg_hero"
+            android:paddingTop="@dimen/space_lg"
+            android:paddingBottom="@dimen/space_lg"
+            android:paddingHorizontal="@dimen/screen_margin">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_ms"
+                android:gravity="center_vertical">
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_shield"
+                    app:tint="@color/accent"
+                    android:importantForAccessibility="no" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_sm"
+                    android:text="@string/enroll_privacy"
+                    android:textSize="11sp"
+                    android:textColor="@color/text_on_dark_muted" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCapture"
+                style="@style/Btn.Accent"
+                android:layout_width="match_parent"
+                app:icon="@drawable/ic_camera"
+                app:iconGravity="textStart"
+                android:text="@string/capture" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- ===================== Processing ===================== -->
+    <LinearLayout
+        android:id="@+id/groupProcessing"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#D9060B12"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone"
+        tools:visibility="gone">
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/progress"
+            style="@style/Progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true" />
+
+        <TextView
+            android:id="@+id/tvProcessing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_md"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_on_dark"
+            tools:text="Checking your photo…" />
+    </LinearLayout>
+
+    <!-- ===================== Result ===================== -->
+    <!-- Opaque: the outcome replaces the camera rather than floating over it,
+         so success and failure are unmistakable from across a room. -->
+    <ScrollView
+        android:id="@+id/groupResult"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/ink_950"
+        android:fillViewport="true"
+        android:scrollbars="none"
+        android:visibility="gone"
+        tools:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="@dimen/screen_margin">
+
+            <FrameLayout
+                android:id="@+id/resultIconWrap"
+                android:layout_width="104dp"
+                android:layout_height="104dp"
+                android:background="@drawable/pill_granted">
+                <ImageView
+                    android:id="@+id/ivResult"
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_check"
+                    android:importantForAccessibility="no" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tvResultTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_lg"
+                android:gravity="center"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:letterSpacing="-0.02"
+                android:textColor="@color/text_on_dark"
+                tools:text="Face enrolled" />
+
+            <TextView
+                android:id="@+id/tvResultBody"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_sm"
+                android:gravity="center"
+                android:textSize="15sp"
+                android:lineSpacingMultiplier="1.35"
+                android:textColor="@color/text_on_dark_muted"
+                tools:text="Your face template is on file. You can now open your locker without a key." />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnResultPrimary"
+                style="@style/Btn.Accent"
+                android:layout_width="match_parent"
+                android:layout_marginTop="@dimen/space_xl"
+                tools:text="Done" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnResultSecondary"
+                style="@style/Btn.Text"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginTop="@dimen/space_sm"
+                android:textColor="@color/text_on_dark_muted"
+                tools:text="Cancel" />
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- ===================== Camera permission / unavailable ===================== -->
+    <ScrollView
+        android:id="@+id/groupPermission"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/ink_950"
+        android:fillViewport="true"
+        android:scrollbars="none"
+        android:visibility="gone"
+        tools:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="@dimen/screen_margin">
+
+            <FrameLayout
+                android:layout_width="104dp"
+                android:layout_height="104dp"
+                android:background="@drawable/pill_warning">
+                <ImageView
+                    android:id="@+id/ivPermission"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_camera"
+                    app:tint="@color/warning"
+                    android:importantForAccessibility="no" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tvPermTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_lg"
+                android:gravity="center"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:letterSpacing="-0.02"
+                android:textColor="@color/text_on_dark"
+                tools:text="Camera access needed" />
+
+            <TextView
+                android:id="@+id/tvPermBody"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_sm"
+                android:gravity="center"
+                android:textSize="15sp"
+                android:lineSpacingMultiplier="1.35"
+                android:textColor="@color/text_on_dark_muted"
+                tools:text="FaceLock needs the camera to record your face template." />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnGrant"
+                style="@style/Btn.Accent"
+                android:layout_width="match_parent"
+                android:layout_marginTop="@dimen/space_xl"
+                tools:text="Allow camera" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPermCancel"
+                style="@style/Btn.Text"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginTop="@dimen/space_sm"
+                android:textColor="@color/text_on_dark_muted"
+                android:text="@string/not_now" />
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Keeps the transparent toolbar readable over a bright preview. -->
+    <View
+        android:id="@+id/scrimTop"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:layout_gravity="top"
+        android:background="@drawable/bg_scrim_top"
+        android:importantForAccessibility="no" />
+
+    <!-- Toolbar last so it stays tappable above every layer. -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        style="@style/Toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        app:title="@string/enroll_title"
+        app:navigationIcon="@drawable/ic_close"
+        app:navigationContentDescription="@string/action_close" />
+</FrameLayout>

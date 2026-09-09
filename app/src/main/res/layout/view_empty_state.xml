@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Shared empty state: icon, headline, one line of guidance, optional action.
+  Included by every list screen so "nothing here" always looks the same and
+  always says what to do about it.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:paddingHorizontal="@dimen/space_xl"
+    android:paddingVertical="@dimen/space_xxl">
+
+    <FrameLayout
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:background="@drawable/bg_icon_circle">
+        <ImageView
+            android:id="@+id/ivEmpty"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_inbox"
+            app:tint="@color/text_tertiary"
+            android:importantForAccessibility="no" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tvEmptyTitle"
+        style="@style/T.Subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_md"
+        android:gravity="center"
+        tools:text="No activity yet" />
+
+    <TextView
+        android:id="@+id/tvEmptyBody"
+        style="@style/T.Body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        android:gravity="center"
+        tools:text="Access attempts will appear here as they happen." />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnEmptyAction"
+        style="@style/Btn.Outline"
+        android:layout_width="wrap_content"
+        android:layout_height="46dp"
+        android:layout_marginTop="@dimen/space_md"
+        android:visibility="gone"
+        tools:text="Add locker"
+        tools:visibility="visible" />
+</LinearLayout>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Member toolbar. Profile is a bottom-nav tab here, so the toolbar carries only
+  Sign out - shown as its own icon rather than hidden behind an overflow.
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_logout"
+        android:icon="@drawable/ic_logout"
+        android:title="@string/action_sign_out"
+        app:showAsAction="always" />
+</menu>
