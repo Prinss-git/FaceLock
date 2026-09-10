@@ -15,7 +15,14 @@ admin.initializeApp();
 const db = admin.firestore();
 
 // Shared secret the firmware sends in X-Device-Key.
-const DEVICE_KEY = functions.config().facelock?.device_key || "REPLACE_ME";
+// Set it in functions/.env as DEVICE_KEY=... — functions.config() still works
+// on older projects but is deprecated, so it is only a fallback here.
+const DEVICE_KEY =
+  process.env.DEVICE_KEY ||
+  (typeof functions.config === "function"
+    ? functions.config().facelock?.device_key
+    : undefined) ||
+  "REPLACE_ME";
 // Cosine-similarity floor for accepting a match.
 const MATCH_THRESHOLD = 0.85;
 

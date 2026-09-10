@@ -9,3 +9,10 @@ build/
 .cxx
 local.properties
 app/google-services.json
+
+# Firebase functions
+firebase/functions/node_modules/
+firebase/functions/.env
+firebase-debug.log
+.firebase/
+.firebaserc

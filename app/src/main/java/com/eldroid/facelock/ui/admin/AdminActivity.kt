@@ -95,6 +95,10 @@ class AdminActivity : AppCompatActivity() {
             startActivity(Intent(this, ProfileActivity::class.java))
             return true
         }
+        if (item.itemId == R.id.action_device_test) {
+            startActivity(Intent(this, DeviceTestActivity::class.java))
+            return true
+        }
         if (item.itemId == R.id.action_logout) {
             AlertDialog.Builder(this)
                 .setTitle(R.string.action_sign_out)

@@ -194,6 +194,27 @@
     <string name="password_generated">Strong password generated</string>
     <string name="password_generate_failed">Could not generate a password. Try again.</string>
 
+
+    <!-- Device link test (Realtime Database) -->
+    <string name="device_test_title">Device test</string>
+    <string name="device_test_path">Realtime Database · test/data</string>
+    <string name="device_test_connected">Connected</string>
+    <string name="device_test_offline">Offline</string>
+    <string name="device_test_no_value">—</string>
+    <string name="device_test_updated">Updated %1$s</string>
+    <string name="device_test_write">Write a value</string>
+    <string name="device_test_new_value">New value</string>
+    <string name="device_test_send">Send to device</string>
+    <string name="device_test_zero">0</string>
+    <string name="device_test_hundred">100</string>
+    <string name="device_test_random">Random</string>
+    <string name="device_test_wrote">Wrote %1$d</string>
+    <string name="device_test_write_failed">Could not write. Check the database rules.</string>
+    <string name="device_test_read_failed">Could not read. Check the database rules.</string>
+    <string name="device_test_bad_number">Enter a whole number</string>
+    <string name="device_test_overwrite_warning">The sketch writes 42 to this key every 10 seconds, so anything you send here is overwritten on the next loop. Comment out the setInt line in the sketch to see your value stick.</string>
+    <string name="action_device_test">Device test</string>
+
     <!-- Face enrollment -->
     <string name="enroll_title">Face enrollment</string>
     <string name="enroll_privacy">The photo is converted to a template and then deleted</string>
