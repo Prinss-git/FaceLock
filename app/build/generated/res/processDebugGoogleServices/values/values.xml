@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="gcm_defaultSenderId" translatable="false">716776332252</string>
-    <string name="google_api_key" translatable="false">AIzaSyABbbrr38kbba_MeeDHCRprLKpQzsxtAy0</string>
-    <string name="google_app_id" translatable="false">1:716776332252:android:9455b46f8a398e047d0d19</string>
-    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyABbbrr38kbba_MeeDHCRprLKpQzsxtAy0</string>
-    <string name="google_storage_bucket" translatable="false">facelock-eldroid.firebasestorage.app</string>
-    <string name="project_id" translatable="false">facelock-eldroid</string>
-</resources>
