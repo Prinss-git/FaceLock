@@ -31,53 +31,6 @@
                 android:maxLines="1" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Only the Users tab shows this; the Lockers tab leaves it gone. -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/bannerReset"
-            style="@style/Card.Clickable"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/screen_margin"
-            android:layout_marginTop="@dimen/space_ms"
-            app:cardBackgroundColor="@color/warning_wash"
-            app:strokeWidth="0dp"
-            android:visibility="gone"
-            tools:visibility="visible">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:minHeight="@dimen/touch_target"
-                android:padding="@dimen/space_ms">
-
-                <ImageView
-                    android:layout_width="@dimen/icon_size"
-                    android:layout_height="@dimen/icon_size"
-                    android:src="@drawable/ic_key"
-                    app:tint="@color/warning"
-                    android:importantForAccessibility="no" />
-
-                <TextView
-                    android:id="@+id/tvBannerReset"
-                    style="@style/T.Body"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="@dimen/space_ms"
-                    android:textSize="13sp"
-                    android:textColor="@color/text_primary"
-                    tools:text="2 members are waiting for a password reset" />
-
-                <ImageView
-                    android:layout_width="@dimen/icon_size"
-                    android:layout_height="@dimen/icon_size"
-                    android:src="@drawable/ic_chevron"
-                    app:tint="@color/warning"
-                    android:importantForAccessibility="no" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
         <TextView
             android:id="@+id/tvCount"
             style="@style/T.Label"

@@ -6,25 +6,22 @@ import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
-import com.eldroid.facelock.R
-import com.eldroid.facelock.data.repo.PasswordResetRepository
+import com.eldroid.facelock.data.repo.AuthRepository
 import com.eldroid.facelock.databinding.ActivityForgotPasswordBinding
+import com.eldroid.facelock.util.authMessage
 import com.eldroid.facelock.util.toast
 import com.eldroid.facelock.util.validateEmail
 import com.eldroid.facelock.util.visible
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import kotlinx.coroutines.launch
 
 /**
- * Raises a password reset request for an administrator to approve.
- *
- * There is no email in this flow. Firebase's client SDK cannot set a password
- * for a user who is not signed in, so the reset happens in a Cloud Function
- * and an admin hands the temporary password over in person — which suits a
- * locker system whose administrator is already on site.
+ * Sends a Firebase password reset link.
  *
  * Deliberately does not tell the caller whether the address is registered: an
- * unknown email produces the same confirmation as a known one, so the form
- * cannot be used to enumerate accounts.
+ * unknown email produces the same "check your email" screen as a known one, so
+ * the form cannot be used to enumerate accounts. Genuine failures (offline,
+ * rate limited) are still reported.
  */
 class ForgotPasswordActivity : AppCompatActivity() {
 
@@ -35,7 +32,7 @@ class ForgotPasswordActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityForgotPasswordBinding
-    private val resetRepo = PasswordResetRepository()
+    private val authRepo = AuthRepository()
     private var cooldown: CountDownTimer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,13 +76,16 @@ class ForgotPasswordActivity : AppCompatActivity() {
 
         setLoading(true)
         lifecycleScope.launch {
-            resetRepo.requestReset(email)
+            authRepo.sendPasswordReset(email)
                 .onSuccess { showSentState(email) }
                 .onFailure { failure ->
                     setLoading(false)
-                    // The backend swallows "no such account" itself, so anything
-                    // that reaches here is a real transport or deploy problem.
-                    toast(failure.message ?: getString(R.string.reset_request_failed))
+                    // Unknown address: behave exactly as if it had worked.
+                    if (failure is FirebaseAuthInvalidUserException) {
+                        showSentState(email)
+                    } else {
+                        toast(failure.authMessage("Could not send the reset email."))
+                    }
                 }
         }
     }
@@ -99,23 +99,23 @@ class ForgotPasswordActivity : AppCompatActivity() {
         setLoading(false)
         binding.groupRequest.visible(false)
         binding.groupSent.visible(true)
-        binding.tvSentTo.text = getString(R.string.reset_requested_body, email)
+        binding.tvSentTo.text =
+            "If an account exists for $email, a password reset link is on its way."
         startResendCooldown()
     }
 
-    /** Stops repeated taps piling identical requests onto the admin's queue. */
+    /** Firebase rate-limits reset emails; a visible countdown beats a silent failure. */
     private fun startResendCooldown() {
         cooldown?.cancel()
         binding.btnResend.isEnabled = false
         cooldown = object : CountDownTimer(RESEND_COOLDOWN_MS, 1_000L) {
             override fun onTick(remaining: Long) {
-                binding.btnResend.text =
-                    getString(R.string.reset_resend_in, remaining / 1000)
+                binding.btnResend.text = "Resend link in ${remaining / 1000}s"
             }
 
             override fun onFinish() {
                 binding.btnResend.isEnabled = true
-                binding.btnResend.setText(R.string.reset_resend)
+                binding.btnResend.text = "Resend link"
             }
         }.start()
     }
@@ -123,8 +123,6 @@ class ForgotPasswordActivity : AppCompatActivity() {
     private fun setLoading(loading: Boolean) {
         binding.progress.visible(loading)
         binding.btnSend.isEnabled = !loading
-        binding.btnSend.setText(
-            if (loading) R.string.reset_sending else R.string.request_reset
-        )
+        binding.btnSend.text = if (loading) "Sending…" else "Send reset link"
     }
 }

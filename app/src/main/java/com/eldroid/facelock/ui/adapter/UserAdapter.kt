@@ -16,7 +16,6 @@ class UserAdapter(
     private val onToggleActive: (User) -> Unit,
     private val onChangeRole: (User) -> Unit,
     private val onDelete: (User) -> Unit,
-    private val onResetPassword: (User) -> Unit,
     /** The signed-in admin, so the row for their own account can be protected. */
     private val currentUid: String? = null
 ) : ListAdapter<User, UserAdapter.VH>(DIFF) {
@@ -72,12 +71,6 @@ class UserAdapter(
             // system, so those two actions are removed on their own row.
             btnToggle.visible(!isSelf)
             btnDelete.visible(!isSelf)
-            // Resetting your own password here would lock you out of the very
-            // screen you would need to undo it; Profile has the safe path.
-            btnReset.visible(!isSelf)
-
-            // A pending request is the reason an admin is looking at this row.
-            btnReset.setOnClickListener { onResetPassword(user) }
 
             btnToggle.setOnClickListener { onToggleActive(user) }
             btnRole.setOnClickListener { onChangeRole(user) }
