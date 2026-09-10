@@ -107,12 +107,12 @@
 
     <!-- Password reset -->
     <string name="forgot_password_title">Reset password</string>
-    <string name="forgot_password_body">Enter the email address on your FaceLock account and we\'ll send you a link to set a new password.</string>
-    <string name="send_reset_link">Send reset link</string>
-    <string name="check_your_email">Check your email</string>
-    <string name="reset_link_hint">The link expires in one hour. If it isn\'t in your inbox, check your spam folder.</string>
+    <string name="forgot_password_body">Enter the email address on your FaceLock account. An administrator will be asked to reset it and will give you a temporary password in person.</string>
+    <string name="send_reset_link">Request a reset</string>
+    <string name="check_your_email">Request sent</string>
+    <string name="reset_link_hint">Nothing is emailed. Find your administrator to collect the temporary password, then change it from your profile.</string>
     <string name="back_to_sign_in">Back to sign in</string>
-    <string name="resend_link">Resend link</string>
+    <string name="resend_link">Send again</string>
 
     <!-- Change password -->
     <string name="change_password_title">Change password</string>
@@ -121,7 +121,7 @@
     <string name="confirm_new_password">Confirm new password</string>
     <string name="update_password">Update password</string>
     <string name="forgot_current_password">I forgot my current password</string>
-    <string name="email_reset_link">Email me a reset link</string>
+    <string name="email_reset_link">Ask an admin to reset it</string>
 
     <!-- Admin user form -->
     <string name="new_account">New account</string>
@@ -193,6 +193,36 @@
     <string name="checking_photo">Checking photo…</string>
     <string name="password_generated">Strong password generated</string>
     <string name="password_generate_failed">Could not generate a password. Try again.</string>
+
+
+    <!-- Password reset requests (admin-issued, no email) -->
+    <string name="request_reset">Request a reset</string>
+    <string name="reset_sending">Sending…</string>
+    <string name="reset_request_failed">Could not reach the server. Check your connection and try again.</string>
+    <string name="reset_requested_body">If %1$s belongs to a FaceLock account, an administrator has been asked to reset it.</string>
+    <string name="reset_resend">Send again</string>
+    <string name="reset_resend_in">Send again in %1$ds</string>
+    <string name="action_reset_password">Reset password</string>
+    <string name="reset_confirm_title">Reset password for %1$s?</string>
+    <string name="reset_confirm_body">Their current password stops working immediately. You will be shown a temporary one to give them in person, and they must change it the next time they sign in.</string>
+    <string name="reset_confirm_action">Reset it</string>
+    <string name="temp_password_title">Temporary password</string>
+    <string name="temp_password_for">Temporary password for %1$s. This is the only time it is shown.</string>
+    <string name="temp_password_note">They must change it the next time they sign in. It is not stored anywhere, so if you lose it you will have to reset again.</string>
+    <string name="copy_password">Copy</string>
+    <string name="password_copied">Copied</string>
+    <string name="reset_done">Done</string>
+    <plurals name="reset_pending_banner">
+        <item quantity="one">%d member is waiting for a password reset</item>
+        <item quantity="other">%d members are waiting for a password reset</item>
+    </plurals>
+    <string name="reset_queue_title">Password reset requests</string>
+    <string name="reset_rejected">Request dismissed</string>
+    <string name="reset_dismiss">Dismiss</string>
+
+    <!-- Forced change after an admin reset -->
+    <string name="forced_change_title">Set a new password</string>
+    <string name="forced_change_body">You signed in with a temporary password an administrator gave you. Choose your own before continuing.</string>
 
     <!-- Face enrollment -->
     <string name="enroll_title">Face enrollment</string>

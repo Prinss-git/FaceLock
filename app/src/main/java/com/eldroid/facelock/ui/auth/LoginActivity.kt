@@ -102,6 +102,17 @@ class LoginActivity : AppCompatActivity() {
         session.fullName = user.fullName
         session.lockerId = user.lockerId
 
+        // Signed in with a password an admin issued and read aloud: make them
+        // replace it before anything else becomes reachable.
+        if (user.mustChangePassword) {
+            startActivity(
+                Intent(this, ChangePasswordActivity::class.java)
+                    .putExtra(ChangePasswordActivity.EXTRA_FORCED, true)
+            )
+            finish()
+            return
+        }
+
         val target = when (user.roleEnum) {
             Role.ADMIN, Role.SECURITY -> AdminActivity::class.java
             Role.USER -> UserActivity::class.java

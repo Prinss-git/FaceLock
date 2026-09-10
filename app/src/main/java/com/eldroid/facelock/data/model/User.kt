@@ -12,6 +12,8 @@ data class User(
     val lockerId: String? = null,
     val faceEnrolled: Boolean = false,
     val active: Boolean = true,
+    /** Set when an admin issues a temporary password; cleared once changed. */
+    val mustChangePassword: Boolean = false,
     val createdAt: Long = System.currentTimeMillis()
 ) {
     val roleEnum: Role get() = Role.from(role)

@@ -33,7 +33,8 @@ service cloud.firestore {
       allow update: if isAdmin()
                     || (signedIn() && request.auth.uid == uid
                         && request.resource.data.diff(resource.data)
-                             .affectedKeys().hasOnly(['faceEnrolled', 'fcmToken']));
+                             .affectedKeys()
+                             .hasOnly(['faceEnrolled', 'fcmToken', 'mustChangePassword']));
 
       allow delete: if isAdmin();
     }
@@ -44,6 +45,17 @@ service cloud.firestore {
       allow create, delete: if isAdmin();
       // Only admins reassign or remotely unlock.
       allow update: if isAdmin();
+    }
+
+    // ---------- password reset requests ----------
+    match /password_resets/{requestId} {
+      // Admins read the queue. Nobody writes from a client: requests are
+      // created by requestPasswordReset and closed by resolvePasswordReset,
+      // both of which use the Admin SDK and so bypass these rules. That keeps
+      // the queue from being a public write target while still letting a
+      // signed-out member raise a request through the function.
+      allow read: if isAdmin();
+      allow write: if false;
     }
 
     // ---------- access logs ----------

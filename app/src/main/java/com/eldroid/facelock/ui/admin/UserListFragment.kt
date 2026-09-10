@@ -12,10 +12,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eldroid.facelock.R
+import com.eldroid.facelock.data.model.PasswordResetRequest
 import com.eldroid.facelock.data.model.Role
 import com.eldroid.facelock.data.model.User
 import com.eldroid.facelock.data.repo.AuthRepository
+import com.eldroid.facelock.data.repo.PasswordResetRepository
 import com.eldroid.facelock.data.repo.UserRepository
+import com.eldroid.facelock.databinding.DialogTempPasswordBinding
 import com.eldroid.facelock.databinding.FragmentListBinding
 import com.eldroid.facelock.ui.adapter.UserAdapter
 import com.eldroid.facelock.util.snack
@@ -30,10 +33,12 @@ class UserListFragment : Fragment() {
 
     private val userRepo = UserRepository()
     private val authRepo = AuthRepository()
+    private val resetRepo = PasswordResetRepository()
     private lateinit var adapter: UserAdapter
 
     private var users: List<User> = emptyList()
     private var query: String = ""
+    private var pendingResets: List<PasswordResetRequest> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -47,6 +52,7 @@ class UserListFragment : Fragment() {
             onToggleActive = { user -> confirmToggleActive(user) },
             onChangeRole = { user -> showRoleDialog(user) },
             onDelete = { user -> confirmDelete(user) },
+            onResetPassword = { user -> confirmReset(user) },
             currentUid = authRepo.currentUid
         )
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
@@ -69,6 +75,8 @@ class UserListFragment : Fragment() {
             }
         })
 
+        binding.bannerReset.setOnClickListener { showResetQueue() }
+
         viewLifecycleOwner.lifecycleScope.launch {
             userRepo.observeUsers()
                 .catchFirestore("the user list") { showLoadError(it) }
@@ -78,6 +86,44 @@ class UserListFragment : Fragment() {
                     applyFilter()
                 }
         }
+
+        // Members who asked for a reset from the sign-in screen. Written only
+        // by the Cloud Function, readable here because the caller is an admin.
+        viewLifecycleOwner.lifecycleScope.launch {
+            resetRepo.observePendingRequests()
+                .catchFirestore("password reset requests") { snack(it) }
+                .collect { requests ->
+                    pendingResets = requests
+                    renderResetBanner()
+                }
+        }
+    }
+
+    private fun renderResetBanner() {
+        val binding = _binding ?: return
+        binding.bannerReset.visible(pendingResets.isNotEmpty())
+        if (pendingResets.isNotEmpty()) {
+            binding.tvBannerReset.text = resources.getQuantityString(
+                R.plurals.reset_pending_banner, pendingResets.size, pendingResets.size
+            )
+        }
+    }
+
+    /** The queue, as a picker: choosing someone goes straight to confirming. */
+    private fun showResetQueue() {
+        val requests = pendingResets
+        if (requests.isEmpty()) return
+
+        val labels = requests.map { it.label }.toTypedArray()
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.reset_queue_title)
+            .setItems(labels) { _, which ->
+                val request = requests[which]
+                val user = users.firstOrNull { it.uid == request.uid }
+                confirmReset(user, request)
+            }
+            .setNegativeButton(R.string.action_cancel, null)
+            .show()
     }
 
     private fun openUserForm() {
@@ -181,6 +227,70 @@ class UserListFragment : Fragment() {
                 }
             }
             .setNegativeButton(R.string.action_cancel, null)
+            .show()
+    }
+
+    // -------------------------------------------------------- password ----
+
+    private fun confirmReset(user: User?, request: PasswordResetRequest? = null) {
+        val name = user?.fullName ?: request?.label ?: return
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.reset_confirm_title, name))
+            .setMessage(R.string.reset_confirm_body)
+            .setPositiveButton(R.string.reset_confirm_action) { _, _ ->
+                doReset(name, user?.uid, request?.id)
+            }
+            .setNeutralButton(
+                if (request != null) R.string.reset_dismiss else R.string.action_cancel
+            ) { _, _ ->
+                if (request != null) dismissRequest(request)
+            }
+            .setNegativeButton(R.string.action_cancel, null)
+            .show()
+    }
+
+    private fun doReset(name: String, uid: String?, requestId: String?) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            resetRepo.resolve(requestId = requestId, uid = uid, approve = true)
+                .onSuccess { temp ->
+                    if (temp != null) showTempPassword(name, temp) else snack("Reset failed.")
+                }
+                .onFailure { snack(it.message ?: "Reset failed.") }
+        }
+    }
+
+    private fun dismissRequest(request: PasswordResetRequest) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            resetRepo.resolve(requestId = request.id, approve = false)
+                .onSuccess { snack(getString(R.string.reset_rejected)) }
+                .onFailure { snack(it.message ?: "Could not dismiss it.") }
+        }
+    }
+
+    /**
+     * The temporary password exists only in this dialog: the backend does not
+     * store it, so it cannot be shown again.
+     */
+    private fun showTempPassword(name: String, password: String) {
+        val dialogBinding = DialogTempPasswordBinding.inflate(layoutInflater)
+        dialogBinding.tvFor.text = getString(R.string.temp_password_for, name)
+        dialogBinding.tvPassword.text = password
+        dialogBinding.btnCopy.setOnClickListener {
+            val clipboard = requireContext()
+                .getSystemService(android.content.ClipboardManager::class.java)
+            clipboard?.setPrimaryClip(
+                android.content.ClipData.newPlainText(
+                    getString(R.string.temp_password_title), password
+                )
+            )
+            snack(getString(R.string.password_copied))
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.temp_password_title)
+            .setView(dialogBinding.root)
+            .setPositiveButton(R.string.reset_done, null)
+            .setCancelable(false)
             .show()
     }
 

@@ -134,6 +134,19 @@
                 tools:text="Suspend" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnReset"
+                style="@style/Btn.Small"
+                android:layout_width="wrap_content"
+                android:layout_marginStart="@dimen/space_sm"
+                app:icon="@drawable/ic_key"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:text=""
+                android:contentDescription="@string/action_reset_password" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDelete"
                 style="@style/Btn.Small.Danger"
                 android:layout_width="wrap_content"

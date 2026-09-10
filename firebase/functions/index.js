@@ -116,6 +116,172 @@ exports.onAccessDenied = functions.firestore
   });
 
 /* ------------------------------------------------------------------ */
+/* 3. Password resets (no email)                                       */
+/* ------------------------------------------------------------------ */
+/*
+ * Firebase's client SDK can only set a password for a user who is already
+ * signed in. A member who has forgotten theirs is by definition not, so the
+ * reset has to happen here, with the Admin SDK.
+ *
+ * The flow is deliberately human: the member raises a request, an admin
+ * approves it, and the temporary password is read out in person. That suits a
+ * campus locker system where the admin is physically present, and it needs no
+ * mail server and no SMS billing.
+ */
+
+/** Anyone may ask. Nobody learns whether the address exists. */
+exports.requestPasswordReset = functions.https.onRequest(async (req, res) => {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "POST only" });
+  }
+
+  const email = String(req.body?.email || "").trim().toLowerCase();
+  if (!email) {
+    return res.status(400).json({ error: "Missing email" });
+  }
+
+  try {
+    const user = await admin.auth().getUserByEmail(email);
+    const profileSnap = await db.collection("users").doc(user.uid).get();
+    const profile = profileSnap.data() || {};
+
+    // One open request per person: repeated taps must not flood the queue.
+    const open = await db
+      .collection("password_resets")
+      .where("uid", "==", user.uid)
+      .where("status", "==", "PENDING")
+      .limit(1)
+      .get();
+
+    if (open.empty) {
+      await db.collection("password_resets").add({
+        uid: user.uid,
+        email: user.email || email,
+        displayName: profile.fullName || user.displayName || null,
+        status: "PENDING",
+        requestedAt: Date.now(),
+        handledBy: null,
+        handledByName: null,
+        handledAt: null,
+      });
+    }
+  } catch (err) {
+    // getUserByEmail throws for an unknown address. Swallow it: answering
+    // differently here would turn this endpoint into an account-existence
+    // oracle for anyone who can reach it.
+    if (err.code !== "auth/user-not-found") {
+      console.error("requestPasswordReset failed:", err);
+    }
+  }
+
+  // Always the same answer, whatever happened above.
+  return res.json({ ok: true });
+});
+
+/**
+ * Admin approves or rejects. Caller identity comes from a Firebase ID token,
+ * verified here — the role is re-read from Firestore rather than trusted from
+ * the request, so a member cannot approve their own reset.
+ */
+exports.resolvePasswordReset = functions.https.onRequest(async (req, res) => {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "POST only" });
+  }
+
+  const header = req.get("Authorization") || "";
+  if (!header.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Missing ID token" });
+  }
+
+  let caller;
+  try {
+    caller = await admin.auth().verifyIdToken(header.substring(7));
+  } catch (err) {
+    return res.status(401).json({ error: "Invalid ID token" });
+  }
+
+  const callerSnap = await db.collection("users").doc(caller.uid).get();
+  const callerProfile = callerSnap.data() || {};
+  if (callerProfile.role !== "ADMIN") {
+    return res.status(403).json({ error: "Admins only" });
+  }
+
+  const { requestId, uid, approve } = req.body || {};
+  if (!requestId && !uid) {
+    return res.status(400).json({ error: "Provide requestId or uid" });
+  }
+
+  try {
+    let targetUid = uid;
+    let requestRef = null;
+
+    if (requestId) {
+      requestRef = db.collection("password_resets").doc(requestId);
+      const snap = await requestRef.get();
+      if (!snap.exists) {
+        return res.status(404).json({ error: "No such request" });
+      }
+      if (snap.data().status !== "PENDING") {
+        return res.status(409).json({ error: "Already handled" });
+      }
+      targetUid = snap.data().uid;
+    }
+
+    if (approve === false) {
+      await requestRef.update({
+        status: "REJECTED",
+        handledBy: caller.uid,
+        handledByName: callerProfile.fullName || null,
+        handledAt: Date.now(),
+      });
+      return res.json({ ok: true, rejected: true });
+    }
+
+    const tempPassword = generateTempPassword();
+    await admin.auth().updateUser(targetUid, { password: tempPassword });
+
+    // Forces a change at the next sign-in: a password a second person has
+    // seen must not stay valid indefinitely.
+    await db.collection("users").doc(targetUid).update({
+      mustChangePassword: true,
+    });
+
+    if (requestRef) {
+      await requestRef.update({
+        status: "COMPLETED",
+        handledBy: caller.uid,
+        handledByName: callerProfile.fullName || null,
+        handledAt: Date.now(),
+      });
+    } else {
+      // Reset started from the user list rather than from a request: close
+      // any request the member had already raised.
+      const open = await db
+        .collection("password_resets")
+        .where("uid", "==", targetUid)
+        .where("status", "==", "PENDING")
+        .get();
+      await Promise.all(
+        open.docs.map((d) =>
+          d.ref.update({
+            status: "COMPLETED",
+            handledBy: caller.uid,
+            handledByName: callerProfile.fullName || null,
+            handledAt: Date.now(),
+          })
+        )
+      );
+    }
+
+    // The only time this value is ever readable. It is not stored anywhere.
+    return res.json({ ok: true, tempPassword });
+  } catch (err) {
+    console.error("resolvePasswordReset failed:", err);
+    return res.status(500).json({ error: "Reset failed" });
+  }
+});
+
+/* ------------------------------------------------------------------ */
 /* Helpers                                                             */
 /* ------------------------------------------------------------------ */
 
@@ -172,4 +338,27 @@ async function embedFace(jpegBuffer) {
   throw new Error(
     "embedFace() is not implemented. Wire up your face embedding provider here."
   );
+}
+
+/**
+ * Readable temporary password: no characters that get misheard when an admin
+ * reads it aloud (no O/0, I/l/1), but still mixed case, a digit and a symbol
+ * so it satisfies the policy the app enforces everywhere else.
+ */
+function generateTempPassword() {
+  const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const lower = "abcdefghijkmnpqrstuvwxyz";
+  const digits = "23456789";
+  const symbols = "!@#$%*?-";
+  const all = upper + lower + digits + symbols;
+
+  const pick = (set) => set[Math.floor(Math.random() * set.length)];
+  const chars = [pick(upper), pick(lower), pick(digits), pick(symbols)];
+  while (chars.length < 12) chars.push(pick(all));
+
+  for (let i = chars.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [chars[i], chars[j]] = [chars[j], chars[i]];
+  }
+  return chars.join("");
 }

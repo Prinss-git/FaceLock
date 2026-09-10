@@ -42,3 +42,23 @@ Enrollment images land in Storage at `face_templates/{uid}/enroll.jpg`.
 The recognition backend converts each to an embedding vector, stores it in
 the `face_templates` collection, then deletes the raw image. Only the
 embedding is retained, which limits exposure if the database is compromised.
+
+## `password_resets/{autoId}`
+
+Queue of members waiting for an admin to reset their password. Written only by
+the `requestPasswordReset` / `resolvePasswordReset` Cloud Functions; clients
+have read access for admins and no write access at all.
+
+| Field | Type | Notes |
+|---|---|---|
+| `uid` | string | Account the request is for |
+| `email` | string | As held in Firebase Auth |
+| `displayName` | string \| null | Copied from the user profile for display |
+| `status` | string | `PENDING` \| `COMPLETED` \| `REJECTED` |
+| `requestedAt` | number | epoch millis |
+| `handledBy` | string \| null | Admin uid that resolved it |
+| `handledByName` | string \| null | Admin name, for the audit trail |
+| `handledAt` | number \| null | epoch millis |
+
+The temporary password itself is **never stored** — it is returned once, in the
+response to the approving admin.
