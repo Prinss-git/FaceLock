@@ -60,6 +60,15 @@
                 tools:text="sam@example.com" />
 
             <TextView
+                android:id="@+id/tvJoinedHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xs"
+                android:textSize="12sp"
+                android:textColor="@color/text_on_dark_muted"
+                tools:text="Member since Aug 24, 2026" />
+
+            <TextView
                 android:id="@+id/tvRoleBadge"
                 style="@style/Pill"
                 android:layout_width="wrap_content"
@@ -77,6 +86,15 @@
             android:padding="@dimen/screen_margin">
 
             <!-- ===================== Account ===================== -->
+            <!-- Locker and face template are member concepts, so the whole
+                 section is dropped for admins and security staff rather than
+                 left standing with its rows emptied out. -->
+            <LinearLayout
+                android:id="@+id/accountSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
             <TextView
                 style="@style/T.Label"
                 android:layout_width="wrap_content"
@@ -243,6 +261,8 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            </LinearLayout>
+
             <!-- ===================== Admin / security stats ===================== -->
             <LinearLayout
                 android:id="@+id/adminSection"
@@ -384,16 +404,6 @@
                         app:icon="@drawable/ic_shield"
                         app:iconGravity="textStart"
                         android:text="@string/change_password_title" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnResetPassword"
-                        style="@style/Btn.Outline"
-                        android:layout_width="match_parent"
-                        android:layout_height="50dp"
-                        android:layout_marginTop="@dimen/space_sm"
-                        app:icon="@drawable/ic_mail"
-                        app:iconGravity="textStart"
-                        android:text="@string/email_reset_link" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnLogout"

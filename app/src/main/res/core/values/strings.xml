@@ -63,6 +63,8 @@
     <string name="face_template">Face template</string>
     <string name="assigned_locker">Assigned locker</string>
     <string name="member_since">Member since</string>
+    <string name="member_since_on">Member since %1$s</string>
+    <string name="account_created_on">Account created %1$s</string>
     <string name="no_locker_assigned">No locker assigned</string>
     <string name="no_locker_body">An administrator has not assigned you a locker yet.</string>
     <string name="enrolled">Enrolled</string>

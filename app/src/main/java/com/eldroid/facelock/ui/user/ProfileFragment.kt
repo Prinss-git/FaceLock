@@ -19,7 +19,6 @@ import com.eldroid.facelock.data.repo.LogRepository
 import com.eldroid.facelock.data.repo.UserRepository
 import com.eldroid.facelock.databinding.FragmentProfileBinding
 import com.eldroid.facelock.ui.auth.ChangePasswordActivity
-import com.eldroid.facelock.ui.auth.ForgotPasswordActivity
 import com.eldroid.facelock.ui.auth.LoginActivity
 import com.eldroid.facelock.util.SessionManager
 import com.eldroid.facelock.util.asDateTime
@@ -65,7 +64,6 @@ class ProfileFragment : Fragment() {
         binding.btnChangePassword.setOnClickListener {
             startActivity(Intent(requireContext(), ChangePasswordActivity::class.java))
         }
-        binding.btnResetPassword.setOnClickListener { openPasswordReset() }
         binding.btnLogout.setOnClickListener { confirmLogout() }
 
         binding.tvVersion.text = "FaceLock v${BuildConfig.VERSION_NAME}"
@@ -91,7 +89,10 @@ class ProfileFragment : Fragment() {
             Role.USER -> "Member"
         }
 
-        // Lockers and face templates only apply to member accounts.
+        // Locker and face template are member concepts. For staff the whole
+        // Account section goes, rather than leaving a labelled card wrapped
+        // around a single date.
+        binding.accountSection.visible(!staff)
         binding.rowLocker.visible(!staff)
         binding.dividerLocker.visible(!staff)
         binding.rowFace.visible(!staff)
@@ -123,7 +124,12 @@ class ProfileFragment : Fragment() {
                 getString(if (enrolled) R.string.reenroll_my_face else R.string.enroll_my_face)
         }
 
+        // "Member since" is the wrong noun for an administrator.
         binding.tvJoined.text = user.createdAt.asDateTime()
+        binding.tvJoinedHeader.text = getString(
+            if (staff) R.string.account_created_on else R.string.member_since_on,
+            user.createdAt.asDateTime()
+        )
     }
 
     /** Live system counters shown to admins and security staff. */
@@ -149,18 +155,6 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    /**
-     * Escape hatch for someone who cannot recall their current password: the
-     * emailed link proves control of the inbox instead.
-     */
-    private fun openPasswordReset() {
-        val email = binding.tvEmail.text.toString().trim()
-        if (email.isBlank()) { snack("No email on file."); return }
-        startActivity(
-            Intent(requireContext(), ForgotPasswordActivity::class.java)
-                .putExtra(ForgotPasswordActivity.EXTRA_EMAIL, email)
-        )
-    }
 
     private fun confirmLogout() {
         AlertDialog.Builder(requireContext())
