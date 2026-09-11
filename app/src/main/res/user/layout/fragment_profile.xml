@@ -34,7 +34,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:textSize="30sp"
-                    android:textStyle="bold"
+                    android:fontFamily="@font/barlow_semibold"
                     android:textColor="@color/accent"
                     tools:text="SC" />
             </FrameLayout>
@@ -45,7 +45,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_ms"
                 android:textSize="22sp"
-                android:textStyle="bold"
+                android:fontFamily="@font/barlow_semibold"
                 android:letterSpacing="-0.02"
                 android:textColor="@color/text_on_dark"
                 tools:text="Sam Cortes" />

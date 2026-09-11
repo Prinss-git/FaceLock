@@ -65,7 +65,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/space_sm"
                 android:textSize="14sp"
-                android:textStyle="bold"
+                android:fontFamily="@font/barlow_semibold"
                 android:textColor="@color/text_on_dark"
                 tools:text="Center your face in the oval" />
         </LinearLayout>
@@ -138,7 +138,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_md"
             android:textSize="16sp"
-            android:textStyle="bold"
+            android:fontFamily="@font/barlow_semibold"
             android:textColor="@color/text_on_dark"
             tools:text="Checking your photo…" />
     </LinearLayout>
@@ -184,7 +184,7 @@
                 android:layout_marginTop="@dimen/space_lg"
                 android:gravity="center"
                 android:textSize="26sp"
-                android:textStyle="bold"
+                android:fontFamily="@font/barlow_semibold"
                 android:letterSpacing="-0.02"
                 android:textColor="@color/text_on_dark"
                 tools:text="Face enrolled" />
@@ -257,7 +257,7 @@
                 android:layout_marginTop="@dimen/space_lg"
                 android:gravity="center"
                 android:textSize="24sp"
-                android:textStyle="bold"
+                android:fontFamily="@font/barlow_semibold"
                 android:letterSpacing="-0.02"
                 android:textColor="@color/text_on_dark"
                 tools:text="Camera access needed" />

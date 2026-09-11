@@ -30,6 +30,8 @@
         <item name="materialCardViewStyle">@style/Card</item>
         <item name="materialAlertDialogTheme">@style/AlertDialog</item>
         <item name="android:textColorHighlight">@color/accent_soft</item>
+        <item name="android:fontFamily">@font/barlow</item>
+        <item name="fontFamily">@font/barlow</item>
     </style>
 
     <!-- In dark mode a bright teal button reads better than the near-black
@@ -38,7 +40,7 @@
         <item name="android:layout_height">@dimen/button_height</item>
         <item name="cornerRadius">@dimen/field_radius</item>
         <item name="android:textSize">15sp</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/barlow_medium</item>
         <item name="android:letterSpacing">0.01</item>
         <item name="backgroundTint">@color/accent</item>
         <item name="android:textColor">@color/ink_950</item>

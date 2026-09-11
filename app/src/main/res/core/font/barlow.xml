@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Barlow, the app's typeface. A low-contrast grotesk drawn for signage, which
+  suits an access-control system and stays legible in the small pills and dense
+  log rows this app is full of.
+
+  Static weights rather than the variable file: variable fonts need API 26 and
+  minSdk here is 24.
+
+  Both namespaces are declared on purpose — android: is used from API 26, app:
+  is what AppCompat reads below that.
+-->
+<font-family xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <font
+        android:fontStyle="normal"
+        android:fontWeight="400"
+        android:font="@font/barlow_regular"
+        app:fontStyle="normal"
+        app:fontWeight="400"
+        app:font="@font/barlow_regular" />
+
+    <font
+        android:fontStyle="normal"
+        android:fontWeight="500"
+        android:font="@font/barlow_medium"
+        app:fontStyle="normal"
+        app:fontWeight="500"
+        app:font="@font/barlow_medium" />
+
+    <font
+        android:fontStyle="normal"
+        android:fontWeight="600"
+        android:font="@font/barlow_semibold"
+        app:fontStyle="normal"
+        app:fontWeight="600"
+        app:font="@font/barlow_semibold" />
+
+    <font
+        android:fontStyle="normal"
+        android:fontWeight="700"
+        android:font="@font/barlow_bold"
+        app:fontStyle="normal"
+        app:fontWeight="700"
+        app:font="@font/barlow_bold" />
+</font-family>

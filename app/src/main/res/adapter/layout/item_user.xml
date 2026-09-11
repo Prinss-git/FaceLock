@@ -28,7 +28,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:textSize="15sp"
-                    android:textStyle="bold"
+                    android:fontFamily="@font/barlow_semibold"
                     android:textColor="@color/accent_dark"
                     tools:text="SC" />
             </FrameLayout>
@@ -105,7 +105,7 @@
                 android:layout_weight="1"
                 android:layout_marginStart="@dimen/space_sm"
                 android:gravity="end"
-                android:textStyle="bold"
+                android:fontFamily="@font/barlow_semibold"
                 tools:text="Face enrolled" />
         </LinearLayout>
 

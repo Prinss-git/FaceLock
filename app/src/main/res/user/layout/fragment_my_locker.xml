@@ -77,7 +77,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_sm"
                     android:textSize="38sp"
-                    android:textStyle="bold"
+                    android:fontFamily="@font/barlow_semibold"
                     android:letterSpacing="-0.04"
                     android:textColor="@color/text_on_dark"
                     tools:text="LKR-01" />
