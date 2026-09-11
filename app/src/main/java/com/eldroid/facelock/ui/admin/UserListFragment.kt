@@ -54,6 +54,8 @@ class UserListFragment : Fragment() {
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
         binding.recycler.adapter = adapter
 
+        binding.tvHeading.setText(R.string.nav_users)
+        binding.tvHeadingSub.setText(R.string.heading_sub_users)
         binding.tilSearch.hint = getString(R.string.search_users)
         binding.etSearch.doAfterTextChanged {
             query = it?.toString().orEmpty().trim()

@@ -47,6 +47,9 @@ class AccessLogFragment : Fragment() {
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
         binding.recycler.adapter = adapter
 
+        binding.tvHeading.setText(R.string.nav_logs)
+        binding.tvHeadingSub.setText(R.string.heading_sub_logs)
+
         binding.chipGroup.setOnCheckedStateChangeListener { _, _ -> applyFilter() }
 
         // One listener covers every chip: the filters are a view over the same

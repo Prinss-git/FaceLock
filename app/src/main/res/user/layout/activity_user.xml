@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Member shell: toolbar + swappable content + bottom navigation.
-  The three tabs live in ui/user/ as fragments.
+  Member shell: swappable content + bottom navigation. The three tabs live in
+  ui/user/ as fragments.
+
+  There is no app bar. Each tab carries its own heading in the content, and
+  Sign out lives on the Profile tab - which left the bar with nothing in it.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -10,11 +13,6 @@
     android:orientation="vertical"
     android:background="@color/background">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
-        style="@style/Toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize" />
 
     <FrameLayout
         android:id="@+id/container"

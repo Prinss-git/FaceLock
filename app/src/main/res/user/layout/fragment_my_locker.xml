@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingHorizontal="@dimen/screen_margin"
-        android:paddingTop="@dimen/space_md"
+        android:paddingTop="@dimen/space_lg"
         android:paddingBottom="@dimen/space_xl">
 
         <!-- ===================== Greeting ===================== -->

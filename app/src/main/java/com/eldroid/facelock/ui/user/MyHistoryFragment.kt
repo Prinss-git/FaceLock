@@ -48,6 +48,9 @@ class MyHistoryFragment : Fragment() {
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
         binding.recycler.adapter = adapter
 
+        binding.tvHeading.setText(R.string.nav_history)
+        binding.tvHeadingSub.setText(R.string.heading_sub_history)
+
         binding.chipGroup.setOnCheckedStateChangeListener { _, _ -> applyFilter() }
 
         observe()

@@ -111,7 +111,8 @@ class MyLockerFragment : Fragment() {
             binding.tvLockerStatusPill.setBackgroundResource(R.drawable.pill_neutral)
             binding.tvLockerStatusPill.setTextColor(color(R.color.text_secondary))
             binding.tvLockerStatus.text = getString(R.string.no_locker_body)
-            binding.tvGreetingSub.text = getString(R.string.no_locker_body)
+            // The hero card already spells this out; the greeting says it short.
+            binding.tvGreetingSub.setText(R.string.greeting_no_locker)
             binding.rowLocation.visible(false)
             binding.rowLastOpened.visible(false)
         } else {

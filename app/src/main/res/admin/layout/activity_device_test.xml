@@ -17,7 +17,6 @@
         style="@style/Toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:title="@string/device_test_title"
         app:navigationIcon="@drawable/ic_back"
         app:navigationContentDescription="@string/action_back" />
 
@@ -32,6 +31,14 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="@dimen/screen_margin">
+
+            <TextView
+                style="@style/T.Display"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_md"
+                android:textSize="26sp"
+                android:text="@string/device_test_title" />
 
             <!-- ===================== Live value ===================== -->
             <com.google.android.material.card.MaterialCardView

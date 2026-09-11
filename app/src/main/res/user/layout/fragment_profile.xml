@@ -20,7 +20,7 @@
             android:background="@drawable/bg_hero_rounded"
             android:orientation="vertical"
             android:gravity="center_horizontal"
-            android:paddingTop="@dimen/space_lg"
+            android:paddingTop="@dimen/space_xl"
             android:paddingBottom="@dimen/space_xl"
             android:paddingHorizontal="@dimen/screen_margin">
 
@@ -375,6 +375,15 @@
                             android:text="@string/stat_denied_today" />
                     </LinearLayout>
                 </LinearLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDeviceTest"
+                    style="@style/Btn.Outline"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="@dimen/space_sm"
+                    app:icon="@drawable/ic_info"
+                    app:iconGravity="textStart"
+                    android:text="@string/device_test_title" />
             </LinearLayout>
 
             <!-- ===================== Security ===================== -->

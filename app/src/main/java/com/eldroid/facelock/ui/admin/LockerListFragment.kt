@@ -59,6 +59,10 @@ class LockerListFragment : Fragment() {
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
         binding.recycler.adapter = adapter
 
+        binding.tvHeading.setText(R.string.nav_lockers)
+        binding.tvHeadingSub.setText(
+            if (isAdmin) R.string.heading_sub_admin else R.string.heading_sub_security
+        )
         binding.tilSearch.hint = getString(R.string.search_lockers)
         binding.etSearch.doAfterTextChanged {
             query = it?.toString().orEmpty().trim()

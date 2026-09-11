@@ -1,21 +1,20 @@
 package com.eldroid.facelock.ui.admin
 
-import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.eldroid.facelock.R
 import com.eldroid.facelock.data.model.Role
-import com.eldroid.facelock.data.repo.AuthRepository
 import com.eldroid.facelock.databinding.ActivityAdminBinding
-import com.eldroid.facelock.ui.auth.LoginActivity
-import com.eldroid.facelock.ui.user.ProfileActivity
+import com.eldroid.facelock.ui.user.ProfileFragment
 import com.eldroid.facelock.util.SessionManager
-import com.eldroid.facelock.util.tintIcons
 
 /**
  * Admin and security console.
+ *
+ * Same shape as the member shell: no app bar, bottom-nav tabs, and each tab
+ * carrying its own heading in the content. Profile is a tab here too, so Sign
+ * out lives in exactly one place for every role.
  *
  * Tabs are kept alive and swapped with show/hide rather than replaced, so
  * moving between them does not drop scroll position or restart the Firestore
@@ -34,8 +33,6 @@ class AdminActivity : AppCompatActivity() {
         binding = ActivityAdminBinding.inflate(layoutInflater)
         setContentView(binding.root)
         session = SessionManager(this)
-
-        setSupportActionBar(binding.toolbar)
 
         // Security role is read-only: it sees logs and lockers, not user admin.
         val security = session.role == Role.SECURITY
@@ -58,13 +55,6 @@ class AdminActivity : AppCompatActivity() {
 
     private fun show(itemId: Int) {
         currentTab = itemId
-        supportActionBar?.title = when (itemId) {
-            R.id.nav_users -> getString(R.string.nav_users)
-            R.id.nav_logs -> getString(R.string.nav_logs)
-            else -> getString(R.string.nav_lockers)
-        }
-        supportActionBar?.subtitle =
-            if (session.role == Role.SECURITY) "Security console" else "Admin dashboard"
 
         val tx = supportFragmentManager.beginTransaction()
         tabs.values.forEach { tx.hide(it) }
@@ -74,6 +64,7 @@ class AdminActivity : AppCompatActivity() {
             val fragment = when (itemId) {
                 R.id.nav_users -> UserListFragment()
                 R.id.nav_logs -> AccessLogFragment()
+                R.id.nav_profile -> ProfileFragment()
                 else -> LockerListFragment()
             }
             tabs[itemId] = fragment
@@ -82,40 +73,6 @@ class AdminActivity : AppCompatActivity() {
             tx.show(existing)
         }
         tx.commit()
-    }
-
-    override fun onCreateOptionsMenu(menu: android.view.Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_logout, menu)
-        menu.tintIcons(getColor(R.color.text_primary))
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
-        if (item.itemId == R.id.action_profile) {
-            startActivity(Intent(this, ProfileActivity::class.java))
-            return true
-        }
-        if (item.itemId == R.id.action_device_test) {
-            startActivity(Intent(this, DeviceTestActivity::class.java))
-            return true
-        }
-        if (item.itemId == R.id.action_logout) {
-            AlertDialog.Builder(this)
-                .setTitle(R.string.action_sign_out)
-                .setMessage("You'll need your password to sign back in.")
-                .setPositiveButton(R.string.action_sign_out) { _, _ -> logout() }
-                .setNegativeButton(R.string.action_cancel, null)
-                .show()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-    private fun logout() {
-        AuthRepository().logout()
-        session.clear()
-        startActivity(Intent(this, LoginActivity::class.java))
-        finishAffinity()
     }
 
     private companion object {

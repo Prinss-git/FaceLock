@@ -11,7 +11,6 @@
         style="@style/Toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:title="@string/create_account"
         app:navigationIcon="@drawable/ic_close"
         app:navigationContentDescription="@string/action_close" />
 

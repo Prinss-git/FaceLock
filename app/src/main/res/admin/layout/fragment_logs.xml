@@ -8,6 +8,31 @@
     android:orientation="vertical"
     android:background="@color/background">
 
+        <LinearLayout
+            android:id="@+id/headingBlock"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/screen_margin"
+            android:paddingTop="@dimen/space_lg"
+            android:paddingBottom="@dimen/space_xs">
+
+            <TextView
+                android:id="@+id/tvHeading"
+                style="@style/T.Display"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="26sp"
+                tools:text="Lockers" />
+
+            <TextView
+                android:id="@+id/tvHeadingSub"
+                style="@style/T.Body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Admin dashboard" />
+        </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

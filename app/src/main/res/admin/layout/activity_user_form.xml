@@ -11,7 +11,6 @@
         style="@style/Toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:title="@string/new_account"
         app:navigationIcon="@drawable/ic_close"
         app:navigationContentDescription="@string/action_close" />
 
@@ -28,9 +27,17 @@
             android:padding="@dimen/screen_margin">
 
             <TextView
+                style="@style/T.Display"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="26sp"
+                android:text="@string/new_account" />
+
+            <TextView
                 style="@style/T.Body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xs"
                 android:text="@string/user_form_subtitle" />
 
             <TextView

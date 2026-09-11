@@ -45,6 +45,13 @@
     <string name="nav_users">Users</string>
     <string name="nav_logs">Logs</string>
 
+    <!-- Screen headings (large title in the content, not in the app bar) -->
+    <string name="heading_sub_admin">Manage units, assignments and remote unlock</string>
+    <string name="heading_sub_security">Read-only view of every unit</string>
+    <string name="heading_sub_users">Accounts, roles and access</string>
+    <string name="heading_sub_logs">Every attempt across all lockers</string>
+    <string name="heading_sub_history">Every time your locker was opened</string>
+
     <!-- Section headers -->
     <string name="section_your_details">Your details</string>
     <string name="section_password">Password</string>
@@ -66,6 +73,7 @@
     <string name="member_since_on">Member since %1$s</string>
     <string name="account_created_on">Account created %1$s</string>
     <string name="no_locker_assigned">No locker assigned</string>
+    <string name="greeting_no_locker">You don\'t have a locker yet.</string>
     <string name="no_locker_body">An administrator has not assigned you a locker yet.</string>
     <string name="enrolled">Enrolled</string>
     <string name="not_enrolled">Not enrolled</string>
