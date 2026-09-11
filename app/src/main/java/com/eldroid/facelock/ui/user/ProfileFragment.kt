@@ -18,6 +18,7 @@ import com.eldroid.facelock.data.repo.LockerRepository
 import com.eldroid.facelock.data.repo.LogRepository
 import com.eldroid.facelock.data.repo.UserRepository
 import com.eldroid.facelock.databinding.FragmentProfileBinding
+import com.eldroid.facelock.ui.admin.DeviceTestActivity
 import com.eldroid.facelock.ui.auth.ChangePasswordActivity
 import com.eldroid.facelock.ui.auth.LoginActivity
 import com.eldroid.facelock.util.SessionManager
@@ -32,10 +33,9 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 /**
- * Account overview, shared by both sides of the app: members open it as a
- * bottom-nav tab, admins and security staff as [ProfileActivity] from the
- * toolbar. Members see their locker and enrollment state; staff get a live
- * system-wide summary instead.
+ * Account overview, shared by both sides of the app — a bottom-nav tab for
+ * every role. Members see their locker and enrollment state; staff get a live
+ * system-wide summary and, for admins, the device link test.
  */
 class ProfileFragment : Fragment() {
 
@@ -65,6 +65,9 @@ class ProfileFragment : Fragment() {
             startActivity(Intent(requireContext(), ChangePasswordActivity::class.java))
         }
         binding.btnLogout.setOnClickListener { confirmLogout() }
+        binding.btnDeviceTest.setOnClickListener {
+            startActivity(Intent(requireContext(), DeviceTestActivity::class.java))
+        }
 
         binding.tvVersion.text = "FaceLock v${BuildConfig.VERSION_NAME}"
 
@@ -100,6 +103,9 @@ class ProfileFragment : Fragment() {
         binding.btnEnroll.visible(!staff)
 
         binding.adminSection.visible(staff)
+        // Security staff are read-only; the device test writes to the locker
+        // device path, so it is admin-only.
+        binding.btnDeviceTest.visible(user.roleEnum == Role.ADMIN)
         if (staff && !statsStarted) {
             statsStarted = true
             observeStats()
