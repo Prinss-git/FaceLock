@@ -34,6 +34,30 @@ android {
         viewBinding = true
         buildConfig = true
     }
+
+    // res/ cannot nest the way java/ does - AAPT requires files to sit directly
+    // inside layout/, values/ and so on. Declaring several resource roots gets
+    // the same grouping: each folder below is its own res root with its own
+    // layout/ inside, mirroring the package layout under java/.
+    // Listing srcDirs replaces the default "src/main/res", so every root that
+    // should be compiled has to appear here.
+    sourceSets {
+        getByName("main") {
+            // setSrcDirs replaces; srcDirs() would append to the default
+            // "src/main/res" and leave it as a parent of these, which AGP
+            // flags as nested resources and will reject outright in v9.
+            res.setSrcDirs(
+                listOf(
+                    "src/main/res/core",      // design system: values, colours, drawables, menus
+                    "src/main/res/auth",      // ui/auth
+                    "src/main/res/admin",     // ui/admin
+                    "src/main/res/user",      // ui/user
+                    "src/main/res/adapter",   // ui/adapter row layouts
+                    "src/main/res/common"     // shared includes
+                )
+            )
+        }
+    }
 }
 
 dependencies {
