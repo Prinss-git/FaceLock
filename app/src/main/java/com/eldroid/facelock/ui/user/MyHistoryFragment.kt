@@ -15,6 +15,7 @@ import com.eldroid.facelock.databinding.FragmentMyHistoryBinding
 import com.eldroid.facelock.ui.adapter.LogAdapter
 import com.eldroid.facelock.util.visible
 import com.eldroid.facelock.util.catchFirestore
+import com.eldroid.facelock.util.skeleton
 import kotlinx.coroutines.launch
 
 /**
@@ -43,6 +44,7 @@ class MyHistoryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         adapter = LogAdapter()
+        binding.skeleton.root.skeleton(true)
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
         binding.recycler.adapter = adapter
 
@@ -58,7 +60,7 @@ class MyHistoryFragment : Fragment() {
                 .catchFirestore("your access history") { showLoadError(it) }
                 .collect { logs ->
                     all = logs
-                    binding.progress.visible(false)
+                    binding.skeleton.root.skeleton(false)
 
                     binding.tvStatTotal.text = logs.size.toString()
                     binding.tvStatGranted.text = logs.count { it.granted }.toString()
@@ -107,7 +109,7 @@ class MyHistoryFragment : Fragment() {
      */
     private fun showLoadError(message: String) {
         val binding = _binding ?: return
-        binding.progress.visible(false)
+        binding.skeleton.root.skeleton(false)
         binding.empty.root.visible(true)
         binding.empty.ivEmpty.setImageResource(R.drawable.ic_alert)
         binding.empty.tvEmptyTitle.text = getString(R.string.load_failed_title)

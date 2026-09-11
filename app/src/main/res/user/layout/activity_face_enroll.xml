@@ -303,10 +303,9 @@
     <!-- Toolbar last so it stays tappable above every layer. -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
-        style="@style/Toolbar"
+        style="@style/Toolbar.OnDark"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@android:color/transparent"
         app:title="@string/enroll_title"
         app:navigationIcon="@drawable/ic_close"
         app:navigationContentDescription="@string/action_close" />

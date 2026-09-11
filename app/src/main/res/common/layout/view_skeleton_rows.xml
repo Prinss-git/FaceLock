@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Loading placeholder for the list screens. Four blocks shaped like the real
+  rows, so the page keeps its structure while data arrives instead of
+  collapsing to a spinner and then jumping.
+
+  Purely decorative: the whole group is hidden from accessibility, and the
+  fragment announces the real content once it lands.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/screen_margin"
+    android:paddingTop="@dimen/space_sm"
+    android:importantForAccessibility="noHideDescendants">
+
+    <!-- row 1 -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/space_sm">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:padding="@dimen/card_padding">
+            <View
+                android:layout_width="@dimen/avatar_size"
+                android:layout_height="@dimen/avatar_size"
+                android:background="@drawable/bg_skeleton_circle" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="@dimen/space_ms"
+                android:orientation="vertical">
+                <View
+                    android:layout_width="140dp"
+                    android:layout_height="13dp"
+                    android:background="@drawable/bg_skeleton" />
+                <View
+                    android:layout_width="94dp"
+                    android:layout_height="11dp"
+                    android:layout_marginTop="@dimen/space_sm"
+                    android:background="@drawable/bg_skeleton" />
+            </LinearLayout>
+            <View
+                android:layout_width="58dp"
+                android:layout_height="22dp"
+                android:background="@drawable/bg_skeleton" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- row 2 -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/space_sm">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:padding="@dimen/card_padding">
+            <View
+                android:layout_width="@dimen/avatar_size"
+                android:layout_height="@dimen/avatar_size"
+                android:background="@drawable/bg_skeleton_circle" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="@dimen/space_ms"
+                android:orientation="vertical">
+                <View
+                    android:layout_width="112dp"
+                    android:layout_height="13dp"
+                    android:background="@drawable/bg_skeleton" />
+                <View
+                    android:layout_width="128dp"
+                    android:layout_height="11dp"
+                    android:layout_marginTop="@dimen/space_sm"
+                    android:background="@drawable/bg_skeleton" />
+            </LinearLayout>
+            <View
+                android:layout_width="58dp"
+                android:layout_height="22dp"
+                android:background="@drawable/bg_skeleton" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- row 3 -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/space_sm">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:padding="@dimen/card_padding">
+            <View
+                android:layout_width="@dimen/avatar_size"
+                android:layout_height="@dimen/avatar_size"
+                android:background="@drawable/bg_skeleton_circle" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="@dimen/space_ms"
+                android:orientation="vertical">
+                <View
+                    android:layout_width="150dp"
+                    android:layout_height="13dp"
+                    android:background="@drawable/bg_skeleton" />
+                <View
+                    android:layout_width="86dp"
+                    android:layout_height="11dp"
+                    android:layout_marginTop="@dimen/space_sm"
+                    android:background="@drawable/bg_skeleton" />
+            </LinearLayout>
+            <View
+                android:layout_width="58dp"
+                android:layout_height="22dp"
+                android:background="@drawable/bg_skeleton" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- row 4, faded to suggest the list continues -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:alpha="0.55">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:padding="@dimen/card_padding">
+            <View
+                android:layout_width="@dimen/avatar_size"
+                android:layout_height="@dimen/avatar_size"
+                android:background="@drawable/bg_skeleton_circle" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="@dimen/space_ms"
+                android:orientation="vertical">
+                <View
+                    android:layout_width="124dp"
+                    android:layout_height="13dp"
+                    android:background="@drawable/bg_skeleton" />
+                <View
+                    android:layout_width="100dp"
+                    android:layout_height="11dp"
+                    android:layout_marginTop="@dimen/space_sm"
+                    android:background="@drawable/bg_skeleton" />
+            </LinearLayout>
+            <View
+                android:layout_width="58dp"
+                android:layout_height="22dp"
+                android:background="@drawable/bg_skeleton" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</LinearLayout>

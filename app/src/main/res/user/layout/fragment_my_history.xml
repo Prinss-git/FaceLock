@@ -147,12 +147,11 @@
             android:layout_gravity="center"
             android:visibility="gone" />
 
-        <com.google.android.material.progressindicator.CircularProgressIndicator
-            android:id="@+id/progress"
-            style="@style/Progress"
-            android:layout_width="wrap_content"
+        <include
+            android:id="@+id/skeleton"
+            layout="@layout/view_skeleton_rows"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:indeterminate="true" />
+            android:layout_gravity="top" />
     </FrameLayout>
 </LinearLayout>

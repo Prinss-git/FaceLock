@@ -17,6 +17,7 @@ import com.eldroid.facelock.util.validateEmail
 import com.eldroid.facelock.util.toast
 import com.eldroid.facelock.util.visible
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 class LoginActivity : AppCompatActivity() {
 
@@ -31,20 +32,44 @@ class LoginActivity : AppCompatActivity() {
         session = SessionManager(this)
 
         // Already signed in -> skip straight to the right dashboard.
-        authRepo.currentUid?.let { uid ->
-            setLoading(true)
-            lifecycleScope.launch {
-                authRepo.loadProfile(uid)
-                    .onSuccess { route(it) }
-                    .onFailure { setLoading(false) }
-            }
-        }
+        authRepo.currentUid?.let { uid -> resumeSession(uid) }
 
         binding.btnLogin.setOnClickListener { attemptLogin() }
         binding.tvRegister.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
         binding.tvForgot.setOnClickListener { openForgotPassword() }
+    }
+
+    /**
+     * Restores an existing session on launch.
+     *
+     * The profile read is bounded: if Firestore never answers — offline, or a
+     * rules change has locked this account out — the button used to sit on
+     * "Signing in…" forever with no way back. A stale session that cannot load
+     * is cleared so the form is usable again.
+     */
+    private fun resumeSession(uid: String) {
+        setLoading(true)
+        lifecycleScope.launch {
+            val result = withTimeoutOrNull(PROFILE_TIMEOUT_MS) { authRepo.loadProfile(uid) }
+            setLoading(false)
+            when {
+                result == null -> {
+                    authRepo.logout()
+                    toast(getString(R.string.session_timed_out))
+                }
+                result.isSuccess -> route(result.getOrThrow())
+                else -> {
+                    authRepo.logout()
+                    toast(
+                        result.exceptionOrNull()
+                            ?.authMessage(getString(R.string.session_unreadable))
+                            ?: getString(R.string.session_unreadable)
+                    )
+                }
+            }
+        }
     }
 
     private fun attemptLogin() {
@@ -116,5 +141,10 @@ class LoginActivity : AppCompatActivity() {
         binding.tvRegister.isEnabled = !loading
         binding.btnLogin.text =
             if (loading) getString(R.string.signing_in) else getString(R.string.sign_in)
+    }
+
+    private companion object {
+        /** Long enough for a slow network, short enough not to feel stuck. */
+        const val PROFILE_TIMEOUT_MS = 12_000L
     }
 }

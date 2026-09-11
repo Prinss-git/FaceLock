@@ -86,7 +86,7 @@ class AdminActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: android.view.Menu): Boolean {
         menuInflater.inflate(R.menu.menu_logout, menu)
-        menu.tintIcons(getColor(R.color.white))
+        menu.tintIcons(getColor(R.color.text_primary))
         return true
     }
 

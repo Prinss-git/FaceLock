@@ -24,8 +24,8 @@
 
         <!-- Headers are the dark ink ramp in both themes, so the status bar
              icons stay light in both. -->
-        <item name="android:statusBarColor">@color/ink_950</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="android:statusBarColor">@color/background</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
         <item name="android:navigationBarColor">@color/surface</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
 
@@ -34,6 +34,16 @@
         <item name="android:textColorHighlight">@color/accent_soft</item>
         <item name="android:fontFamily">@font/barlow</item>
         <item name="fontFamily">@font/barlow</item>
+    </style>
+
+    <!--
+      Login and face enrollment paint their own dark artwork at the top, so
+      they keep a dark status bar with light icons. Applied per-activity in
+      the manifest.
+    -->
+    <style name="Theme.FaceLock.DarkBars" parent="Theme.FaceLock">
+        <item name="android:statusBarColor">@color/ink_950</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
     </style>
 
     <!-- ================= Surfaces ================= -->
@@ -55,13 +65,26 @@
         <item name="rippleColor">@color/accent_soft</item>
     </style>
 
+    <!--
+      The app bar is the same colour as the page. A solid dark slab on every
+      screen is a Material 2 habit: it splits each layout in two, costs 56dp of
+      height, and is the single most template-looking thing an app can do.
+    -->
     <style name="Toolbar" parent="Widget.Material3.Toolbar">
-        <item name="android:background">@color/ink_950</item>
+        <item name="android:background">@color/background</item>
+        <item name="titleTextColor">@color/text_primary</item>
+        <item name="subtitleTextColor">@color/text_secondary</item>
+        <item name="navigationIconTint">@color/text_primary</item>
+        <item name="titleTextAppearance">@style/Toolbar.Title</item>
+        <item name="subtitleTextAppearance">@style/Toolbar.Subtitle</item>
+    </style>
+
+    <!-- For screens with dark content behind the bar: the camera, and login. -->
+    <style name="Toolbar.OnDark" parent="Toolbar">
+        <item name="android:background">@android:color/transparent</item>
         <item name="titleTextColor">@color/text_on_dark</item>
         <item name="subtitleTextColor">@color/text_on_dark_muted</item>
         <item name="navigationIconTint">@color/text_on_dark</item>
-        <item name="titleTextAppearance">@style/Toolbar.Title</item>
-        <item name="subtitleTextAppearance">@style/Toolbar.Subtitle</item>
     </style>
 
     <style name="Toolbar.Title" parent="TextAppearance.Material3.TitleLarge">

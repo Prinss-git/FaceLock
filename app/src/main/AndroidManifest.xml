@@ -20,6 +20,7 @@
 
         <activity
             android:name=".ui.auth.LoginActivity"
+            android:theme="@style/Theme.FaceLock.DarkBars"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -44,7 +45,10 @@
         <activity android:name=".ui.admin.UserFormActivity" android:exported="false" />
         <activity android:name=".ui.admin.DeviceTestActivity" android:exported="false" />
         <activity android:name=".ui.user.UserActivity" android:exported="false" />
-        <activity android:name=".ui.user.FaceEnrollActivity" android:exported="false" />
+        <activity
+            android:name=".ui.user.FaceEnrollActivity"
+            android:theme="@style/Theme.FaceLock.DarkBars"
+            android:exported="false" />
         <activity android:name=".ui.user.ProfileActivity" android:exported="false" />
 
         <service

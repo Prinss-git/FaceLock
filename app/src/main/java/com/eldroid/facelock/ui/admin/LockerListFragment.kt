@@ -20,6 +20,7 @@ import com.eldroid.facelock.databinding.FragmentListBinding
 import com.eldroid.facelock.ui.adapter.LockerAdapter
 import com.eldroid.facelock.util.SessionManager
 import com.eldroid.facelock.util.catchFirestore
+import com.eldroid.facelock.util.skeleton
 import com.eldroid.facelock.util.snack
 import com.eldroid.facelock.util.visible
 import kotlinx.coroutines.flow.combine
@@ -54,6 +55,7 @@ class LockerListFragment : Fragment() {
             onUnlock = { locker -> confirmRemoteUnlock(locker) },
             showActions = isAdmin
         )
+        binding.skeleton.root.skeleton(true)
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
         binding.recycler.adapter = adapter
 
@@ -88,7 +90,7 @@ class LockerListFragment : Fragment() {
                 .collect { (lockerList, userList) ->
                     users = userList
                     lockers = lockerList
-                    binding.progress.visible(false)
+                    binding.skeleton.root.skeleton(false)
                     applyFilter()
                 }
         }
@@ -227,7 +229,7 @@ class LockerListFragment : Fragment() {
      */
     private fun showLoadError(message: String) {
         val binding = _binding ?: return
-        binding.progress.visible(false)
+        binding.skeleton.root.skeleton(false)
         binding.empty.root.visible(true)
         binding.empty.ivEmpty.setImageResource(R.drawable.ic_alert)
         binding.empty.tvEmptyTitle.text = getString(R.string.load_failed_title)

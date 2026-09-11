@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Loading placeholder for My Locker. Mirrors that screen's shape — greeting,
+  the dark locker hero, the Face ID card, then a recent-access row — so the
+  page holds still while the Firestore listeners deliver.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/background"
+    android:paddingHorizontal="@dimen/screen_margin"
+    android:paddingTop="@dimen/space_md"
+    android:importantForAccessibility="noHideDescendants">
+
+    <!-- greeting -->
+    <View
+        android:layout_width="208dp"
+        android:layout_height="24dp"
+        android:background="@drawable/bg_skeleton" />
+    <View
+        android:layout_width="156dp"
+        android:layout_height="13dp"
+        android:layout_marginTop="@dimen/space_sm"
+        android:background="@drawable/bg_skeleton" />
+
+    <!-- locker hero: kept dark so the page does not flash light then dark -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_md"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:strokeWidth="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_hero_card"
+            android:orientation="vertical"
+            android:padding="@dimen/space_lg">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical">
+                <View
+                    android:layout_width="88dp"
+                    android:layout_height="11dp"
+                    android:background="@drawable/bg_skeleton"
+                    android:alpha="0.28" />
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+                <View
+                    android:layout_width="62dp"
+                    android:layout_height="22dp"
+                    android:background="@drawable/bg_skeleton"
+                    android:alpha="0.28" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="142dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="@dimen/space_sm"
+                android:background="@drawable/bg_skeleton"
+                android:alpha="0.28" />
+            <View
+                android:layout_width="118dp"
+                android:layout_height="13dp"
+                android:layout_marginTop="@dimen/space_sm"
+                android:background="@drawable/bg_skeleton"
+                android:alpha="0.28" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="@dimen/space_md"
+                android:background="@color/ink_600" />
+
+            <View
+                android:layout_width="180dp"
+                android:layout_height="11dp"
+                android:background="@drawable/bg_skeleton"
+                android:alpha="0.28" />
+            <View
+                android:layout_width="150dp"
+                android:layout_height="11dp"
+                android:layout_marginTop="@dimen/space_sm"
+                android:background="@drawable/bg_skeleton"
+                android:alpha="0.28" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- face id card -->
+    <View
+        android:layout_width="62dp"
+        android:layout_height="11dp"
+        android:layout_marginTop="@dimen/space_lg"
+        android:layout_marginBottom="@dimen/space_sm"
+        android:background="@drawable/bg_skeleton" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/card_padding">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical">
+                <View
+                    android:layout_width="@dimen/icon_badge"
+                    android:layout_height="@dimen/icon_badge"
+                    android:background="@drawable/bg_skeleton_circle" />
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/space_ms"
+                    android:orientation="vertical">
+                    <View
+                        android:layout_width="104dp"
+                        android:layout_height="13dp"
+                        android:background="@drawable/bg_skeleton" />
+                    <View
+                        android:layout_width="148dp"
+                        android:layout_height="11dp"
+                        android:layout_marginTop="@dimen/space_sm"
+                        android:background="@drawable/bg_skeleton" />
+                </LinearLayout>
+                <View
+                    android:layout_width="64dp"
+                    android:layout_height="22dp"
+                    android:background="@drawable/bg_skeleton" />
+            </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:layout_marginTop="@dimen/space_ms"
+                android:background="@drawable/bg_skeleton" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- recent access -->
+    <View
+        android:layout_width="96dp"
+        android:layout_height="11dp"
+        android:layout_marginTop="@dimen/space_lg"
+        android:layout_marginBottom="@dimen/space_sm"
+        android:background="@drawable/bg_skeleton" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:padding="@dimen/card_padding">
+            <View
+                android:layout_width="@dimen/icon_badge"
+                android:layout_height="@dimen/icon_badge"
+                android:background="@drawable/bg_skeleton_circle" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="@dimen/space_ms"
+                android:orientation="vertical">
+                <View
+                    android:layout_width="126dp"
+                    android:layout_height="13dp"
+                    android:background="@drawable/bg_skeleton" />
+                <View
+                    android:layout_width="92dp"
+                    android:layout_height="11dp"
+                    android:layout_marginTop="@dimen/space_sm"
+                    android:background="@drawable/bg_skeleton" />
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</LinearLayout>

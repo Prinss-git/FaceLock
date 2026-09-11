@@ -215,6 +215,9 @@
     <string name="device_test_overwrite_warning">The sketch writes 42 to this key every 10 seconds, so anything you send here is overwritten on the next loop. Comment out the setInt line in the sketch to see your value stick.</string>
     <string name="action_device_test">Device test</string>
 
+    <string name="session_timed_out">Could not reach the server. Sign in again.</string>
+    <string name="session_unreadable">Your session could not be restored. Sign in again.</string>
+
     <!-- Face enrollment -->
     <string name="enroll_title">Face enrollment</string>
     <string name="enroll_privacy">The photo is converted to a template and then deleted</string>

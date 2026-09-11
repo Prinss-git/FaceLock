@@ -20,6 +20,7 @@ import com.eldroid.facelock.ui.adapter.LogAdapter
 import com.eldroid.facelock.util.SessionManager
 import com.eldroid.facelock.util.asRelativeDateTime
 import com.eldroid.facelock.util.catchFirestore
+import com.eldroid.facelock.util.skeleton
 import com.eldroid.facelock.util.snack
 import com.eldroid.facelock.util.visible
 import kotlinx.coroutines.Job
@@ -67,6 +68,7 @@ class MyLockerFragment : Fragment() {
         }
 
         binding.tvGreeting.text = greeting()
+        binding.skeleton.root.skeleton(true)
 
         observeProfile()
         observeRecent()
@@ -87,12 +89,17 @@ class MyLockerFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             userRepo.observeUser(uid)
                 .filterNotNull()
-                .catchFirestore("your profile") { snack(it) }
+                .catchFirestore("your profile") {
+                    binding.skeleton.root.skeleton(false)
+                    snack(it)
+                }
                 .collect { render(it) }
         }
     }
 
     private fun render(user: User) {
+        // First real data: the placeholder has done its job.
+        binding.skeleton.root.skeleton(false)
         SessionManager(requireContext()).lockerId = user.lockerId
         renderFace(user.faceEnrolled)
 

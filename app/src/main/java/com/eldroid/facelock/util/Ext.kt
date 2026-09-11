@@ -1,11 +1,13 @@
 package com.eldroid.facelock.util
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.view.Menu
 import android.view.View
 import android.widget.Toast
 import androidx.annotation.ColorInt
 import androidx.fragment.app.Fragment
+import com.eldroid.facelock.R
 import com.google.android.material.snackbar.Snackbar
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -35,6 +37,33 @@ fun Fragment.snack(message: String, actionLabel: String? = null, action: (() -> 
 
 fun View.visible(show: Boolean) {
     visibility = if (show) View.VISIBLE else View.GONE
+}
+
+/**
+ * Shows or hides a loading skeleton, breathing gently while it is up.
+ *
+ * A static grey block reads as broken layout; the pulse is what tells you the
+ * screen is working. The animator is held on the view's tag so it can be
+ * cancelled — an animator left running on a detached view leaks it.
+ */
+fun View.skeleton(show: Boolean) {
+    visible(show)
+    val running = getTag(R.id.tag_skeleton_animator) as? ValueAnimator
+    if (!show) {
+        running?.cancel()
+        setTag(R.id.tag_skeleton_animator, null)
+        alpha = 1f
+        return
+    }
+    if (running != null) return
+    val animator = ValueAnimator.ofFloat(1f, 0.45f).apply {
+        duration = 850
+        repeatMode = ValueAnimator.REVERSE
+        repeatCount = ValueAnimator.INFINITE
+        addUpdateListener { alpha = it.animatedValue as Float }
+    }
+    setTag(R.id.tag_skeleton_animator, animator)
+    animator.start()
 }
 
 /**

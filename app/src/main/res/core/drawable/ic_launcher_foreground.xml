@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  FaceLock mark — foreground layer of the adaptive icon.
+  FaceLock mark - foreground layer of the adaptive icon.
 
-  Two ideas in one shape: the four corner brackets are the universal "face is
-  being scanned" frame, and the keyhole inside them is what the scan opens.
-  Together they read as FaceLock without borrowing anyone else's face glyph.
+  Scan brackets around a face: the brackets are the universal "a face is being
+  read" frame, and what sits inside is the face itself.
 
   Geometry notes for anyone editing this:
   · canvas is 108x108; the adaptive mask can crop to a 72dp circle, so nothing
     may sit further than ~36 from the centre (54,54).
   · the bracket frame is a 42dp square (33..75). Its outer corner is 29.7 from
-    the centre, plus half the 6.5 stroke ≈ 33 — inside the safe radius.
+    the centre, plus half the 6.5 stroke - inside the safe radius.
   · every corner arc sweeps clockwise on screen (y grows downward), hence
     sweep-flag 1 throughout.
+  · the eyes are upright rounded bars rather than circles, which keeps the
+    mark from collapsing into a generic smiley at small sizes.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
@@ -22,84 +23,69 @@
     android:viewportHeight="108">
 
     <!-- ===================== Scan frame ===================== -->
-    <group android:name="brackets">
-
-        <!-- Top-left -->
-        <path
-            android:pathData="M33,46 L33,40 A7,7 0 0 1 40,33 L46,33"
-            android:strokeWidth="6.5"
-            android:strokeLineCap="round"
-            android:strokeLineJoin="round">
-            <aapt:attr name="android:strokeColor">
-                <gradient
-                    android:type="linear"
-                    android:startX="33" android:startY="33"
-                    android:endX="75" android:endY="75">
-                    <item android:offset="0" android:color="#7CF0DC" />
-                    <item android:offset="1" android:color="#00C2A8" />
-                </gradient>
-            </aapt:attr>
-        </path>
-
-        <!-- Top-right -->
-        <path
-            android:pathData="M62,33 L68,33 A7,7 0 0 1 75,40 L75,46"
-            android:strokeWidth="6.5"
-            android:strokeLineCap="round"
-            android:strokeLineJoin="round">
-            <aapt:attr name="android:strokeColor">
-                <gradient
-                    android:type="linear"
-                    android:startX="33" android:startY="33"
-                    android:endX="75" android:endY="75">
-                    <item android:offset="0" android:color="#5FE3CD" />
-                    <item android:offset="1" android:color="#00C2A8" />
-                </gradient>
-            </aapt:attr>
-        </path>
-
-        <!-- Bottom-right -->
-        <path
-            android:pathData="M75,62 L75,68 A7,7 0 0 1 68,75 L62,75"
-            android:strokeWidth="6.5"
-            android:strokeLineCap="round"
-            android:strokeLineJoin="round">
-            <aapt:attr name="android:strokeColor">
-                <gradient
-                    android:type="linear"
-                    android:startX="33" android:startY="33"
-                    android:endX="75" android:endY="75">
-                    <item android:offset="0" android:color="#2ED3BA" />
-                    <item android:offset="1" android:color="#00907E" />
-                </gradient>
-            </aapt:attr>
-        </path>
-
-        <!-- Bottom-left -->
-        <path
-            android:pathData="M46,75 L40,75 A7,7 0 0 1 33,68 L33,62"
-            android:strokeWidth="6.5"
-            android:strokeLineCap="round"
-            android:strokeLineJoin="round">
-            <aapt:attr name="android:strokeColor">
-                <gradient
-                    android:type="linear"
-                    android:startX="33" android:startY="33"
-                    android:endX="75" android:endY="75">
-                    <item android:offset="0" android:color="#5FE3CD" />
-                    <item android:offset="1" android:color="#00A894" />
-                </gradient>
-            </aapt:attr>
-        </path>
-    </group>
-
-    <!-- ===================== Keyhole ===================== -->
-    <!-- Drawn as two overlapping shapes: the stem starts inside the bowl so
-         the join is seamless at any size. -->
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M46.5,48 A7.5,7.5 0 1 1 61.5,48 A7.5,7.5 0 1 1 46.5,48 Z" />
+        android:pathData="M33,46 L33,40 A7,7 0 0 1 40,33 L46,33"
+        android:strokeWidth="6.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round">
+        <aapt:attr name="android:strokeColor">
+            <gradient android:type="linear"
+                android:startX="33" android:startY="33"
+                android:endX="75" android:endY="75">
+                <item android:offset="0" android:color="#7CF0DC" />
+                <item android:offset="1" android:color="#00A894" />
+            </gradient>
+        </aapt:attr>
+    </path>
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M50.8,53 L57.2,53 L59.5,65.5 Q59.8,68 57.3,68 L50.7,68 Q48.2,68 48.5,65.5 Z" />
+        android:pathData="M62,33 L68,33 A7,7 0 0 1 75,40 L75,46"
+        android:strokeWidth="6.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round">
+        <aapt:attr name="android:strokeColor">
+            <gradient android:type="linear"
+                android:startX="33" android:startY="33"
+                android:endX="75" android:endY="75">
+                <item android:offset="0" android:color="#7CF0DC" />
+                <item android:offset="1" android:color="#00A894" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path
+        android:pathData="M75,62 L75,68 A7,7 0 0 1 68,75 L62,75"
+        android:strokeWidth="6.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round">
+        <aapt:attr name="android:strokeColor">
+            <gradient android:type="linear"
+                android:startX="33" android:startY="33"
+                android:endX="75" android:endY="75">
+                <item android:offset="0" android:color="#7CF0DC" />
+                <item android:offset="1" android:color="#00A894" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path
+        android:pathData="M46,75 L40,75 A7,7 0 0 1 33,68 L33,62"
+        android:strokeWidth="6.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round">
+        <aapt:attr name="android:strokeColor">
+            <gradient android:type="linear"
+                android:startX="33" android:startY="33"
+                android:endX="75" android:endY="75">
+                <item android:offset="0" android:color="#7CF0DC" />
+                <item android:offset="1" android:color="#00A894" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- ===================== Face ===================== -->
+    <path android:fillColor="#FFFFFF" android:pathData="M45.6,43 C47.4,43 48.6,44.4 48.6,46.2 L48.6,49.6 C48.6,51.4 47.4,52.8 45.6,52.8 C43.8,52.8 42.6,51.4 42.6,49.6 L42.6,46.2 C42.6,44.4 43.8,43 45.6,43 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M62.4,43 C64.2,43 65.4,44.4 65.4,46.2 L65.4,49.6 C65.4,51.4 64.2,52.8 62.4,52.8 C60.6,52.8 59.4,51.4 59.4,49.6 L59.4,46.2 C59.4,44.4 60.6,43 62.4,43 Z" />
+    <path
+        android:pathData="M44.5,59.5 C47.5,64.8 60.5,64.8 63.5,59.5"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="5"
+        android:strokeLineCap="round" />
 </vector>

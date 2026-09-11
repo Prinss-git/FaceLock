@@ -21,7 +21,7 @@
         <item name="colorOnError">@color/ink_950</item>
         <item name="android:colorBackground">@color/background</item>
 
-        <item name="android:statusBarColor">@color/ink_950</item>
+        <item name="android:statusBarColor">@color/background</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
         <item name="android:navigationBarColor">@color/surface</item>
         <!-- The only real difference: dark nav bar wants light buttons. -->

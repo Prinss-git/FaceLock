@@ -14,6 +14,7 @@ import com.eldroid.facelock.databinding.FragmentLogsBinding
 import com.eldroid.facelock.ui.adapter.LogAdapter
 import com.eldroid.facelock.util.startOfToday
 import com.eldroid.facelock.util.catchFirestore
+import com.eldroid.facelock.util.skeleton
 import com.eldroid.facelock.util.visible
 import kotlinx.coroutines.launch
 
@@ -42,6 +43,7 @@ class AccessLogFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         adapter = LogAdapter()
+        binding.skeleton.root.skeleton(true)
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
         binding.recycler.adapter = adapter
 
@@ -54,7 +56,7 @@ class AccessLogFragment : Fragment() {
                 .catchFirestore("the access log") { showLoadError(it) }
                 .collect { logs ->
                     all = logs
-                    binding.progress.visible(false)
+                    binding.skeleton.root.skeleton(false)
 
                     val since = startOfToday()
                     val today = logs.filter { it.timestamp >= since }
@@ -105,7 +107,7 @@ class AccessLogFragment : Fragment() {
      */
     private fun showLoadError(message: String) {
         val binding = _binding ?: return
-        binding.progress.visible(false)
+        binding.skeleton.root.skeleton(false)
         binding.empty.root.visible(true)
         binding.empty.ivEmpty.setImageResource(R.drawable.ic_alert)
         binding.empty.tvEmptyTitle.text = getString(R.string.load_failed_title)
