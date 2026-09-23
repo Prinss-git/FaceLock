@@ -93,6 +93,11 @@
     <string name="stat_denied_today">Denied today</string>
 
     <!-- Filters -->
+    <string name="filter_all_n">All (%1$d)</string>
+    <string name="filter_granted_n">Granted (%1$d)</string>
+    <string name="filter_denied_n">Denied (%1$d)</string>
+    <string name="stat_total_events">total events</string>
+    <string name="stat_all_time">all time</string>
     <string name="filter_all">All</string>
     <string name="filter_granted">Granted</string>
     <string name="filter_denied">Denied</string>
@@ -225,8 +230,29 @@
     <string name="device_test_overwrite_warning">The sketch writes 42 to this key every 10 seconds, so anything you send here is overwritten on the next loop. Comment out the setInt line in the sketch to see your value stick.</string>
     <string name="action_device_test">Device test</string>
 
+    <!-- LED control: phone writes device/led, the ESP32 reads it. -->
+    <string name="led_title">LED control</string>
+    <string name="led_subtitle">Switches the LED wired to the ESP32. The phone writes the value to Firebase and the board reads it.</string>
+    <string name="led_device">Realtime Database · device/led</string>
+    <string name="led_state_on">ON</string>
+    <string name="led_state_off">OFF</string>
+    <string name="led_state_unset">NOT SET</string>
+    <string name="led_turn_on">Turn LED on</string>
+    <string name="led_turn_off">Turn LED off</string>
+    <string name="led_force_on">Force on</string>
+    <string name="led_force_off">Force off</string>
+    <string name="led_sent_on">Sent: LED on</string>
+    <string name="led_sent_off">Sent: LED off</string>
+    <string name="led_firebase_value">Value in Firebase</string>
+    <string name="led_value_absent">(key not created yet)</string>
+    <string name="led_value_unreadable">(unreadable)</string>
+    <string name="led_wiring_note">The LED goes from the GPIO pin through a 220 ohm resistor to GND. If the value below changes but the light does not, the board is not running the listener sketch.</string>
+    <string name="action_led_control">LED control</string>
+
     <string name="session_timed_out">Could not reach the server. Sign in again.</string>
     <string name="session_unreadable">Your session could not be restored. Sign in again.</string>
+
+    <!-- Demo seeding (debug builds only) -->
 
     <!-- Face enrollment -->
     <string name="enroll_title">Face enrollment</string>

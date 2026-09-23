@@ -19,6 +19,7 @@ import com.eldroid.facelock.data.repo.LogRepository
 import com.eldroid.facelock.data.repo.UserRepository
 import com.eldroid.facelock.databinding.FragmentProfileBinding
 import com.eldroid.facelock.ui.admin.DeviceTestActivity
+import com.eldroid.facelock.ui.admin.LedControlActivity
 import com.eldroid.facelock.ui.auth.ChangePasswordActivity
 import com.eldroid.facelock.ui.auth.LoginActivity
 import com.eldroid.facelock.util.SessionManager
@@ -68,6 +69,9 @@ class ProfileFragment : Fragment() {
         binding.btnDeviceTest.setOnClickListener {
             startActivity(Intent(requireContext(), DeviceTestActivity::class.java))
         }
+        binding.btnLedControl.setOnClickListener {
+            startActivity(Intent(requireContext(), LedControlActivity::class.java))
+        }
 
         binding.tvVersion.text = "FaceLock v${BuildConfig.VERSION_NAME}"
 
@@ -103,9 +107,10 @@ class ProfileFragment : Fragment() {
         binding.btnEnroll.visible(!staff)
 
         binding.adminSection.visible(staff)
-        // Security staff are read-only; the device test writes to the locker
-        // device path, so it is admin-only.
+        // Security staff are read-only; both of these write to the device
+        // paths, so they are admin-only.
         binding.btnDeviceTest.visible(user.roleEnum == Role.ADMIN)
+        binding.btnLedControl.visible(user.roleEnum == Role.ADMIN)
         if (staff && !statsStarted) {
             statsStarted = true
             observeStats()
@@ -160,6 +165,7 @@ class ProfileFragment : Fragment() {
                 }
         }
     }
+
 
 
     private fun confirmLogout() {

@@ -384,6 +384,16 @@
                     app:icon="@drawable/ic_info"
                     app:iconGravity="textStart"
                     android:text="@string/device_test_title" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnLedControl"
+                    style="@style/Btn.Outline"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="@dimen/space_sm"
+                    app:icon="@drawable/ic_bulb"
+                    app:iconGravity="textStart"
+                    android:text="@string/action_led_control" />
             </LinearLayout>
 
             <!-- ===================== Security ===================== -->

@@ -21,6 +21,13 @@ object FirebaseRefs {
     /** Path the ESP32 sketch writes its heartbeat value to. */
     const val RTDB_TEST_PATH = "test/data"
 
+    /**
+     * The LED switch. The phone writes it, the sketch keeps a listener on it and
+     * drives its GPIO from whatever lands here — so the key itself is the state,
+     * and the two ends never have to talk directly.
+     */
+    const val RTDB_LED_PATH = "device/led"
+
     const val USERS = "users"
     const val LOCKERS = "lockers"
     const val ACCESS_LOGS = "access_logs"

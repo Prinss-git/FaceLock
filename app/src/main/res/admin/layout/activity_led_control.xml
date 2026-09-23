@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  LED control. One switch, written to the Realtime Database, read by the ESP32.
+
+  The lamp disc and the ON/OFF word are the state as the phone believes it; the
+  row underneath is the raw database value that produced it. Keeping the two
+  visibly separate is the point of the screen - when the wiring is wrong, it is
+  the gap between them that says so.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        style="@style/Toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:navigationIcon="@drawable/ic_back"
+        app:navigationContentDescription="@string/action_back" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/screen_margin">
+
+            <TextView
+                style="@style/T.Display"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="26sp"
+                android:text="@string/led_title" />
+
+            <TextView
+                style="@style/T.Body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xs"
+                android:layout_marginBottom="@dimen/space_md"
+                android:textColor="@color/text_secondary"
+                android:text="@string/led_subtitle" />
+
+            <!-- ===================== Lamp state ===================== -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_hero_card"
+                    android:orientation="vertical"
+                    android:padding="@dimen/space_lg">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            style="@style/T.Label"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textColor="@color/text_on_dark_muted"
+                            android:text="@string/led_device" />
+
+                        <TextView
+                            android:id="@+id/tvConnection"
+                            style="@style/Pill"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/pill_neutral"
+                            android:textColor="@color/text_secondary"
+                            tools:text="Connected" />
+                    </LinearLayout>
+
+                    <FrameLayout
+                        android:layout_width="104dp"
+                        android:layout_height="104dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="@dimen/space_md">
+
+                        <View
+                            android:id="@+id/lamp"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_led_off" />
+
+                        <ImageView
+                            android:id="@+id/ivBulb"
+                            android:layout_width="52dp"
+                            android:layout_height="52dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_bulb"
+                            app:tint="@color/text_on_dark_muted"
+                            android:importantForAccessibility="no" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/tvState"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_md"
+                        android:gravity="center"
+                        android:textSize="34sp"
+                        android:fontFamily="@font/barlow_semibold"
+                        android:letterSpacing="0.08"
+                        android:textColor="@color/text_on_dark"
+                        tools:text="OFF" />
+
+                    <TextView
+                        android:id="@+id/tvUpdated"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:textSize="13sp"
+                        android:textColor="@color/text_on_dark_muted"
+                        tools:text="Updated Today 1:45 PM" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ===================== Switch ===================== -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnToggle"
+                style="@style/Btn.Primary"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="@dimen/space_lg"
+                app:icon="@drawable/ic_bulb"
+                app:iconGravity="textStart"
+                android:text="@string/led_turn_on" />
+
+            <!-- Explicit ends, for when the lamp and the device disagree and the
+                 state has to be forced to a known one. -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_sm">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnOn"
+                    style="@style/Btn.Outline"
+                    android:layout_width="0dp"
+                    android:layout_height="46dp"
+                    android:layout_weight="1"
+                    android:text="@string/led_force_on" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnOff"
+                    style="@style/Btn.Outline"
+                    android:layout_width="0dp"
+                    android:layout_height="46dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/space_sm"
+                    android:text="@string/led_force_off" />
+            </LinearLayout>
+
+            <!-- ===================== Raw database value ===================== -->
+            <TextView
+                style="@style/T.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_lg"
+                android:layout_marginBottom="@dimen/space_sm"
+                android:text="@string/led_firebase_value" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_sunken"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <TextView
+                    android:id="@+id/tvPath"
+                    style="@style/T.Body"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:fontFamily="monospace"
+                    android:textColor="@color/text_secondary"
+                    tools:text="device/led" />
+
+                <TextView
+                    android:id="@+id/tvRawValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_xs"
+                    android:textSize="24sp"
+                    android:fontFamily="monospace"
+                    android:textColor="@color/text_primary"
+                    tools:text="true" />
+            </LinearLayout>
+
+            <!-- ===================== Wiring note ===================== -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_lg"
+                app:cardBackgroundColor="@color/warning_wash"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/card_padding">
+
+                    <ImageView
+                        android:layout_width="@dimen/icon_size"
+                        android:layout_height="@dimen/icon_size"
+                        android:src="@drawable/ic_alert"
+                        app:tint="@color/warning"
+                        android:importantForAccessibility="no" />
+
+                    <TextView
+                        style="@style/T.Body"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_ms"
+                        android:textSize="13sp"
+                        android:textColor="@color/text_primary"
+                        android:text="@string/led_wiring_note" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

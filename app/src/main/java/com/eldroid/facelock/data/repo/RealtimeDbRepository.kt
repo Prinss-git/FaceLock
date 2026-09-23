@@ -47,6 +47,42 @@ class RealtimeDbRepository {
     }
 
     /**
+     * Live flag at [path]. Emits null while the key does not exist, which is a
+     * different thing from "off" and is worth showing as such.
+     *
+     * A sketch may well write the switch as 1/0 or "on"/"off" rather than a JSON
+     * boolean, so all three spellings are read back.
+     */
+    fun observeBool(path: String): Flow<Boolean?> = callbackFlow {
+        val ref = db.getReference(path)
+        val listener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                trySend(
+                    snapshot.getValue(Boolean::class.java)
+                        ?: snapshot.getValue(Int::class.java)?.let { it != 0 }
+                        ?: snapshot.getValue(String::class.java)?.let {
+                            when (it.trim().lowercase()) {
+                                "true", "1", "on" -> true
+                                "false", "0", "off" -> false
+                                else -> null
+                            }
+                        }
+                )
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                close(error.toException())
+            }
+        }
+        ref.addValueEventListener(listener)
+        awaitClose { ref.removeEventListener(listener) }
+    }
+
+    suspend fun setBool(path: String, value: Boolean): Result<Unit> = runCatching {
+        db.getReference(path).setValue(value).await()
+    }
+
+    /**
      * Whether the client currently has a socket to the database. Mirrors the
      * built-in `.info/connected` flag, so it reflects the SDK's own view rather
      * than a guess.

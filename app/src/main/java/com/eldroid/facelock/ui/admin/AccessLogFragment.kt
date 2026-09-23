@@ -63,14 +63,32 @@ class AccessLogFragment : Fragment() {
 
                     val since = startOfToday()
                     val today = logs.filter { it.timestamp >= since }
+                    val granted = today.count { it.granted }
+                    val denied = today.size - granted
+
                     binding.tvStatToday.text = today.size.toString()
-                    binding.tvStatGranted.text = today.count { it.granted }.toString()
-                    binding.tvStatDenied.text = today.count { !it.granted }.toString()
+                    binding.tvStatGranted.text = granted.toString()
+                    binding.tvStatDenied.text = denied.toString()
+
+                    binding.tvPctTotal.setText(R.string.stat_total_events)
+                    binding.tvPctGranted.text = share(granted, today.size)
+                    binding.tvPctDenied.text = share(denied, today.size)
+
+                    // Counts on the chips turn a filter into information.
+                    binding.chipAll.text = getString(R.string.filter_all_n, logs.size)
+                    binding.chipGranted.text =
+                        getString(R.string.filter_granted_n, logs.count { it.granted })
+                    binding.chipFailed.text =
+                        getString(R.string.filter_denied_n, logs.count { !it.granted })
 
                     applyFilter()
                 }
         }
     }
+
+    /** "85.4%" of the day's traffic, or a dash when there is none yet. */
+    private fun share(part: Int, total: Int): String =
+        if (total == 0) "—" else "%.1f%%".format(part * 100.0 / total)
 
     private fun applyFilter() {
         val binding = _binding ?: return

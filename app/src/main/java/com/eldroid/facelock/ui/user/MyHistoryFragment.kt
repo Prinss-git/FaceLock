@@ -65,14 +65,28 @@ class MyHistoryFragment : Fragment() {
                     all = logs
                     binding.skeleton.root.skeleton(false)
 
+                    val granted = logs.count { it.granted }
+                    val denied = logs.size - granted
+
                     binding.tvStatTotal.text = logs.size.toString()
-                    binding.tvStatGranted.text = logs.count { it.granted }.toString()
-                    binding.tvStatDenied.text = logs.count { !it.granted }.toString()
+                    binding.tvStatGranted.text = granted.toString()
+                    binding.tvStatDenied.text = denied.toString()
+
+                    binding.tvPctTotal.setText(R.string.stat_all_time)
+                    binding.tvPctGranted.text = share(granted, logs.size)
+                    binding.tvPctDenied.text = share(denied, logs.size)
+
+                    binding.chipAll.text = getString(R.string.filter_all_n, logs.size)
+                    binding.chipGranted.text = getString(R.string.filter_granted_n, granted)
+                    binding.chipFailed.text = getString(R.string.filter_denied_n, denied)
 
                     applyFilter()
                 }
         }
     }
+
+    private fun share(part: Int, total: Int): String =
+        if (total == 0) "—" else "%.1f%%".format(part * 100.0 / total)
 
     private fun applyFilter() {
         val binding = _binding ?: return

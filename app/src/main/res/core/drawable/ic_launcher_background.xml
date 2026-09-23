@@ -1,42 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Background layer: the brand ink ramp on a diagonal, lifted by a soft teal
-  glow behind the top-left bracket. The glow is what keeps the icon from
-  looking like a flat navy square next to other icons.
-
-  Must fill the whole 108x108 canvas — the outer ~18dp on each side is parallax
-  margin the launcher may crop.
+  Background layer: a deep blue-black gradient lifted by a soft blue glow
+  behind the head. Must fill the whole 108x108 canvas - the outer ~18dp on
+  each side is parallax margin the launcher may crop.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
 
     <path android:pathData="M0,0 L108,0 L108,108 L0,108 Z">
         <aapt:attr name="android:fillColor">
-            <gradient
-                android:type="linear"
-                android:startX="0" android:startY="0"
-                android:endX="108" android:endY="108">
-                <item android:offset="0" android:color="#0E1B2B" />
-                <item android:offset="0.55" android:color="#0B1420" />
-                <item android:offset="1" android:color="#132A3E" />
+            <gradient android:type="linear"
+                android:startX="0" android:startY="0" android:endX="108" android:endY="108">
+                <item android:offset="0" android:color="#0D1A30" />
+                <item android:offset="0.55" android:color="#070C18" />
+                <item android:offset="1" android:color="#0A1E3C" />
             </gradient>
         </aapt:attr>
     </path>
-
-    <!-- Glow -->
     <path android:pathData="M0,0 L108,0 L108,108 L0,108 Z">
         <aapt:attr name="android:fillColor">
-            <gradient
-                android:type="radial"
-                android:centerX="34" android:centerY="30"
-                android:gradientRadius="62">
-                <item android:offset="0" android:color="#3D2ED3BA" />
-                <item android:offset="0.6" android:color="#122ED3BA" />
-                <item android:offset="1" android:color="#002ED3BA" />
+            <gradient android:type="radial"
+                android:centerX="40" android:centerY="38" android:gradientRadius="58">
+                <item android:offset="0" android:color="#4D2E8BFF" />
+                <item android:offset="0.6" android:color="#162E8BFF" />
+                <item android:offset="1" android:color="#002E8BFF" />
             </gradient>
         </aapt:attr>
     </path>

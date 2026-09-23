@@ -44,6 +44,7 @@
         <activity android:name=".ui.admin.AdminActivity" android:exported="false" />
         <activity android:name=".ui.admin.UserFormActivity" android:exported="false" />
         <activity android:name=".ui.admin.DeviceTestActivity" android:exported="false" />
+        <activity android:name=".ui.admin.LedControlActivity" android:exported="false" />
         <activity android:name=".ui.user.UserActivity" android:exported="false" />
         <activity
             android:name=".ui.user.FaceEnrollActivity"

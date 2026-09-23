@@ -18,6 +18,7 @@ service cloud.firestore {
       return signedIn() && myProfile().role == 'SECURITY';
     }
 
+
     // ---------- users ----------
     match /users/{uid} {
       // A user reads only their own profile; staff read everyone.
