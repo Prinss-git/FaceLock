@@ -35,7 +35,7 @@ FaceLock/
 ├── firmware/
 │   ├── FaceLock_ESP32CAM.ino  Capture → recognize → unlock → log
 │   ├── ConnectivityTest/      Proves the board can reach the backend
-│   ├── LedControl/            Listens to device/led and drives a GPIO
+│   ├── LedControl/            Follows device/led and drives a GPIO
 │   └── WIRING.md              Bill of materials and pin connections
 └── firebase/
     ├── SETUP.md               Step-by-step console setup
@@ -66,17 +66,40 @@ existing admin, and this is enforced in the Firestore rules, not just the UI.
 
 ## Getting started
 
-1. **Open in Android Studio** — File → Open → select the `FaceLock` folder.
+1. **Open in Android Studio** — File → Open → select the folder that contains
+   `settings.gradle.kts`. Not the folder above it.
    Built and pinned for **Android Studio Iguana (2023.2.1)**:
    AGP 8.3.2 · Gradle 8.4 · Kotlin 1.9.22 · JDK 17 (use the bundled JBR).
    Let the Gradle sync finish before running.
-2. **Set up Firebase** — follow `firebase/SETUP.md`. You must place
-   `google-services.json` at `app/google-services.json` or the build will fail.
+2. **Get `google-services.json`** — it is deliberately not in the repo. Either
+   download it from the Firebase console (Project settings → Your apps → Android
+   app → `google-services.json`) or ask a teammate for their copy, and put it at
+   `app/google-services.json`. The build fails without it.
 3. **Promote yourself to admin** — register in the app, then flip your `role`
    field to `ADMIN` in the Firestore console.
 4. **Add lockers** — from the admin dashboard, Lockers tab, **+** button.
 5. **Flash the ESP32-CAM** — see `firmware/WIRING.md`, then set `WIFI_SSID`,
    `WIFI_PASSWORD`, `RECOGNIZE_URL`, `DEVICE_KEY`, and `LOCKER_ID` in the sketch.
+
+### If Android Studio shows hundreds of red errors
+
+Errors like *"Unresolved class 'FaceLockApp'"*, *"Attribute android:allowBackup is
+not allowed here"* or *"Unresolved package 'ui'"* in `AndroidManifest.xml` do not
+mean the code is broken. They mean Gradle never synced, so the IDE is reading the
+manifest as plain XML with no Android project behind it. Two causes:
+
+**You opened the wrong folder.** Downloading the ZIP from GitHub gives you
+`FaceLock-main\FaceLock-main\` — the project is in the *inner* one. Opening the
+outer folder finds no `settings.gradle.kts` and nothing syncs. Close the project
+and reopen at the level where you can see `settings.gradle.kts`, `gradlew` and
+`app/` side by side. **Cloning with `git clone` avoids this entirely** and is
+worth doing instead of downloading the ZIP.
+
+**`google-services.json` is missing.** See step 2 above — the sync fails outright
+without it, which leaves the IDE in the same unresolved state.
+
+After fixing either, run **File → Sync Project with Gradle Files**. The errors
+clear when the sync succeeds.
 
 ## Talking to the ESP32
 
@@ -99,12 +122,15 @@ To wire up the LED:
 1. Open `firmware/LedControl/LedControl.ino` and set `WIFI_SSID`,
    `WIFI_PASSWORD`, and `DATABASE_SECRET` (Firebase console → Project settings →
    Service accounts → Database secrets).
-2. LED from **GPIO 2** through a 220 Ω resistor to GND. On most dev boards GPIO 2
-   is the on-board LED, so it can be proved with nothing wired.
-3. Upload, then tap the button in the app.
+2. Install **"Firebase Arduino Client Library for ESP8266 and ESP32"** by Mobizt
+   (Tools → Manage Libraries → search *Firebase ESP Client*).
+3. LED from **GPIO 23** through a 220 Ω resistor to GND — long leg to the pin.
+4. Board **ESP32 Dev Module**, Partition Scheme **Huge APP (3MB No OTA)**. The
+   default partition is too small for TLS.
+5. Upload, open the Serial Monitor at 115200, then tap the button in the app.
 
-The sketch holds one streaming HTTPS connection (server-sent events) to that key,
-so it reacts in well under a second and needs **no extra Arduino library**.
+The sketch polls that one key once a second and logs only when it changes, so a
+`Read failed:` line is visible rather than buried.
 
 > The database secret bypasses the database rules — that is how the board reads
 > without signing in — so it is a full-access password. Regenerate it before

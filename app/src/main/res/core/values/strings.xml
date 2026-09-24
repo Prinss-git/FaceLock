@@ -246,6 +246,8 @@
     <string name="led_firebase_value">Value in Firebase</string>
     <string name="led_value_absent">(key not created yet)</string>
     <string name="led_value_unreadable">(unreadable)</string>
+    <string name="led_value_unconfirmed">%1$s (not confirmed)</string>
+    <string name="led_queued_offline">Offline. The change is saved on this phone and will reach Firebase when the connection is back.</string>
     <string name="led_wiring_note">The LED goes from the GPIO pin through a 220 ohm resistor to GND. If the value below changes but the light does not, the board is not running the listener sketch.</string>
     <string name="action_led_control">LED control</string>
 

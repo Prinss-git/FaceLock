@@ -21,8 +21,8 @@
 #include <LiquidCrystal_I2C.h>
 
 // ----------------------- CONFIGURATION -----------------------
-const char* WIFI_SSID     = "YOUR_WIFI_SSID";
-const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
+const char* WIFI_SSID     = "8 Pro";
+const char* WIFI_PASSWORD = "qwerty12356";
 
 // Recognition backend endpoint (see /firebase/functions)
 const char* RECOGNIZE_URL = "https://YOUR-REGION-YOUR-PROJECT.cloudfunctions.net/recognizeFace";

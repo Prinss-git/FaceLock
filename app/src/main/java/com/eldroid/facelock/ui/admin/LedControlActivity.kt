@@ -32,6 +32,9 @@ class LedControlActivity : AppCompatActivity() {
     /** Last value read back. Null while the key does not exist yet. */
     private var isOn: Boolean? = null
 
+    /** Latest `.info/connected`, used to explain a write that cannot land yet. */
+    private var connected = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLedControlBinding.inflate(layoutInflater)
@@ -89,13 +92,21 @@ class LedControlActivity : AppCompatActivity() {
         binding.btnToggle.setText(if (on) R.string.led_turn_off else R.string.led_turn_on)
 
         // The raw text is deliberately the JSON spelling, not the friendly word:
-        // it is there to be compared against the Firebase console.
-        binding.tvRawValue.text = value?.toString() ?: getString(R.string.led_value_absent)
+        // it is there to be compared against the Firebase console. Offline it is
+        // the local cache rather than the server, and the two can differ, so it
+        // is marked as unconfirmed instead of being shown as fact.
+        val raw = value?.toString() ?: getString(R.string.led_value_absent)
+        binding.tvRawValue.text =
+            if (connected) raw else getString(R.string.led_value_unconfirmed, raw)
     }
 
     private fun observeConnection() {
         lifecycleScope.launch {
             rtdb.observeConnected().collect { connected ->
+                this@LedControlActivity.connected = connected
+                // Whether the shown value is trustworthy depends on this, so the
+                // card has to be repainted when it changes.
+                render(isOn)
                 binding.tvConnection.setText(
                     if (connected) R.string.device_test_connected
                     else R.string.device_test_offline
@@ -110,8 +121,22 @@ class LedControlActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * The buttons are deliberately never disabled while a write is in flight.
+     *
+     * A Realtime Database write only completes when the server acknowledges it,
+     * and offline there is no acknowledgement — the SDK queues the write and
+     * flushes it whenever the socket comes back, which may be minutes later or
+     * never. Waiting on that to re-enable the controls locks the screen on the
+     * first offline tap. The database is the state and the listener is the only
+     * thing that paints it, so the tap just fires and the listener catches up.
+     */
     private fun write(value: Boolean) {
-        setControlsEnabled(false)
+        // Offline the value still applies to the local cache, so the lamp will
+        // flip and read right while Firebase has not actually been told. Say so,
+        // rather than letting the screen imply the device got the message.
+        if (!connected) binding.root.snack(getString(R.string.led_queued_offline))
+
         lifecycleScope.launch {
             rtdb.setBool(FirebaseRefs.RTDB_LED_PATH, value)
                 .onSuccess {
@@ -124,13 +149,6 @@ class LedControlActivity : AppCompatActivity() {
                         it.message ?: getString(R.string.device_test_write_failed)
                     )
                 }
-            setControlsEnabled(true)
         }
-    }
-
-    private fun setControlsEnabled(enabled: Boolean) {
-        binding.btnToggle.isEnabled = enabled
-        binding.btnOn.isEnabled = enabled
-        binding.btnOff.isEnabled = enabled
     }
 }

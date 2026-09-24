@@ -2,64 +2,56 @@
  * FaceLock - ESP32 LED Control
  * IT-ELDRIOD1 | Facial Recognition Locker System
  *
- * Listens to one key in the Realtime Database and drives an LED from it.
- * The phone's "LED control" screen writes that key; this sketch reads it.
+ * Reads one key in the Realtime Database and drives an LED from it. The app's
+ * "LED control" screen writes that key; this sketch follows it.
  *
- *     phone  ->  device/led = true/false  ->  ESP32  ->  GPIO  ->  LED
+ *     phone  ->  device/led = true/false  ->  ESP32  ->  GPIO 23  ->  LED
  *
- * Neither end ever talks to the other directly, so the board does not have to
- * be on the same network as the phone, and nothing here needs Cloud Functions
- * or a paid Firebase plan.
+ * Neither end talks to the other directly, so the board does not have to be on
+ * the same network as the phone, and nothing here needs Cloud Functions or a
+ * paid Firebase plan.
  *
- * NO EXTRA LIBRARY IS NEEDED. This uses the Realtime Database REST API in
- * streaming mode (server-sent events): one long-lived HTTPS connection that
- * the server pushes to, so the LED reacts in well under a second and the
- * board is not hammering the network with polls.
+ * REQUIRES: "Firebase Arduino Client Library for ESP8266 and ESP32" by Mobizt
+ *   Arduino IDE -> Tools -> Manage Libraries -> search "Firebase ESP Client"
  *
- * Board:      "ESP32 Dev Module"  (or "AI Thinker ESP32-CAM")
+ * Board:      "ESP32 Dev Module"
  * Partition:  Huge APP (3MB No OTA)  - the default is too small for TLS
  *
  * WIRING
- *   GPIO 2  ->  LED long leg (anode)
+ *   GPIO 23  ->  LED long leg (anode)
  *   LED short leg (cathode)  ->  220 ohm resistor  ->  GND
- *   On most dev boards GPIO 2 is also the on-board blue LED, so the sketch
- *   can be proved with nothing wired up at all.
  */
 
 #include <WiFi.h>
-#include <WiFiClientSecure.h>
+#include <Firebase_ESP_Client.h>
 
 // ----------------------- CONFIGURATION -----------------------
-const char* WIFI_SSID     = "Kythlog";
-const char* WIFI_PASSWORD = "12345678";
+#define WIFI_SSID     "8 Pro"
+#define WIFI_PASSWORD "REPLACE_ME"
 
-// Host only - no scheme, no trailing slash.
-const char* RTDB_HOST = "facelock-eldroid-default-rtdb.asia-southeast1.firebasedatabase.app";
-
-// The key the app writes. Must match FirebaseRefs.RTDB_LED_PATH.
-const char* LED_PATH = "/device/led";
+#define DATABASE_URL "facelock-eldroid-default-rtdb.asia-southeast1.firebasedatabase.app"
 
 // Firebase console -> Project settings -> Service accounts -> Database secrets.
-// This bypasses the database rules, which is why the device can read without
-// signing in. Treat it as a password: anyone who can read the flash on this
-// board can read this string, so regenerate it before the project is handed in.
-const char* DATABASE_SECRET = "PASTE_YOUR_DATABASE_SECRET_HERE";
+// This bypasses the database rules, which is how the board reads without
+// signing in - so it is a full-access password. Paste it here on your own
+// machine and do NOT commit the filled-in file.
+#define DATABASE_SECRET "PASTE_YOUR_DATABASE_SECRET_HERE"
 
-const int LED_PIN = 2;
+#define LED_PIN 23
 
-// Most dev boards drive the on-board LED high-active. If your LED is lit when
-// the app says OFF, flip this to true rather than rewiring.
+// Some boards light the pin when it is driven LOW. If the serial log says ON
+// while the LED is dark, flip this rather than rewiring.
 const bool LED_ACTIVE_LOW = false;
 
-const unsigned long WIFI_TIMEOUT_MS   = 20000;
-// Firebase sends a keep-alive roughly every 30s; if nothing arrives for well
-// over that, the connection is dead even though the socket still looks open.
-const unsigned long STREAM_TIMEOUT_MS = 70000;
+const unsigned long POLL_INTERVAL_MS = 1000;
 
 // ----------------------- STATE -----------------------
-WiFiClientSecure client;
-unsigned long lastEventMs = 0;
-bool ledState = false;
+FirebaseData fbdo;
+FirebaseAuth auth;
+FirebaseConfig config;
+
+unsigned long lastPollMs = 0;
+int lastShown = -1;   // -1 = nothing read yet, so the first result always prints
 
 // ----------------------- SETUP -----------------------
 void setup() {
@@ -70,116 +62,56 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
   applyLed(false);
 
-  connectWiFi();
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print("Connecting to Wi-Fi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println();
+  Serial.print("Connected with IP: ");
+  Serial.println(WiFi.localIP());
 
-  // Skipping certificate validation keeps the sketch short and the partition
-  // small. Fine for a campus demo; a shipped product would pin the root CA.
-  client.setInsecure();
+  config.database_url = DATABASE_URL;
+  config.signer.tokens.legacy_token = DATABASE_SECRET;
+
+  Firebase.reconnectWiFi(true);
+
+  // 1024 is not enough room for Firebase's TLS handshake - the connection
+  // fails before any read happens, and every getBool() comes back with a
+  // handshake error. 4096 on the receive side is the working minimum.
+  fbdo.setBSSLBufferSize(4096, 1024);
+  fbdo.setResponseSize(2048);
+
+  Firebase.begin(&config, &auth);
 }
 
 // ----------------------- LOOP -----------------------
 void loop() {
-  if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("[wifi] lost, reconnecting");
-    connectWiFi();
-    return;
-  }
+  // Firebase.ready() pumps the library's own token handling. Calling into
+  // RTDB before it is ready fails for reasons that have nothing to do with
+  // the network, so the poll waits for it.
+  if (!Firebase.ready()) return;
 
-  if (!client.connected()) {
-    if (!openStream()) {
-      delay(3000);
-      return;
-    }
-  }
+  if (millis() - lastPollMs < POLL_INTERVAL_MS) return;
+  lastPollMs = millis();
 
-  readStream();
-
-  // A silent stream is a stale stream. Drop it and let the next loop reopen.
-  if (millis() - lastEventMs > STREAM_TIMEOUT_MS) {
-    Serial.println("[stream] silent too long, reconnecting");
-    client.stop();
-  }
-}
-
-// ----------------------- WIFI -----------------------
-void connectWiFi() {
-  Serial.printf("[wifi] connecting to %s", WIFI_SSID);
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-
-  unsigned long start = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - start < WIFI_TIMEOUT_MS) {
-    delay(400);
-    Serial.print(".");
-  }
-  Serial.println();
-
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.print("[wifi] connected, IP ");
-    Serial.println(WiFi.localIP());
+  if (Firebase.RTDB.getBool(&fbdo, "/device/led")) {
+    bool ledOn = fbdo.to<bool>();
+    applyLed(ledOn);
   } else {
-    Serial.println("[wifi] FAILED - check the SSID and password (2.4GHz only)");
-  }
-}
-
-// ----------------------- STREAM -----------------------
-bool openStream() {
-  Serial.println("[stream] opening");
-
-  if (!client.connect(RTDB_HOST, 443)) {
-    Serial.println("[stream] TLS connect failed");
-    return false;
-  }
-
-  // text/event-stream is what turns a plain REST read into a live subscription.
-  client.printf("GET %s.json?auth=%s HTTP/1.1\r\n", LED_PATH, DATABASE_SECRET);
-  client.printf("Host: %s\r\n", RTDB_HOST);
-  client.print("Accept: text/event-stream\r\n");
-  client.print("Connection: keep-alive\r\n\r\n");
-
-  // Firebase answers a stream request with a 307 to the regional host. Follow
-  // it silently - it is normal, not an error.
-  String status = client.readStringUntil('\n');
-  Serial.print("[stream] ");
-  Serial.println(status);
-
-  lastEventMs = millis();
-  return true;
-}
-
-void readStream() {
-  while (client.available()) {
-    String line = client.readStringUntil('\n');
-    line.trim();
-    if (line.length() == 0) continue;
-
-    lastEventMs = millis();
-
-    if (!line.startsWith("data:")) continue;      // event:, keep-alive, headers
-
-    String payload = line.substring(5);
-    payload.trim();
-    if (payload == "null") { applyLed(false); continue; }
-
-    // The node is a leaf, so every push arrives as {"path":"/","data":<value>}.
-    int at = payload.indexOf("\"data\":");
-    if (at < 0) continue;
-
-    String value = payload.substring(at + 7);
-    value.replace("}", "");
-    value.replace("\"", "");
-    value.trim();
-
-    Serial.print("[stream] device/led = ");
-    Serial.println(value);
-
-    applyLed(value == "true" || value == "1" || value == "on");
+    Serial.println("Read failed: " + fbdo.errorReason());
   }
 }
 
 // ----------------------- OUTPUT -----------------------
 void applyLed(bool on) {
-  ledState = on;
   digitalWrite(LED_PIN, (on != LED_ACTIVE_LOW) ? HIGH : LOW);
-  Serial.println(on ? "[led] ON" : "[led] OFF");
+
+  // Only speak up when something actually changed - a line every second
+  // buries the errors that matter.
+  if (lastShown != (int)on) {
+    lastShown = (int)on;
+    Serial.println(on ? "device/led: true  -> LED ON" : "device/led: false -> LED OFF");
+  }
 }
