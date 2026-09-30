@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Shown above the bottom bar while the phone has no connection. -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/offlineBanner"
+    style="@style/T.Caption"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/warning_wash"
+    android:drawablePadding="@dimen/space_sm"
+    app:drawableStartCompat="@drawable/ic_alert"
+    app:drawableTint="@color/warning"
+    android:gravity="center_vertical"
+    android:paddingHorizontal="@dimen/screen_margin"
+    android:paddingVertical="@dimen/space_sm"
+    android:text="@string/offline_banner"
+    android:textColor="@color/warning"
+    android:visibility="gone" />

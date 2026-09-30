@@ -8,7 +8,7 @@
 | `role` | string | `ADMIN` \| `SECURITY` \| `USER` |
 | `lockerId` | string \| null | Assigned locker document ID |
 | `faceEnrolled` | boolean | True once an embedding exists |
-| `active` | boolean | False = suspended, blocked at login |
+| `active` | boolean | False = suspended: signed out live by the app, and firestore.rules withdraw ADMIN/SECURITY powers at once |
 | `fcmToken` | string | Device token for alert push |
 | `createdAt` | number | Epoch millis |
 

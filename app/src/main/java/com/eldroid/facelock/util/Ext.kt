@@ -78,9 +78,9 @@ fun Menu.tintIcons(@ColorInt color: Int) {
     }
 }
 
-private val dateTimeFmt = SimpleDateFormat("MMM d, yyyy  h:mm a", Locale.getDefault())
-private val timeFmt = SimpleDateFormat("h:mm a", Locale.getDefault())
-private val dayFmt = SimpleDateFormat("MMM d", Locale.getDefault())
+private val dateTimeFmt get() = SimpleDateFormat("MMM d, yyyy  h:mm a", Locale.getDefault())
+private val timeFmt get() = SimpleDateFormat("h:mm a", Locale.getDefault())
+private val dayFmt get() = SimpleDateFormat("MMM d", Locale.getDefault())
 
 fun Long.asDateTime(): String = dateTimeFmt.format(Date(this))
 

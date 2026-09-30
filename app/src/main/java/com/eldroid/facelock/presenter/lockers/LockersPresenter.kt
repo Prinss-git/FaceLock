@@ -15,7 +15,12 @@ import com.eldroid.facelock.domain.usecase.NextLockerIdUseCase
 import com.eldroid.facelock.presenter.base.CoroutinePresenter
 import com.eldroid.facelock.presenter.lockers.LockersContract.AddLockerField
 import com.eldroid.facelock.presenter.lockers.LockersContract.EmptyState
+import com.eldroid.facelock.util.OFFLINE_ACTION_MESSAGE
 import com.eldroid.facelock.util.catchFirestore
+import com.eldroid.facelock.util.messageForWrite
+import com.eldroid.facelock.presenter.lockers.LockersContract.StatusFilter
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
@@ -25,6 +30,8 @@ class LockersPresenter(
     private val buildingRepo: BuildingRepository,
     private val trail: AdminTrail,
     override val canManage: Boolean,
+    /** Transactions and unlocks must not be queued offline; checked before each. */
+    private val isOnline: () -> Boolean = { true },
     private val assignLocker: AssignLockerUseCase = AssignLockerUseCase(lockerRepo),
     private val groupLockers: GroupLockersUseCase = GroupLockersUseCase(),
     private val nextLockerId: NextLockerIdUseCase = NextLockerIdUseCase()
@@ -39,8 +46,11 @@ class LockersPresenter(
     private val collapsed = mutableSetOf<String>()
     /** The folds the search replaced, restored when it is cleared. */
     private var beforeSearch: Set<String>? = null
+    private var statusFilter = StatusFilter.ALL
+    private var searchJob: Job? = null
 
     override fun onViewAttached() {
+        view?.showStatusFilter(statusFilter)
         if (loaded) render() else view?.showLoading()
 
         scope.launch {
@@ -64,13 +74,33 @@ class LockersPresenter(
 
     override fun onSearchChanged(query: String) {
         val trimmed = query.trim()
-        if (trimmed == this.query) return
-        // A search opens every building it finds something in (the buttons and
-        // headers can still fold them); clearing it brings back the old folds.
-        if (this.query.isEmpty()) beforeSearch = collapsed.toSet()
+        // Wait for a pause in typing so each keystroke doesn't redraw the list.
+        searchJob?.cancel()
+        searchJob = scope.launch {
+            delay(SEARCH_DELAY_MS)
+            if (trimmed != this@LockersPresenter.query) narrow { this@LockersPresenter.query = trimmed }
+        }
+    }
+
+    override fun onStatusFilterSelected(filter: StatusFilter) {
+        if (filter != statusFilter) narrow { statusFilter = filter }
+    }
+
+    /** Search or status-filter or both: the list is showing a subset. */
+    private fun narrowing() = query.isNotEmpty() || statusFilter != StatusFilter.ALL
+
+    /**
+     * Applies a change to the search or status filter. Narrowing opens every
+     * building with a match (the buttons and headers can still fold them);
+     * going back to the full list brings back the folds from before.
+     */
+    private fun narrow(change: () -> Unit) {
+        val was = narrowing()
+        change()
+        val now = narrowing()
+        if (!was && now) beforeSearch = collapsed.toSet()
         collapsed.clear()
-        if (trimmed.isEmpty()) beforeSearch?.let(collapsed::addAll)
-        this.query = trimmed
+        if (was && !now) beforeSearch?.let(collapsed::addAll)
         if (loaded) render()
     }
 
@@ -90,24 +120,50 @@ class LockersPresenter(
         render()
     }
 
-    private fun shownGroups(): List<LockerGroup> {
+    /** Every building, narrowed by the search only (what the status chips count). */
+    private fun searchedGroups(): List<LockerGroup> {
         val searching = query.isNotEmpty()
         return groupLockers(lockers, buildings)
             .map { group -> if (searching) group.filtered() else group }
-            // While searching, only buildings with a hit are worth showing.
-            .filter { !searching || it.lockers.isNotEmpty() }
+    }
+
+    private fun shownGroups(): List<LockerGroup> {
+        val narrowing = narrowing()
+        return searchedGroups()
+            .map { group ->
+                if (statusFilter == StatusFilter.ALL) group
+                else group.copy(floors = group.floors
+                    .map { f -> f.copy(lockers = f.lockers.filter(::hasStatus)) }
+                    .filter { it.lockers.isNotEmpty() })
+            }
+            // While narrowing, only buildings with a hit are worth showing.
+            .filter { !narrowing || it.lockers.isNotEmpty() }
+    }
+
+    private fun hasStatus(locker: Locker) = when (statusFilter) {
+        StatusFilter.ALL -> true
+        StatusFilter.FREE -> locker.isFree
+        StatusFilter.OCCUPIED -> !locker.isAvailable
+        StatusFilter.OUT_OF_SERVICE -> !locker.isInService
     }
 
     private val LockerGroup.key get() = building?.code ?: UNSORTED_KEY
 
     private fun render() {
         val view = view ?: return
-        val searching = query.isNotEmpty()
         val groups = shownGroups()
+
+        val searched = searchedGroups().flatMap { it.lockers }
+        view.showStatusCounts(
+            all = searched.size,
+            free = searched.count { it.isFree },
+            occupied = searched.count { !it.isAvailable },
+            outOfService = searched.count { !it.isInService }
+        )
 
         val shownCount = groups.sumOf { it.lockers.size }
         when {
-            groups.isEmpty() && searching -> view.showEmpty(EmptyState.NO_MATCH)
+            groups.isEmpty() && narrowing() -> view.showEmpty(EmptyState.NO_MATCH)
             groups.isEmpty() -> view.showEmpty(EmptyState.NO_LOCKERS)
             else -> {
                 view.showLockers(groups.flatMap { it.toItems() }, shownCount)
@@ -214,6 +270,7 @@ class LockersPresenter(
     override fun onAssigneePicked(lockerId: String, uid: String?) {
         val locker = find(lockerId) ?: return
         val holder = uid?.let { id -> users.firstOrNull { it.uid == id } ?: return }
+        if (offline()) return
         scope.launch {
             assignLocker(locker, holder)
                 .onSuccess {
@@ -228,25 +285,26 @@ class LockersPresenter(
                         trail.record(AdminActionType.LOCKER_ASSIGNED, locker.id, "to ${holder.fullName}")
                     }
                 }
-                .onFailure { view?.showMessage(it.message ?: "Could not update ${locker.id}") }
+                .onFailure { view?.showMessage(messageForWrite(it, "Could not update ${locker.id}")) }
         }
     }
 
     // ------------------------------------------------- unlock / service ----
 
     override fun onUnlockClicked(lockerId: String) {
-        if (!canManage) return
+        if (!canManage || offline()) return
         find(lockerId)?.let { view?.confirmUnlock(it) }
     }
 
     override fun onUnlockConfirmed(lockerId: String) {
+        if (offline()) return
         scope.launch {
             lockerRepo.requestRemoteUnlock(lockerId)
                 .onSuccess {
                     view?.showMessage("Unlock command sent to $lockerId")
                     trail.record(AdminActionType.LOCKER_UNLOCK_REQUESTED, lockerId)
                 }
-                .onFailure { view?.showMessage(it.message ?: "Command failed") }
+                .onFailure { view?.showMessage(messageForWrite(it, "Command failed")) }
         }
     }
 
@@ -254,6 +312,7 @@ class LockersPresenter(
         if (!canManage) return
         val locker = find(lockerId) ?: return
         val backInService = !locker.isInService
+        if (offline()) return
         scope.launch {
             lockerRepo.setInService(lockerId, backInService)
                 .onSuccess {
@@ -265,7 +324,7 @@ class LockersPresenter(
                         trail.record(AdminActionType.LOCKER_OUT_OF_SERVICE, lockerId)
                     }
                 }
-                .onFailure { view?.showMessage(it.message ?: "Could not update $lockerId") }
+                .onFailure { view?.showMessage(messageForWrite(it, "Could not update $lockerId")) }
         }
     }
 
@@ -276,6 +335,7 @@ class LockersPresenter(
 
     override fun onRemoveConfirmed(lockerId: String) {
         val locker = find(lockerId) ?: return
+        if (offline()) return
         scope.launch {
             lockerRepo.remove(locker)
                 .onSuccess {
@@ -285,14 +345,14 @@ class LockersPresenter(
                         locker.assignedName?.let { "freed from $it" }
                     )
                 }
-                .onFailure { view?.showMessage(it.message ?: "Could not remove ${locker.id}") }
+                .onFailure { view?.showMessage(messageForWrite(it, "Could not remove ${locker.id}")) }
         }
     }
 
     // -------------------------------------------------------------- add ----
 
     override fun onAddLockerClicked() {
-        if (!canManage) return
+        if (!canManage || offline()) return
         if (buildings.isEmpty()) view?.showNoBuildingsYet()
         else view?.showAddLockerForm(buildings)
     }
@@ -347,6 +407,9 @@ class LockersPresenter(
         val newLockers = ids.map {
             Locker(id = it, label = it, building = building.code, floor = floor, location = location)
         }
+        if (!isOnline()) {
+            return view.showAddLockerError(AddLockerField.ID, OFFLINE_ACTION_MESSAGE)
+        }
         scope.launch {
             lockerRepo.createMany(newLockers)
                 .onSuccess {
@@ -357,7 +420,7 @@ class LockersPresenter(
                 }
                 .onFailure {
                     this@LockersPresenter.view?.showAddLockerError(
-                        AddLockerField.ID, it.message ?: "Could not add the locker"
+                        AddLockerField.ID, messageForWrite(it, "Could not add the locker")
                     )
                 }
         }
@@ -369,9 +432,17 @@ class LockersPresenter(
 
     private fun find(lockerId: String) = lockers.firstOrNull { it.id == lockerId }
 
+    /** True (and says so) when offline; an unlock queued for later could fire at any time. */
+    private fun offline(): Boolean {
+        if (isOnline()) return false
+        view?.showMessage(OFFLINE_ACTION_MESSAGE)
+        return true
+    }
+
     private companion object {
         const val UNSORTED_KEY = "_unsorted"
         const val MAX_BULK = 50
+        const val SEARCH_DELAY_MS = 250L
         val ID_PATTERN = Regex("^[A-Z0-9-]{1,24}$")
     }
 }

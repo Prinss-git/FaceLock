@@ -71,6 +71,54 @@
                 android:maxLines="1" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Status filter; counts follow the search. -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/screen_margin"
+            android:paddingTop="@dimen/space_sm"
+            android:clipToPadding="false"
+            android:scrollbars="none">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/statusGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:singleSelection="true"
+                app:selectionRequired="true"
+                app:chipSpacingHorizontal="@dimen/space_sm">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipStatusAll"
+                    style="@style/Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="@string/status_all" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipStatusFree"
+                    style="@style/Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/status_free" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipStatusOccupied"
+                    style="@style/Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/status_occupied" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipStatusOut"
+                    style="@style/Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/status_out" />
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
+
         <!-- Count, then fold/unfold every building at once. -->
         <LinearLayout
             android:layout_width="match_parent"

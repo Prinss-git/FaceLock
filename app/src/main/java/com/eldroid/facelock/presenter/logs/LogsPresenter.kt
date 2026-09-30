@@ -18,6 +18,7 @@ import com.eldroid.facelock.presenter.logs.LogsContract.ResultFilter
 import com.eldroid.facelock.util.catchFirestore
 import com.eldroid.facelock.util.startOfToday
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
@@ -48,6 +49,7 @@ class LogsPresenter(
     private var lockersById: Map<String, Locker> = emptyMap()
     private var logsLoaded = false
     private var logsJob: Job? = null
+    private var searchJob: Job? = null
 
     /** The newest day starts open, older days closed, until tapped. */
     private val sections = CollapseState { index -> index == 0 }
@@ -114,9 +116,14 @@ class LogsPresenter(
 
     override fun onSearchChanged(query: String) {
         val trimmed = query.trim()
-        if (trimmed == this.query) return
-        this.query = trimmed
-        render()
+        // Up to 500 rows are re-filtered per search; wait for a pause in typing.
+        searchJob?.cancel()
+        searchJob = scope.launch {
+            delay(SEARCH_DELAY_MS)
+            if (trimmed == this@LogsPresenter.query) return@launch
+            this@LogsPresenter.query = trimmed
+            render()
+        }
     }
 
     override fun onBuildingFilterClicked() {
@@ -144,6 +151,7 @@ class LogsPresenter(
                 // A locker's history: its whole record, whatever else was set.
                 lockerFilter = request.lockerId
                 result = ResultFilter.ALL
+                searchJob?.cancel()
                 query = ""
                 buildingKey = ALL_KEY
                 view?.showLockerFilter(lockerFilter)
@@ -248,6 +256,7 @@ class LogsPresenter(
         const val ALL_KEY = "*"
         const val OTHER_KEY = "?"
         const val LIMIT = 500L
+        const val SEARCH_DELAY_MS = 250L
         const val DAY_MS = 24L * 60 * 60 * 1000
     }
 }

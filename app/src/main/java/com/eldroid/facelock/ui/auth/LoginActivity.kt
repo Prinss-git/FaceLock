@@ -2,154 +2,102 @@ package com.eldroid.facelock.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
+import androidx.core.widget.doAfterTextChanged
 import com.eldroid.facelock.R
-import com.eldroid.facelock.data.model.Role
 import com.eldroid.facelock.data.model.User
 import com.eldroid.facelock.data.repo.AuthRepository
 import com.eldroid.facelock.databinding.ActivityLoginBinding
-import com.eldroid.facelock.ui.admin.AdminActivity
-import com.eldroid.facelock.ui.user.UserActivity
-import com.eldroid.facelock.util.SessionManager
-import com.eldroid.facelock.util.authMessage
-import com.eldroid.facelock.util.validateEmail
+import com.eldroid.facelock.presenter.auth.LoginContract
+import com.eldroid.facelock.presenter.auth.LoginContract.FieldType
+import com.eldroid.facelock.presenter.auth.LoginPresenter
+import com.eldroid.facelock.presenter.auth.LoginState
+import com.eldroid.facelock.presenter.base.PresenterHolder
+import com.eldroid.facelock.ui.openHome
 import com.eldroid.facelock.util.toast
 import com.eldroid.facelock.util.visible
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeoutOrNull
 
-class LoginActivity : AppCompatActivity() {
+/** Sign-in — the View in MVP. [LoginPresenter] validates, signs in and restores sessions. */
+class LoginActivity : AppCompatActivity(), LoginContract.View {
 
     private lateinit var binding: ActivityLoginBinding
-    private val authRepo = AuthRepository()
-    private lateinit var session: SessionManager
+    private val holder: PresenterHolder by viewModels()
+    private lateinit var presenter: LoginContract.Presenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        session = SessionManager(this)
 
-        // Already signed in -> skip straight to the right dashboard.
-        authRepo.currentUid?.let { uid -> resumeSession(uid) }
+        // Why the person was signed out (suspended, removed), shown once.
+        if (savedInstanceState == null) intent.getStringExtra(EXTRA_MESSAGE)?.let { toast(it) }
 
-        binding.btnLogin.setOnClickListener { attemptLogin() }
+        presenter = holder.getOrCreate { LoginPresenter(AuthRepository()) }
+
+        binding.btnLogin.setOnClickListener { presenter.handleLoginClick() }
+        binding.etEmail.doAfterTextChanged { presenter.handleInputChanged(FieldType.EMAIL) }
+        binding.etPassword.doAfterTextChanged { presenter.handleInputChanged(FieldType.PASSWORD) }
         binding.tvRegister.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
         binding.tvForgot.setOnClickListener { openForgotPassword() }
+
+        // Attaching also restores a saved session (skips straight to the dashboard).
+        presenter.attachView(this)
     }
 
-    /**
-     * Restores an existing session on launch.
-     *
-     * The profile read is bounded: if Firestore never answers — offline, or a
-     * rules change has locked this account out — the button used to sit on
-     * "Signing in…" forever with no way back. A stale session that cannot load
-     * is cleared so the form is usable again.
-     */
-    private fun resumeSession(uid: String) {
-        setLoading(true)
-        lifecycleScope.launch {
-            val result = withTimeoutOrNull(PROFILE_TIMEOUT_MS) { authRepo.loadProfile(uid) }
-            setLoading(false)
-            when {
-                result == null -> {
-                    authRepo.logout()
-                    toast(getString(R.string.session_timed_out))
+    override fun onDestroy() {
+        presenter.detachView()
+        super.onDestroy()
+    }
+
+    // ------------------------------------------------------------ View ----
+
+    override fun getEmail() = binding.etEmail.text.toString()
+
+    override fun getPassword() = binding.etPassword.text.toString()
+
+    override fun showValidationError(field: FieldType, message: String?) {
+        val layout = when (field) {
+            FieldType.EMAIL -> binding.tilEmail
+            FieldType.PASSWORD -> binding.tilPassword
+        }
+        layout.error = message
+    }
+
+    override fun render(state: LoginState) {
+        val loading = state is LoginState.Loading
+        binding.progress.visible(loading)
+        binding.btnLogin.isEnabled = !loading
+        binding.tvRegister.isEnabled = !loading
+        binding.btnLogin.setText(if (loading) R.string.signing_in else R.string.sign_in)
+
+        if (state is LoginState.Error) {
+            toast(
+                when (state.reason) {
+                    LoginState.Reason.SIGN_IN_FAILED -> state.detail.orEmpty()
+                    LoginState.Reason.SUSPENDED -> getString(R.string.account_suspended)
+                    LoginState.Reason.SESSION_TIMED_OUT -> getString(R.string.session_timed_out)
+                    LoginState.Reason.SESSION_UNREADABLE ->
+                        state.detail ?: getString(R.string.session_unreadable)
                 }
-                // A saved session must not outlive a suspension.
-                result.isSuccess && !result.getOrThrow().active -> {
-                    authRepo.logout()
-                    toast(getString(R.string.account_suspended))
-                }
-                result.isSuccess -> route(result.getOrThrow())
-                else -> {
-                    authRepo.logout()
-                    toast(
-                        result.exceptionOrNull()
-                            ?.authMessage(getString(R.string.session_unreadable))
-                            ?: getString(R.string.session_unreadable)
-                    )
-                }
-            }
+            )
         }
     }
 
-    private fun attemptLogin() {
-        val email = binding.etEmail.text.toString().trim()
-        val password = binding.etPassword.text.toString()
-
-        // Sign-in only checks the shape of the input. It deliberately does not
-        // apply the registration password policy — accounts created before the
-        // policy tightened must still be able to get in and change it.
-        val emailError = validateEmail(email)
-        if (emailError != null) {
-            binding.tilEmail.error = emailError
-            return
-        }
-        if (password.isEmpty()) {
-            binding.tilPassword.error = "Enter your password"
-            return
-        }
-        binding.tilEmail.error = null
-        binding.tilPassword.error = null
-
-        setLoading(true)
-        lifecycleScope.launch {
-            authRepo.login(email, password)
-                .onSuccess { user ->
-                    if (!user.active) {
-                        authRepo.logout()
-                        setLoading(false)
-                        toast(getString(R.string.account_suspended))
-                    } else {
-                        route(user)
-                    }
-                }
-                .onFailure {
-                    setLoading(false)
-                    toast(it.authMessage("Sign in failed. Check your credentials."))
-                }
-        }
-    }
+    override fun navigateHome(user: User) = openHome(user)
 
     /** Hands off to the reset screen, carrying whatever email is already typed. */
     private fun openForgotPassword() {
         startActivity(
             Intent(this, ForgotPasswordActivity::class.java)
-                .putExtra(
-                    ForgotPasswordActivity.EXTRA_EMAIL,
-                    binding.etEmail.text.toString().trim()
-                )
+                .putExtra(ForgotPasswordActivity.EXTRA_EMAIL, getEmail().trim())
         )
     }
 
-    /** Role-based routing: admins and security go to the dashboard, users to their locker. */
-    private fun route(user: User) {
-        session.role = user.roleEnum
-        session.fullName = user.fullName
-        session.lockerId = user.lockerId
-
-        val target = when (user.roleEnum) {
-            Role.ADMIN, Role.SECURITY -> AdminActivity::class.java
-            Role.USER -> UserActivity::class.java
-        }
-        startActivity(Intent(this, target))
-        finish()
-    }
-
-    private fun setLoading(loading: Boolean) {
-        binding.progress.visible(loading)
-        binding.btnLogin.isEnabled = !loading
-        binding.tvRegister.isEnabled = !loading
-        binding.btnLogin.text =
-            if (loading) getString(R.string.signing_in) else getString(R.string.sign_in)
-    }
-
-    private companion object {
-        /** Long enough for a slow network, short enough not to feel stuck. */
-        const val PROFILE_TIMEOUT_MS = 12_000L
+    companion object {
+        /** A sentence to show once when this screen opens (why you were signed out). */
+        const val EXTRA_MESSAGE = "message"
     }
 }

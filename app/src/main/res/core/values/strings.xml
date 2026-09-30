@@ -8,7 +8,6 @@
     <string name="email">Email address</string>
     <string name="password">Password</string>
     <string name="confirm_password">Confirm password</string>
-    <string name="full_name">Full name</string>
     <string name="first_name">First name</string>
     <string name="last_name">Last name</string>
     <string name="role">Role</string>
@@ -23,7 +22,6 @@
     <string name="register_subtitle">Registering creates a standard member account. Admin and security roles are assigned by an administrator.</string>
     <string name="forgot_password">Forgot password?</string>
     <string name="new_here">New here?</string>
-    <string name="no_account">Don\'t have an account? Register</string>
     <string name="privacy_footer">Face data is stored as a mathematical template, never as a photo. RA 10173 compliant.</string>
 
     <!-- Toolbar and dialog actions -->
@@ -75,6 +73,19 @@
     <string name="no_locker_assigned">No locker assigned</string>
     <string name="greeting_no_locker">You don\'t have a locker yet.</string>
     <string name="no_locker_body">An administrator has not assigned you a locker yet.</string>
+    <string name="greeting_morning">Good morning</string>
+    <string name="greeting_afternoon">Good afternoon</string>
+    <string name="greeting_evening">Good evening</string>
+    <string name="greeting_named">%1$s, %2$s</string>
+    <string name="greeting_locker_ready">Your locker is secured and ready.</string>
+    <string name="greeting_locker_offline">Your locker unit is offline.</string>
+    <string name="greeting_locker_out_of_service">Your locker is out of service.</string>
+    <string name="my_locker_assigned">Assigned to you</string>
+    <string name="my_locker_secured">Secured</string>
+    <string name="my_locker_offline">Unit offline — contact your administrator</string>
+    <string name="my_locker_out_of_service">Out of service — contact your administrator</string>
+    <string name="locker_record_missing">Locker record not found.</string>
+    <string name="last_opened_at">Last opened %1$s</string>
     <string name="enrolled">Enrolled</string>
     <string name="not_enrolled">Not enrolled</string>
     <string name="enroll_my_face">Enroll my face</string>
@@ -131,7 +142,6 @@
     <string name="confirm_new_password">Confirm new password</string>
     <string name="update_password">Update password</string>
     <string name="forgot_current_password">I forgot my current password</string>
-    <string name="email_reset_link">Email me a reset link</string>
 
     <!-- Admin user form -->
     <string name="new_account">New account</string>
@@ -203,7 +213,6 @@
     <!-- Misc -->
     <string name="creating">Creating…</string>
     <string name="signing_in">Signing in…</string>
-    <string name="checking_photo">Checking photo…</string>
     <string name="password_generated">Strong password generated</string>
     <string name="password_generate_failed">Could not generate a password. Try again.</string>
 
@@ -226,7 +235,6 @@
     <string name="device_test_read_failed">Could not read. Check the database rules.</string>
     <string name="device_test_bad_number">Enter a whole number</string>
     <string name="device_test_overwrite_warning">The sketch writes 42 to this key every 10 seconds, so anything you send here is overwritten on the next loop. Comment out the setInt line in the sketch to see your value stick.</string>
-    <string name="action_device_test">Device test</string>
 
     <!-- LED control: phone writes device/led, the ESP32 reads it. -->
     <string name="led_title">LED control</string>
@@ -251,6 +259,9 @@
 
     <string name="session_timed_out">Could not reach the server. Sign in again.</string>
     <string name="account_suspended">This account has been suspended. Contact your administrator.</string>
+    <string name="account_removed">This account was removed. Contact your administrator.</string>
+    <string name="offline_banner">You\'re offline — changes will sync when you\'re back.</string>
+    <string name="role_changed_message">Your access level was changed by an administrator.</string>
     <string name="session_unreadable">Your session could not be restored. Sign in again.</string>
 
     <!-- Demo seeding (debug builds only) -->
@@ -297,7 +308,6 @@
     <string name="camera_retry">Retry</string>
 
     <!-- Common actions -->
-    <string name="action_ok">OK</string>
     <string name="action_save">Save</string>
     <string name="action_delete">Delete</string>
 
@@ -314,6 +324,28 @@
     <string name="empty_lockers_body_buildings">Add a building first, then add its lockers.</string>
     <string name="cd_collapse_building">Collapse %1$s</string>
     <string name="cd_expand_building">Expand %1$s</string>
+    <string name="action_undo">Undo</string>
+    <string name="dot_pair">%1$s · %2$s</string>
+    <string name="signed_in_as">Signed in as %1$s</string>
+    <string name="reset_sent_to">If an account exists for %1$s, a password reset link is on its way.</string>
+    <string name="resend_in">Resend link in %1$ds</string>
+    <string name="app_version">FaceLock v%1$s</string>
+    <string name="creating_account">Creating account…</string>
+    <string name="account_created_enroll">Account created. Let\'s enroll your face.</string>
+    <string name="users_filter_suspended">Suspended</string>
+    <string name="users_filter_no_face">No face</string>
+    <string name="users_filter_no_locker">No locker</string>
+    <string name="users_filter_suspended_n">Suspended (%1$d)</string>
+    <string name="users_filter_no_face_n">No face (%1$d)</string>
+    <string name="users_filter_no_locker_n">No locker (%1$d)</string>
+    <string name="status_all">All</string>
+    <string name="status_free">Free</string>
+    <string name="status_occupied">Occupied</string>
+    <string name="status_out">Out of service</string>
+    <string name="status_all_n">All (%1$d)</string>
+    <string name="status_free_n">Free (%1$d)</string>
+    <string name="status_occupied_n">Occupied (%1$d)</string>
+    <string name="status_out_n">Out of service (%1$d)</string>
     <string name="expand_all">Expand all</string>
     <string name="collapse_all">Collapse all</string>
     <string name="cd_collapse_section">Collapse %1$s (%2$d)</string>
@@ -381,37 +413,4 @@
     <string name="activity_trail_subtitle">Changes made by administrators: assignments, unlocks, buildings and accounts.</string>
     <string name="trail_empty_title">No changes in this period</string>
     <string name="trail_empty_body">Actions taken by administrators will be listed here.</string>
-
-    <!-- One-time sorting of lockers made before buildings existed -->
-    <plurals name="migration_title">
-        <item quantity="one">%d locker isn\'t in a building yet</item>
-        <item quantity="other">%d lockers aren\'t in a building yet</item>
-    </plurals>
-    <string name="migration_body">Their location text (e.g. \"Main Building · 1F\") is matched to your buildings, and each gets a new ID like M-001. Holders keep their lockers.</string>
-    <string name="migration_action">Sort into buildings</string>
-
-    <!-- Linking old locker IDs found in the access log -->
-    <plurals name="link_title">
-        <item quantity="one">%d old locker ID in the access log isn\'t linked</item>
-        <item quantity="other">%d old locker IDs in the access log aren\'t linked</item>
-    </plurals>
-    <string name="link_body">Tell the app which current locker each one became, and its past logs will show the current ID everywhere.</string>
-    <string name="link_action">Link them</string>
-    <string name="link_form_title">Link old locker IDs</string>
-    <string name="link_form_help">Pick the locker each old ID became. Leave any you\'re unsure of as \"Not linked\".</string>
-    <string name="link_tips_show">How to decide</string>
-    <string name="link_tips_hide">Hide tips</string>
-    <string name="link_form_tips">• Under each old ID is who used it; each locker in the list shows its current holder.\n• Suggestions are filled in where the data matches. Check them before saving.\n• The sort kept the order: within a building, a lower old number got a lower new number.</string>
-    <string name="link_row_hint">%1$s is now…</string>
-    <string name="link_not_linked">Not linked</string>
-    <string name="link_row_used_by">Used by %1$s · last %2$s</string>
-    <string name="link_row_no_one">No one was granted access · last %1$s</string>
-    <string name="link_row_suggested">Suggested: %1$s</string>
-    <string name="migration_confirm_title">Move these lockers?</string>
-    <string name="migration_confirm_body">Locker IDs can\'t be renamed, so each is re-created under its new ID and the old one removed. Old access logs keep the old IDs.</string>
-    <string name="migration_will_skip">%1$d locker(s) can\'t be matched and will be left as they are.</string>
-    <string name="migration_result_title">Sorting finished</string>
-    <string name="migration_moved">%1$d locker(s) moved into buildings.</string>
-    <string name="migration_skipped_header">Left as they are:</string>
-    <string name="migration_skipped_hint">Add or rename a building so its name appears in the locker\'s location, then run this again.</string>
 </resources>

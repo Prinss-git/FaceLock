@@ -22,7 +22,7 @@ import com.eldroid.facelock.ui.admin.ActivityTrailActivity
 import com.eldroid.facelock.ui.admin.DeviceTestActivity
 import com.eldroid.facelock.ui.admin.LedControlActivity
 import com.eldroid.facelock.ui.auth.ChangePasswordActivity
-import com.eldroid.facelock.ui.auth.LoginActivity
+import com.eldroid.facelock.ui.signOutTo
 import com.eldroid.facelock.util.SessionManager
 import com.eldroid.facelock.util.asDateTime
 import com.eldroid.facelock.util.catchFirestore
@@ -77,7 +77,7 @@ class ProfileFragment : Fragment() {
             startActivity(Intent(requireContext(), ActivityTrailActivity::class.java))
         }
 
-        binding.tvVersion.text = "FaceLock v${BuildConfig.VERSION_NAME}"
+        binding.tvVersion.text = getString(R.string.app_version, BuildConfig.VERSION_NAME)
 
         val uid = authRepo.currentUid ?: run { requireActivity().finish(); return }
         viewLifecycleOwner.lifecycleScope.launch {
@@ -179,10 +179,8 @@ class ProfileFragment : Fragment() {
             .setTitle(R.string.action_sign_out)
             .setMessage("You'll need your password to sign back in.")
             .setPositiveButton(R.string.action_sign_out) { _, _ ->
-                authRepo.logout()
-                SessionManager(requireContext()).clear()
-                startActivity(Intent(requireContext(), LoginActivity::class.java))
-                requireActivity().finishAffinity()
+                signOutTo(requireContext())
+                requireActivity().finish()
             }
             .setNegativeButton(R.string.action_cancel, null)
             .show()

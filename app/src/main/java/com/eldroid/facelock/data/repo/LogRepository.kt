@@ -5,7 +5,6 @@ import com.google.firebase.firestore.Query
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.tasks.await
 
 class LogRepository {
 
@@ -51,20 +50,4 @@ class LogRepository {
             }
         awaitClose { reg.remove() }
     }
-
-    /** Failed attempts only, for the security alert feed. */
-    fun observeFailedLogs(limit: Long = 100): Flow<List<AccessLog>> = callbackFlow {
-        val reg = col
-            .whereEqualTo("result", AccessLog.RESULT_DENIED)
-            .orderBy("timestamp", Query.Direction.DESCENDING)
-            .limit(limit)
-            .addSnapshotListener { snap, err ->
-                if (err != null) { close(err); return@addSnapshotListener }
-                trySend(snap?.toObjects(AccessLog::class.java).orEmpty())
-            }
-        awaitClose { reg.remove() }
-    }
-
-    suspend fun addLog(log: AccessLog): Result<Unit> =
-        runCatching { col.add(log).await(); Unit }
 }

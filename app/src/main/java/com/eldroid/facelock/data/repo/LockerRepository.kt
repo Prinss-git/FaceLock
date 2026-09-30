@@ -44,49 +44,6 @@ class LockerRepository {
     }
 
     /**
-     * Re-creates a pre-buildings locker under its new ID. Document IDs cannot
-     * be renamed, so the old document is copied to [newId] with its holder,
-     * status and history fields, the holder's profile is pointed at the new
-     * ID, and the old document is deleted — all in one transaction.
-     */
-    suspend fun migrate(
-        old: Locker,
-        newId: String,
-        buildingCode: String,
-        floor: Int,
-        location: String
-    ): Result<Unit> = runCatching {
-        val db = FirebaseRefs.db
-        val oldRef = col.document(old.id)
-        val newRef = col.document(newId)
-        val holderRef = old.assignedUid?.takeIf { it.isNotBlank() }
-            ?.let { db.collection(FirebaseRefs.USERS).document(it) }
-
-        db.runTransaction { tx ->
-            if (tx.get(newRef).exists()) error("$newId already exists.")
-            if (!tx.get(oldRef).exists()) error("${old.id} no longer exists.")
-            val holderPointsHere = holderRef?.let {
-                tx.get(it).getString("lockerId") == old.id
-            } == true
-
-            tx.set(
-                newRef,
-                old.copy(
-                    id = newId,
-                    label = newId,
-                    building = buildingCode,
-                    floor = floor,
-                    location = location,
-                    // Old access logs still name the old ID; this links them back.
-                    formerId = old.formerId ?: old.id
-                )
-            )
-            if (holderPointsHere) tx.update(holderRef!!, "lockerId", newId)
-            tx.delete(oldRef)
-        }.await()
-    }
-
-    /**
      * Gives [locker] to [newHolder], or frees it when [newHolder] is null.
      *
      * One transaction keeps the locker and user documents consistent: the
@@ -133,19 +90,6 @@ class LockerRepository {
                 "unlockRequestedAt" to System.currentTimeMillis()
             )
         ).await()
-    }
-
-    /**
-     * Records which old ID each locker used to have ([formerIdsByLocker] is
-     * current locker ID → old ID), so access logs naming the old ID resolve
-     * to it. One batch: either every link is saved or none is.
-     */
-    suspend fun setFormerIds(formerIdsByLocker: Map<String, String>): Result<Unit> = runCatching {
-        val batch = FirebaseRefs.db.batch()
-        formerIdsByLocker.forEach { (lockerId, formerId) ->
-            batch.update(col.document(lockerId), "formerId", formerId)
-        }
-        batch.commit().await()
     }
 
     /**

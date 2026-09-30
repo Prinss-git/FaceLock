@@ -1,7 +1,6 @@
 package com.eldroid.facelock.ui.admin
 
 import android.os.Bundle
-import android.widget.ArrayAdapter
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -12,23 +11,17 @@ import com.eldroid.facelock.data.model.Building
 import com.eldroid.facelock.data.repo.AdminActionRepository
 import com.eldroid.facelock.data.repo.BuildingRepository
 import com.eldroid.facelock.data.repo.LockerRepository
-import com.eldroid.facelock.data.repo.LogRepository
 import com.eldroid.facelock.databinding.ActivityBuildingsBinding
 import com.eldroid.facelock.databinding.DialogBuildingFormBinding
-import com.eldroid.facelock.databinding.DialogLinkOldIdsBinding
-import com.eldroid.facelock.databinding.ItemLinkOldIdBinding
 import com.eldroid.facelock.domain.usecase.AdminTrail
-import com.eldroid.facelock.domain.usecase.MigrateLegacyLockersUseCase
-import com.eldroid.facelock.domain.usecase.SuggestOldIdLinksUseCase
 import com.eldroid.facelock.presenter.base.PresenterHolder
 import com.eldroid.facelock.presenter.buildings.BuildingRow
 import com.eldroid.facelock.presenter.buildings.BuildingsContract
 import com.eldroid.facelock.presenter.buildings.BuildingsContract.FormField
 import com.eldroid.facelock.presenter.buildings.BuildingsPresenter
-import com.eldroid.facelock.presenter.buildings.LinkChoice
 import com.eldroid.facelock.ui.adapter.BuildingAdapter
+import com.eldroid.facelock.util.NetworkMonitor
 import com.eldroid.facelock.util.SessionManager
-import com.eldroid.facelock.util.asRelativeDateTime
 import com.eldroid.facelock.util.snack
 import com.eldroid.facelock.util.visible
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -46,7 +39,6 @@ class BuildingsActivity : AppCompatActivity(), BuildingsContract.View {
 
     private var formDialog: AlertDialog? = null
     private var formBinding: DialogBuildingFormBinding? = null
-    private var linkDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,8 +51,8 @@ class BuildingsActivity : AppCompatActivity(), BuildingsContract.View {
             BuildingsPresenter(
                 buildingRepo = BuildingRepository(),
                 lockerRepo = LockerRepository(),
-                logRepo = LogRepository(),
-                trail = AdminTrail(AdminActionRepository()) { session.fullName }
+                trail = AdminTrail(AdminActionRepository()) { session.fullName },
+                isOnline = NetworkMonitor(this)::isOnline
             )
         }
 
@@ -72,8 +64,6 @@ class BuildingsActivity : AppCompatActivity(), BuildingsContract.View {
         binding.recycler.adapter = adapter
 
         binding.fabAdd.setOnClickListener { presenter.onAddClicked() }
-        binding.btnMigrate.setOnClickListener { presenter.onMigrateClicked() }
-        binding.btnLink.setOnClickListener { presenter.onLinkClicked() }
 
         presenter.attachView(this)
     }
@@ -81,7 +71,6 @@ class BuildingsActivity : AppCompatActivity(), BuildingsContract.View {
     override fun onDestroy() {
         presenter.detachView()
         formDialog?.dismiss()
-        linkDialog?.dismiss()
         super.onDestroy()
     }
 
@@ -123,116 +112,6 @@ class BuildingsActivity : AppCompatActivity(), BuildingsContract.View {
     }
 
     override fun showMessage(message: String) = binding.root.snack(message)
-
-    override fun showBusy(busy: Boolean) {
-        binding.progress.visible(busy)
-        binding.btnMigrate.isEnabled = !busy
-        binding.fabAdd.isEnabled = !busy
-    }
-
-    // ------------------------------------------------------- migration ----
-
-    override fun showMigrationBanner(count: Int) {
-        binding.cardMigration.visible(count > 0)
-        binding.tvMigrationTitle.text =
-            resources.getQuantityString(R.plurals.migration_title, count, count)
-    }
-
-    override fun confirmMigration(plan: MigrateLegacyLockersUseCase.Report) {
-        val lines = plan.moved.joinToString("\n") { "${it.locker.id}  →  ${it.newId}" }
-        val skipped = if (plan.skipped.isEmpty()) "" else "\n\n" + getString(
-            R.string.migration_will_skip, plan.skipped.size
-        )
-        MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.migration_confirm_title)
-            .setMessage(getString(R.string.migration_confirm_body) + "\n\n" + lines + skipped)
-            .setPositiveButton(R.string.migration_action) { _, _ -> presenter.onMigrationConfirmed() }
-            .setNegativeButton(R.string.action_cancel, null)
-            .show()
-    }
-
-    override fun showMigrationResult(result: MigrateLegacyLockersUseCase.Report) {
-        val parts = mutableListOf<String>()
-        if (result.moved.isNotEmpty()) {
-            parts += getString(R.string.migration_moved, result.moved.size)
-        }
-        if (result.skipped.isNotEmpty()) {
-            parts += getString(R.string.migration_skipped_header) + "\n" +
-                result.skipped.joinToString("\n") { "• ${it.locker.id}: ${it.reason}" }
-            parts += getString(R.string.migration_skipped_hint)
-        }
-        MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.migration_result_title)
-            .setMessage(parts.joinToString("\n\n"))
-            .setPositiveButton(R.string.action_ok, null)
-            .show()
-    }
-
-    // ---------------------------------------------------- link old IDs ----
-
-    override fun showLinkBanner(count: Int) {
-        binding.cardLink.visible(count > 0)
-        binding.tvLinkTitle.text = resources.getQuantityString(R.plurals.link_title, count, count)
-    }
-
-    override fun showLinkForm(rows: List<SuggestOldIdLinksUseCase.Clues>, choices: List<LinkChoice>) {
-        val form = DialogLinkOldIdsBinding.inflate(layoutInflater)
-        // First entry leaves an old ID unlinked, so a wrong pick can be undone.
-        val labels = listOf(getString(R.string.link_not_linked)) + choices.map { it.label }
-        val picks = mutableMapOf<String, String>()
-
-        form.btnTips.setOnClickListener {
-            val open = form.tvTips.visibility != android.view.View.VISIBLE
-            form.tvTips.visible(open)
-            form.btnTips.setText(if (open) R.string.link_tips_hide else R.string.link_tips_show)
-        }
-
-        rows.forEach { clues ->
-            val oldId = clues.oldId
-            val row = ItemLinkOldIdBinding.inflate(layoutInflater, form.rows, false)
-            row.til.hint = getString(R.string.link_row_hint, oldId)
-            row.ac.setAdapter(ArrayAdapter(this, android.R.layout.simple_list_item_1, labels))
-            row.ac.setOnItemClickListener { _, _, position, _ ->
-                if (position == 0) picks.remove(oldId) else picks[oldId] = choices[position - 1].lockerId
-            }
-
-            // What the access log remembers about this old ID, to jog the admin's memory.
-            val last = clues.lastUsed?.asRelativeDateTime() ?: "—"
-            val helper = mutableListOf(
-                if (clues.usedBy.isEmpty()) getString(R.string.link_row_no_one, last)
-                else getString(R.string.link_row_used_by, clues.usedBy.joinToString(), last)
-            )
-            clues.suggestion?.let { s ->
-                choices.firstOrNull { it.lockerId == s.lockerId }?.let { choice ->
-                    row.ac.setText(choice.label, false)
-                    picks[oldId] = choice.lockerId
-                    helper += getString(R.string.link_row_suggested, s.reason)
-                }
-            }
-            row.til.helperText = helper.joinToString("\n")
-            form.rows.addView(row.root)
-        }
-
-        val dialog = MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.link_form_title)
-            .setView(form.root)
-            .setPositiveButton(R.string.action_save, null)
-            .setNegativeButton(R.string.action_cancel, null)
-            .create()
-        // Set the click listener after show() so a clash message does not dismiss.
-        dialog.setOnShowListener {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                presenter.onLinksSaved(picks.toMap())
-            }
-        }
-        dialog.setOnDismissListener { if (linkDialog === dialog) linkDialog = null }
-        linkDialog = dialog
-        dialog.show()
-    }
-
-    override fun closeLinkForm() {
-        linkDialog?.dismiss()
-    }
 
     // ------------------------------------------------------------ form ----
 

@@ -13,6 +13,10 @@
         android:layout_height="0dp"
         android:layout_weight="1" />
 
+    <include
+        android:id="@+id/offline"
+        layout="@layout/view_offline_banner" />
+
     <View style="@style/Divider" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView

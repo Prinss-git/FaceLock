@@ -56,6 +56,54 @@
                 android:maxLines="1" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Quick filters for the accounts an admin usually has to act on. -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/screen_margin"
+            android:paddingTop="@dimen/space_sm"
+            android:clipToPadding="false"
+            android:scrollbars="none">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/filterGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:singleSelection="true"
+                app:selectionRequired="true"
+                app:chipSpacingHorizontal="@dimen/space_sm">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipUsersAll"
+                    style="@style/Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="@string/status_all" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipSuspended"
+                    style="@style/Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/users_filter_suspended" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipNoFace"
+                    style="@style/Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/users_filter_no_face" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipNoLocker"
+                    style="@style/Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/users_filter_no_locker" />
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
+
         <TextView
             android:id="@+id/tvCount"
             style="@style/T.Label"

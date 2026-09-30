@@ -6,6 +6,7 @@ import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
+import com.eldroid.facelock.R
 import com.eldroid.facelock.data.repo.AuthRepository
 import com.eldroid.facelock.databinding.ActivityForgotPasswordBinding
 import com.eldroid.facelock.util.authMessage
@@ -99,8 +100,7 @@ class ForgotPasswordActivity : AppCompatActivity() {
         setLoading(false)
         binding.groupRequest.visible(false)
         binding.groupSent.visible(true)
-        binding.tvSentTo.text =
-            "If an account exists for $email, a password reset link is on its way."
+        binding.tvSentTo.text = getString(R.string.reset_sent_to, email)
         startResendCooldown()
     }
 
@@ -110,12 +110,12 @@ class ForgotPasswordActivity : AppCompatActivity() {
         binding.btnResend.isEnabled = false
         cooldown = object : CountDownTimer(RESEND_COOLDOWN_MS, 1_000L) {
             override fun onTick(remaining: Long) {
-                binding.btnResend.text = "Resend link in ${remaining / 1000}s"
+                binding.btnResend.text = getString(R.string.resend_in, (remaining / 1000).toInt())
             }
 
             override fun onFinish() {
                 binding.btnResend.isEnabled = true
-                binding.btnResend.text = "Resend link"
+                binding.btnResend.setText(R.string.resend_link)
             }
         }.start()
     }

@@ -3,6 +3,7 @@ package com.eldroid.facelock.ui.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.eldroid.facelock.R
 import com.eldroid.facelock.data.model.AdminAction
 import com.eldroid.facelock.databinding.ItemAdminActionBinding
 import com.eldroid.facelock.util.asRelativeDateTime
@@ -24,10 +25,12 @@ class AdminActionRows : RowBinder<AdminAction, AdminActionRows.VH> {
             tvInitials.text = action.actorName.initials()
             // An unknown action name (from a newer app version) still reads sensibly.
             val label = action.type?.label ?: action.action
-            tvWhat.text = "$label · ${action.target}"
+            tvWhat.text = root.context.getString(R.string.dot_pair, label, action.target)
             tvDetails.visible(!action.details.isNullOrBlank())
             tvDetails.text = action.details
-            tvWho.text = "${action.actorName} · ${action.timestamp.asRelativeDateTime()}"
+            tvWho.text = root.context.getString(
+                R.string.dot_pair, action.actorName, action.timestamp.asRelativeDateTime()
+            )
         }
     }
 }

@@ -7,6 +7,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
+import com.eldroid.facelock.R
 import com.eldroid.facelock.data.repo.AuthRepository
 import com.eldroid.facelock.databinding.ActivityChangePasswordBinding
 import com.eldroid.facelock.util.PasswordPolicy
@@ -43,7 +44,7 @@ class ChangePasswordActivity : AppCompatActivity() {
             finish()
             return
         }
-        binding.tvAccountEmail.text = "Signed in as $email"
+        binding.tvAccountEmail.text = getString(R.string.signed_in_as, email)
 
         binding.toolbar.setNavigationOnClickListener { finish() }
         binding.btnSave.setOnClickListener { attemptChange() }

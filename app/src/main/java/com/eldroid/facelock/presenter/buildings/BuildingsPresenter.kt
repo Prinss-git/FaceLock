@@ -1,38 +1,29 @@
 package com.eldroid.facelock.presenter.buildings
 
-import com.eldroid.facelock.data.model.AccessLog
 import com.eldroid.facelock.data.model.AdminActionType
 import com.eldroid.facelock.data.model.Building
 import com.eldroid.facelock.data.model.Locker
 import com.eldroid.facelock.data.repo.BuildingRepository
 import com.eldroid.facelock.data.repo.LockerRepository
-import com.eldroid.facelock.data.repo.LogRepository
 import com.eldroid.facelock.domain.usecase.AdminTrail
-import com.eldroid.facelock.domain.usecase.LockerIds
-import com.eldroid.facelock.domain.usecase.MigrateLegacyLockersUseCase
-import com.eldroid.facelock.domain.usecase.ResolveLogLockersUseCase
-import com.eldroid.facelock.domain.usecase.SuggestOldIdLinksUseCase
 import com.eldroid.facelock.presenter.base.CoroutinePresenter
 import com.eldroid.facelock.presenter.buildings.BuildingsContract.FormField
+import com.eldroid.facelock.util.OFFLINE_ACTION_MESSAGE
 import com.eldroid.facelock.util.catchFirestore
+import com.eldroid.facelock.util.messageForWrite
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class BuildingsPresenter(
     private val buildingRepo: BuildingRepository,
     private val lockerRepo: LockerRepository,
-    private val logRepo: LogRepository,
     private val trail: AdminTrail,
-    private val migrate: MigrateLegacyLockersUseCase = MigrateLegacyLockersUseCase(lockerRepo),
-    private val resolveLockers: ResolveLogLockersUseCase = ResolveLogLockersUseCase(),
-    private val suggestLinks: SuggestOldIdLinksUseCase = SuggestOldIdLinksUseCase()
+    private val isOnline: () -> Boolean = { true }
 ) : CoroutinePresenter<BuildingsContract.View>(), BuildingsContract.Presenter {
 
     private var buildings: List<Building> = emptyList()
     private var lockers: List<Locker> = emptyList()
-    private var logs: List<AccessLog> = emptyList()
     private var loaded = false
-    private var pendingMigration: MigrateLegacyLockersUseCase.Report? = null
 
     override fun onViewAttached() {
         if (loaded) render() else view?.showLoading()
@@ -47,24 +38,10 @@ class BuildingsPresenter(
                     render()
                 }
         }
-        // Separately, so a problem reading logs never hides the buildings.
-        scope.launch {
-            logRepo.observeSince(0L, LOG_SCAN_LIMIT)
-                .catchFirestore("the access log") { /* the link banner just stays hidden */ }
-                .collect {
-                    logs = it
-                    if (loaded) render()
-                }
-        }
     }
-
-    /** Old IDs in the log that no locker answers to, current or former. */
-    private fun unlinkedIds() = resolveLockers.unknownIds(logs, lockers)
 
     private fun render() {
         val view = view ?: return
-        view.showMigrationBanner(migrate.needsMigration(lockers).size)
-        view.showLinkBanner(unlinkedIds().size)
         if (buildings.isEmpty()) return view.showEmpty()
 
         view.showBuildings(buildings.map { building ->
@@ -128,6 +105,10 @@ class BuildingsPresenter(
             floors = floorCount!!,
             groundFloor = groundFloor
         )
+        // Adding checks the code is free inside a transaction, which needs the server.
+        if (editingCode == null && !isOnline()) {
+            return view.showFormError(FormField.CODE, OFFLINE_ACTION_MESSAGE)
+        }
         scope.launch {
             val result = if (editingCode == null) {
                 buildingRepo.createBuilding(saved)
@@ -155,7 +136,7 @@ class BuildingsPresenter(
                 .onFailure {
                     this@BuildingsPresenter.view?.showFormError(
                         if (editingCode == null) FormField.CODE else FormField.NAME,
-                        it.message ?: "Could not save the building"
+                        messageForWrite(it, "Could not save the building")
                     )
                 }
         }
@@ -175,112 +156,25 @@ class BuildingsPresenter(
 
     override fun onDeleteConfirmed(code: String) {
         val name = buildings.firstOrNull { it.code == code }?.name ?: code
+        if (offline()) return
         scope.launch {
             buildingRepo.deleteBuilding(code)
                 .onSuccess {
                     view?.showMessage("$name deleted")
                     trail.record(AdminActionType.BUILDING_DELETED, "$name ($code)")
                 }
-                .onFailure { view?.showMessage(it.message ?: "Could not delete the building") }
+                .onFailure { view?.showMessage(messageForWrite(it, "Could not delete the building")) }
         }
     }
 
-    // ------------------------------------------------------- migration ----
-
-    override fun onMigrateClicked() {
-        if (migrate.needsMigration(lockers).isEmpty()) {
-            view?.showMessage("Every locker is already in a building.")
-            return
-        }
-        val plan = migrate.plan(lockers, buildings)
-        if (plan.moved.isEmpty()) {
-            // Nothing can be matched yet; the report says why for each locker.
-            view?.showMigrationResult(plan)
-        } else {
-            pendingMigration = plan
-            view?.confirmMigration(plan)
-        }
-    }
-
-    override fun onMigrationConfirmed() {
-        val plan = pendingMigration ?: return
-        pendingMigration = null
-        view?.showBusy(true)
-        scope.launch {
-            val result = migrate(plan)
-            view?.showBusy(false)
-            view?.showMigrationResult(result)
-            if (result.moved.isNotEmpty()) {
-                trail.record(
-                    AdminActionType.LOCKERS_MIGRATED,
-                    "${result.moved.size} locker(s)",
-                    result.moved.joinToString { "${it.locker.id}→${it.newId}" }
-                )
-            }
-        }
-    }
-
-    // --------------------------------------------------- link old IDs ----
-
-    override fun onLinkClicked() {
-        val oldIds = unlinkedIds()
-        if (oldIds.isEmpty()) {
-            view?.showMessage("Every locker in the access log is already linked.")
-            return
-        }
-        // Only lockers that have no old ID yet; place and holder for recognition.
-        val candidates = lockers
-            .filter { it.formerId.isNullOrBlank() }
-            .sortedWith(LockerIds.naturalOrder)
-        val choices = candidates.map { locker ->
-            val building = buildings.firstOrNull { it.code == locker.building }
-            val floor = locker.floor
-            val place = if (building != null && floor != null) building.locationOf(floor)
-            else locker.location
-            LinkChoice(
-                locker.id,
-                listOfNotNull(locker.id, place, locker.assignedName)
-                    .filter { it.isNotBlank() }
-                    .joinToString(" · ")
-            )
-        }
-        if (choices.isEmpty()) {
-            view?.showMessage("Every locker already has an old ID linked.")
-            return
-        }
-        view?.showLinkForm(suggestLinks(oldIds, logs, candidates), choices)
-    }
-
-    override fun onLinksSaved(links: Map<String, String>) {
-        if (links.isEmpty()) {
-            view?.closeLinkForm()
-            return
-        }
-        // One old ID per locker: two old IDs can't both become the same locker.
-        val clash = links.values.groupingBy { it }.eachCount().filterValues { it > 1 }.keys
-        if (clash.isNotEmpty()) {
-            view?.showMessage("${clash.joinToString()} was chosen more than once. Pick each locker once.")
-            return
-        }
-        val byLocker = links.entries.associate { (oldId, lockerId) -> lockerId to oldId }
-        scope.launch {
-            lockerRepo.setFormerIds(byLocker)
-                .onSuccess {
-                    view?.closeLinkForm()
-                    view?.showMessage("${links.size} old ID(s) linked. The logs now show current IDs.")
-                    trail.record(
-                        AdminActionType.LOCKERS_LINKED,
-                        "${links.size} locker(s)",
-                        links.entries.joinToString { (old, new) -> "$old→$new" }
-                    )
-                }
-                .onFailure { view?.showMessage(it.message ?: "Could not save the links") }
-        }
+    /** True (and says so) when an action that needs the server can't run. */
+    private fun offline(): Boolean {
+        if (isOnline()) return false
+        view?.showMessage(OFFLINE_ACTION_MESSAGE)
+        return true
     }
 
     private companion object {
         const val MAX_NAME = 40
-        /** Enough to cover the access log a test deployment builds up. */
-        const val LOG_SCAN_LIMIT = 500L
     }
 }

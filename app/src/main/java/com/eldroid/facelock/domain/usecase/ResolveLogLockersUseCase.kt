@@ -11,8 +11,7 @@ import com.eldroid.facelock.data.model.Locker
  * that old ID as `formerId`, so the log is mapped to it here — once, on load —
  * and every screen, filter and search after that sees only current IDs.
  *
- * A log whose locker can't be identified is returned unchanged; the admin
- * links those old IDs once from the Buildings screen.
+ * A log whose locker can't be identified is returned unchanged.
  */
 class ResolveLogLockersUseCase {
 
@@ -22,15 +21,6 @@ class ResolveLogLockersUseCase {
             val current = index[log.lockerId]?.id
             if (current == null || current == log.lockerId) log else log.copy(lockerId = current)
         }
-    }
-
-    /** IDs in [logs] that no locker answers to, current or former. */
-    fun unknownIds(logs: List<AccessLog>, lockers: List<Locker>): List<String> {
-        val index = index(lockers)
-        return logs.map { it.lockerId }
-            .filter { it.isNotBlank() && it !in index }
-            .distinct()
-            .sorted()
     }
 
     private fun index(lockers: List<Locker>): Map<String, Locker> = buildMap {

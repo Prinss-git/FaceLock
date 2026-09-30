@@ -34,6 +34,19 @@ fun <T> Flow<T>.catchFirestore(what: String, onError: (String) -> Unit): Flow<T>
     onError(messageFor(what, e))
 }
 
+/** What to tell the person when a write fails; [fallback] when there's nothing better. */
+fun messageForWrite(e: Throwable, fallback: String): String =
+    when ((e as? FirebaseFirestoreException)?.code) {
+        FirebaseFirestoreException.Code.UNAVAILABLE ->
+            "Can't reach the server. Check your connection and try again."
+        FirebaseFirestoreException.Code.PERMISSION_DENIED ->
+            "You don't have permission to do that. Your access may have changed."
+        else -> e.message ?: fallback
+    }
+
+/** Shown before starting an action that can't be queued for later. */
+const val OFFLINE_ACTION_MESSAGE = "You're offline. This needs a connection."
+
 private fun messageFor(what: String, e: Throwable): String {
     val code = (e as? FirebaseFirestoreException)?.code ?: return "Couldn't load $what."
     return when (code) {

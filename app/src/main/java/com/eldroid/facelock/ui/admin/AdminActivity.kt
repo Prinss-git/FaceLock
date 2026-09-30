@@ -16,8 +16,10 @@ import com.eldroid.facelock.presenter.base.PresenterHolder
 import com.eldroid.facelock.presenter.coordinator.AdminFragmentCoordinator
 import com.eldroid.facelock.presenter.coordinator.AppAdminCoordinator
 import com.eldroid.facelock.presenter.coordinator.CoordinatorHost
+import com.eldroid.facelock.ui.SessionGuard
 import com.eldroid.facelock.ui.user.ProfileFragment
 import com.eldroid.facelock.util.SessionManager
+import com.eldroid.facelock.util.bindOfflineBanner
 import com.google.android.material.snackbar.Snackbar
 
 /**
@@ -46,6 +48,7 @@ class AdminActivity : AppCompatActivity(), CoordinatorHost, DeniedAlertsContract
 
     private val holder: PresenterHolder by viewModels()
     private lateinit var alerts: DeniedAlertsContract.Presenter
+    private lateinit var guard: SessionGuard
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,6 +64,12 @@ class AdminActivity : AppCompatActivity(), CoordinatorHost, DeniedAlertsContract
             )
         }
         alerts.attachView(this)
+        guard = SessionGuard(this).also { it.attach() }
+        bindOfflineBanner(binding.offline.root)
+        if (savedInstanceState == null && intent.getBooleanExtra(SessionGuard.EXTRA_ROLE_CHANGED, false)) {
+            Snackbar.make(binding.root, R.string.role_changed_message, Snackbar.LENGTH_LONG)
+                .setAnchorView(binding.bottomNav).show()
+        }
 
         // After process death the FragmentManager restores the tab fragments on
         // its own; re-adopt them, or show() would add a second copy on top.
@@ -90,6 +99,7 @@ class AdminActivity : AppCompatActivity(), CoordinatorHost, DeniedAlertsContract
 
     override fun onDestroy() {
         alerts.detachView()
+        guard.detach()
         super.onDestroy()
     }
 

@@ -25,7 +25,7 @@
         <!-- Headers are the dark ink ramp in both themes, so the status bar
              icons stay light in both. -->
         <item name="android:statusBarColor">@color/background</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <item name="android:windowLightStatusBar">true</item>
         <item name="android:navigationBarColor">@color/surface</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
 
@@ -43,7 +43,7 @@
     -->
     <style name="Theme.FaceLock.DarkBars" parent="Theme.FaceLock">
         <item name="android:statusBarColor">@color/ink_950</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
     <!-- ================= Surfaces ================= -->

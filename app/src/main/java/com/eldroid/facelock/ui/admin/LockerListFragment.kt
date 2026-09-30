@@ -31,12 +31,14 @@ import com.eldroid.facelock.presenter.lockers.LockerListItem
 import com.eldroid.facelock.presenter.lockers.LockersContract
 import com.eldroid.facelock.presenter.lockers.LockersContract.AddLockerField
 import com.eldroid.facelock.presenter.lockers.LockersContract.EmptyState
+import com.eldroid.facelock.presenter.lockers.LockersContract.StatusFilter
 import com.eldroid.facelock.presenter.lockers.LockersPresenter
 import com.eldroid.facelock.ui.adapter.AssignCandidateAdapter
 import com.eldroid.facelock.ui.adapter.LockerGroupAdapter
 import com.eldroid.facelock.ui.adapter.LockerStatusStyle
 import com.eldroid.facelock.ui.base.BaseFragment
 import com.eldroid.facelock.util.SessionManager
+import com.eldroid.facelock.util.NetworkMonitor
 import com.eldroid.facelock.util.asRelativeDateTime
 import com.eldroid.facelock.util.skeleton
 import com.eldroid.facelock.util.snack
@@ -78,7 +80,8 @@ class LockerListFragment : BaseFragment(), LockersContract.View {
                 userRepo = UserRepository(),
                 buildingRepo = BuildingRepository(),
                 trail = AdminTrail(AdminActionRepository()) { session.fullName },
-                canManage = isAdmin
+                canManage = isAdmin,
+                isOnline = NetworkMonitor(requireContext())::isOnline
             )
         }
 
@@ -99,6 +102,16 @@ class LockerListFragment : BaseFragment(), LockersContract.View {
         binding.etSearch.doAfterTextChanged { presenter.onSearchChanged(it?.toString().orEmpty()) }
         binding.btnExpandAll.setOnClickListener { presenter.onExpandAllClicked() }
         binding.btnCollapseAll.setOnClickListener { presenter.onCollapseAllClicked() }
+        binding.statusGroup.setOnCheckedStateChangeListener { _, ids ->
+            presenter.onStatusFilterSelected(
+                when (ids.firstOrNull()) {
+                    R.id.chipStatusFree -> StatusFilter.FREE
+                    R.id.chipStatusOccupied -> StatusFilter.OCCUPIED
+                    R.id.chipStatusOut -> StatusFilter.OUT_OF_SERVICE
+                    else -> StatusFilter.ALL
+                }
+            )
+        }
 
         // The FAB would otherwise sit on top of the last row while scrolling.
         binding.recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -146,6 +159,25 @@ class LockerListFragment : BaseFragment(), LockersContract.View {
         binding.btnCollapseAll.visible(true)
         binding.btnExpandAll.isEnabled = canExpand
         binding.btnCollapseAll.isEnabled = canCollapse
+    }
+
+    override fun showStatusCounts(all: Int, free: Int, occupied: Int, outOfService: Int) {
+        val binding = _binding ?: return
+        binding.chipStatusAll.text = getString(R.string.status_all_n, all)
+        binding.chipStatusFree.text = getString(R.string.status_free_n, free)
+        binding.chipStatusOccupied.text = getString(R.string.status_occupied_n, occupied)
+        binding.chipStatusOut.text = getString(R.string.status_out_n, outOfService)
+    }
+
+    override fun showStatusFilter(filter: StatusFilter) {
+        _binding?.statusGroup?.check(
+            when (filter) {
+                StatusFilter.ALL -> R.id.chipStatusAll
+                StatusFilter.FREE -> R.id.chipStatusFree
+                StatusFilter.OCCUPIED -> R.id.chipStatusOccupied
+                StatusFilter.OUT_OF_SERVICE -> R.id.chipStatusOut
+            }
+        )
     }
 
     private fun hideExpandControls() {

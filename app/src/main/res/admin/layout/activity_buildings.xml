@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Building manager: the buildings lockers are grouped under, plus the
-     one-time sorting of lockers made before buildings existed. -->
+<!-- Building manager: the buildings lockers are grouped under. -->
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -41,88 +40,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_xs"
                 android:text="@string/buildings_subtitle" />
-
-            <!-- Shown while some lockers still have no building. -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardMigration"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_md"
-                android:visibility="gone"
-                app:cardBackgroundColor="@color/warning_wash"
-                app:strokeWidth="0dp"
-                tools:visibility="visible">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="@dimen/card_padding">
-
-                    <TextView
-                        android:id="@+id/tvMigrationTitle"
-                        style="@style/T.Subtitle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/warning"
-                        tools:text="13 lockers aren't in a building yet" />
-
-                    <TextView
-                        style="@style/T.Body"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/space_xs"
-                        android:text="@string/migration_body" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnMigrate"
-                        style="@style/Btn.Small"
-                        android:layout_width="wrap_content"
-                        android:layout_marginTop="@dimen/space_ms"
-                        android:text="@string/migration_action" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Shown while the access log names old locker IDs nothing answers to. -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardLink"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_sm"
-                android:visibility="gone"
-                app:cardBackgroundColor="@color/warning_wash"
-                app:strokeWidth="0dp"
-                tools:visibility="visible">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="@dimen/card_padding">
-
-                    <TextView
-                        android:id="@+id/tvLinkTitle"
-                        style="@style/T.Subtitle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/warning"
-                        tools:text="10 old locker IDs in the access log aren't linked" />
-
-                    <TextView
-                        style="@style/T.Body"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/space_xs"
-                        android:text="@string/link_body" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnLink"
-                        style="@style/Btn.Small"
-                        android:layout_width="wrap_content"
-                        android:layout_marginTop="@dimen/space_ms"
-                        android:text="@string/link_action" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.progressindicator.LinearProgressIndicator
                 android:id="@+id/progress"

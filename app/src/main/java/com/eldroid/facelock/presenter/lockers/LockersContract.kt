@@ -13,6 +13,10 @@ interface LockersContract {
         fun showLockers(items: List<LockerListItem>, lockerCount: Int)
         /** Enables Expand all / Collapse all: each only when it would change something. */
         fun showExpandControls(canExpand: Boolean, canCollapse: Boolean)
+        /** Chip counts, over whatever the search currently matches. */
+        fun showStatusCounts(all: Int, free: Int, occupied: Int, outOfService: Int)
+        /** Keeps the chips in step after rotation. */
+        fun showStatusFilter(filter: StatusFilter)
         fun showEmpty(state: EmptyState)
         fun showLoadError(message: String)
         fun showMessage(message: String)
@@ -37,6 +41,7 @@ interface LockersContract {
 
         fun onSearchChanged(query: String)
         fun onBuildingToggled(groupKey: String)
+        fun onStatusFilterSelected(filter: StatusFilter)
         fun onExpandAllClicked()
         fun onCollapseAllClicked()
         fun onLockerClicked(lockerId: String)
@@ -59,6 +64,8 @@ interface LockersContract {
     }
 
     enum class EmptyState { NO_LOCKERS, NO_MATCH }
+
+    enum class StatusFilter { ALL, FREE, OCCUPIED, OUT_OF_SERVICE }
 
     enum class AddLockerField { BUILDING, FLOOR, ID, QUANTITY }
 }

@@ -10,12 +10,14 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
+    // Staff powers end the moment an account is suspended, not at its next
+    // sign-in: the app signs them out, and these rules refuse them meanwhile.
     function isAdmin() {
-      return signedIn() && myProfile().role == 'ADMIN';
+      return signedIn() && myProfile().role == 'ADMIN' && myProfile().active == true;
     }
 
     function isSecurity() {
-      return signedIn() && myProfile().role == 'SECURITY';
+      return signedIn() && myProfile().role == 'SECURITY' && myProfile().active == true;
     }
 
 

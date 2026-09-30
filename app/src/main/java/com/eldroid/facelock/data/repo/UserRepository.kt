@@ -28,6 +28,23 @@ class UserRepository {
         awaitClose { reg.remove() }
     }
 
+    /**
+     * Like [observeUser], but a "no such profile" answer is only passed on
+     * once the server has confirmed it. A cold cache can report a missing
+     * document before the server replies, and the session guard must not sign
+     * someone out on that.
+     */
+    fun observeOwnProfile(uid: String): Flow<User?> = callbackFlow {
+        val reg = col.document(uid).addSnapshotListener { snap, err ->
+            if (err != null) { close(err); return@addSnapshotListener }
+            if (snap == null || (!snap.exists() && snap.metadata.isFromCache)) {
+                return@addSnapshotListener
+            }
+            trySend(snap.toObject(User::class.java))
+        }
+        awaitClose { reg.remove() }
+    }
+
     suspend fun updateUser(uid: String, changes: Map<String, Any?>): Result<Unit> =
         runCatching { col.document(uid).update(changes).await() }
 
