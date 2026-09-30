@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One access attempt in full: who, result, where, when, match score. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/space_lg"
+    android:paddingTop="@dimen/space_sm"
+    android:paddingBottom="@dimen/space_lg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:gravity="center_vertical">
+
+        <FrameLayout
+            android:id="@+id/iconWrap"
+            android:layout_width="@dimen/avatar_size"
+            android:layout_height="@dimen/avatar_size"
+            tools:background="@drawable/pill_granted">
+            <ImageView
+                android:id="@+id/ivResult"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:importantForAccessibility="no"
+                tools:src="@drawable/ic_check" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tvUser"
+            style="@style/T.Title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/space_ms"
+            tools:text="Maria Santos" />
+
+        <TextView
+            android:id="@+id/tvResult"
+            style="@style/Pill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_sm"
+            tools:background="@drawable/pill_granted"
+            tools:text="Granted" />
+    </LinearLayout>
+
+    <View
+        style="@style/Divider"
+        android:layout_marginVertical="@dimen/space_md" />
+
+    <TextView
+        style="@style/T.Label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/label_locker" />
+
+    <TextView
+        android:id="@+id/tvLocker"
+        style="@style/T.Subtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        tools:text="M-003 (was L-003)" />
+
+    <TextView
+        android:id="@+id/tvPlace"
+        style="@style/T.Caption"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="Main Building · 1F" />
+
+    <TextView
+        style="@style/T.Label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_md"
+        android:text="@string/label_when" />
+
+    <TextView
+        android:id="@+id/tvTime"
+        style="@style/T.Subtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        tools:text="Sep 10, 2026  12:49 AM" />
+
+    <TextView
+        android:id="@+id/tvMatchLabel"
+        style="@style/T.Label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_md"
+        tools:text="Match" />
+
+    <TextView
+        android:id="@+id/tvMatch"
+        style="@style/T.Subtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        tools:text="98%" />
+</LinearLayout>

@@ -25,9 +25,13 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 
+// Wi-Fi credentials and the device key live in secrets.h, which is gitignored.
+// Copy secrets.example.h to secrets.h in this folder and fill it in.
+#include "secrets.h"
+
 // ----------------------- CONFIGURATION -----------------------
-const char* WIFI_SSID     = "Kythlog";
-const char* WIFI_PASSWORD = "12345678";
+const char* WIFI_SSID     = SECRET_WIFI_SSID;
+const char* WIFI_PASSWORD = SECRET_WIFI_PASSWORD;
 
 // Default region for a 1st-gen function with no .region() call. Confirm this
 // against the URL that `firebase deploy --only functions` prints.
@@ -37,9 +41,9 @@ const char* RECOGNIZE_URL =
 const char* LOCKER_ID = "LKR-01";
 
 // Must match what the backend has. Set it there with:
-//   firebase functions:config:set facelock.device_key="i_8WAogMO2pbsZis_zng8kNlKZJ1w-1RJxC_UQChPk8"
+//   firebase functions:config:set facelock.device_key="<same value as SECRET_DEVICE_KEY>"
 //   firebase deploy --only functions
-const char* DEVICE_KEY = "i_8WAogMO2pbsZis_zng8kNlKZJ1w-1RJxC_UQChPk8";
+const char* DEVICE_KEY = SECRET_DEVICE_KEY;
 
 const unsigned long WIFI_TIMEOUT_MS = 20000;
 

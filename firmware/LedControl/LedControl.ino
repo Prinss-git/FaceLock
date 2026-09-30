@@ -25,17 +25,20 @@
 #include <WiFi.h>
 #include <Firebase_ESP_Client.h>
 
+// Wi-Fi credentials and the database secret live in secrets.h, which is
+// gitignored. Copy secrets.example.h to secrets.h in this folder and fill it in.
+#include "secrets.h"
+
 // ----------------------- CONFIGURATION -----------------------
-#define WIFI_SSID     "8 Pro"
-#define WIFI_PASSWORD "REPLACE_ME"
+#define WIFI_SSID     SECRET_WIFI_SSID
+#define WIFI_PASSWORD SECRET_WIFI_PASSWORD
 
 #define DATABASE_URL "facelock-eldroid-default-rtdb.asia-southeast1.firebasedatabase.app"
 
 // Firebase console -> Project settings -> Service accounts -> Database secrets.
 // This bypasses the database rules, which is how the board reads without
-// signing in - so it is a full-access password. Paste it here on your own
-// machine and do NOT commit the filled-in file.
-#define DATABASE_SECRET "PASTE_YOUR_DATABASE_SECRET_HERE"
+// signing in - so it is a full-access password. It belongs in secrets.h only.
+#define DATABASE_SECRET SECRET_DATABASE_SECRET
 
 #define LED_PIN 23
 

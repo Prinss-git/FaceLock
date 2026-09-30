@@ -30,6 +30,8 @@ object FirebaseRefs {
 
     const val USERS = "users"
     const val LOCKERS = "lockers"
+    const val BUILDINGS = "buildings"
+    const val ADMIN_ACTIONS = "admin_actions"
     const val ACCESS_LOGS = "access_logs"
     const val FACE_TEMPLATES = "face_templates"
 }

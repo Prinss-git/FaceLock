@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Floor sub-header inside an expanded building. -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tvFloor"
+    style="@style/T.Label"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="@dimen/space_xs"
+    android:paddingTop="@dimen/space_sm"
+    android:paddingBottom="@dimen/space_xs"
+    tools:text="1F" />

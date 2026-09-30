@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Compact locker row: ID, holder, status. Tapping opens the detail sheet. -->
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Card.Clickable"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="6dp"
+    app:cardCornerRadius="@dimen/field_radius">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
+        android:minHeight="56dp"
+        android:paddingHorizontal="@dimen/space_ms"
+        android:paddingVertical="10dp">
+
+        <FrameLayout
+            android:id="@+id/iconWrap"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            tools:background="@drawable/pill_accent">
+            <ImageView
+                android:id="@+id/ivLocker"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_lock"
+                android:importantForAccessibility="no" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/space_ms"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvId"
+                style="@style/T.Subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                tools:text="M-001" />
+
+            <TextView
+                android:id="@+id/tvHolder"
+                style="@style/T.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                tools:text="Gabe Gonon" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvStatus"
+            style="@style/Pill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_sm"
+            tools:background="@drawable/pill_accent"
+            tools:text="Occupied" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

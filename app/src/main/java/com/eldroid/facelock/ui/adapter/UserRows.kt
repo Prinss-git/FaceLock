@@ -2,8 +2,6 @@ package com.eldroid.facelock.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.eldroid.facelock.R
 import com.eldroid.facelock.data.model.Role
@@ -12,22 +10,22 @@ import com.eldroid.facelock.databinding.ItemUserBinding
 import com.eldroid.facelock.util.initials
 import com.eldroid.facelock.util.visible
 
-class UserAdapter(
+class UserRows(
     private val onToggleActive: (User) -> Unit,
     private val onChangeRole: (User) -> Unit,
     private val onDelete: (User) -> Unit,
     /** The signed-in admin, so the row for their own account can be protected. */
     private val currentUid: String? = null
-) : ListAdapter<User, UserAdapter.VH>(DIFF) {
+) : RowBinder<User, UserRows.VH> {
 
-    inner class VH(val b: ItemUserBinding) : RecyclerView.ViewHolder(b.root)
+    class VH(val b: ItemUserBinding) : RecyclerView.ViewHolder(b.root)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = VH(
+    override fun create(parent: ViewGroup) = VH(
         ItemUserBinding.inflate(LayoutInflater.from(parent.context), parent, false)
     )
 
-    override fun onBindViewHolder(holder: VH, position: Int) {
-        val user = getItem(position)
+    override fun bind(holder: VH, item: User) {
+        val user = item
         val ctx = holder.b.root.context
         val isSelf = user.uid == currentUid
 
@@ -75,13 +73,6 @@ class UserAdapter(
             btnToggle.setOnClickListener { onToggleActive(user) }
             btnRole.setOnClickListener { onChangeRole(user) }
             btnDelete.setOnClickListener { onDelete(user) }
-        }
-    }
-
-    companion object {
-        val DIFF = object : DiffUtil.ItemCallback<User>() {
-            override fun areItemsTheSame(a: User, b: User) = a.uid == b.uid
-            override fun areContentsTheSame(a: User, b: User) = a == b
         }
     }
 }

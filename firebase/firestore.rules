@@ -25,17 +25,19 @@ service cloud.firestore {
       allow read: if signedIn() && (request.auth.uid == uid || isAdmin() || isSecurity());
 
       // Self-registration is allowed, but never with an elevated role.
-      allow create: if signedIn()
-                    && request.auth.uid == uid
-                    && request.resource.data.role == 'USER'
-                    && request.resource.data.active == true;
+      // Admins provision accounts of any role for other people.
+      allow create: if isAdmin()
+                    || (signedIn()
+                        && request.auth.uid == uid
+                        && request.resource.data.role == 'USER'
+                        && request.resource.data.active == true);
 
       // Users may only flip their own faceEnrolled flag; admins may edit anything.
       allow update: if isAdmin()
                     || (signedIn() && request.auth.uid == uid
                         && request.resource.data.diff(resource.data)
                              .affectedKeys()
-                             .hasOnly(['faceEnrolled', 'fcmToken', 'mustChangePassword']));
+                             .hasOnly(['faceEnrolled', 'fcmToken']));
 
       allow delete: if isAdmin();
     }
@@ -48,15 +50,21 @@ service cloud.firestore {
       allow update: if isAdmin();
     }
 
-    // ---------- password reset requests ----------
-    match /password_resets/{requestId} {
-      // Admins read the queue. Nobody writes from a client: requests are
-      // created by requestPasswordReset and closed by resolvePasswordReset,
-      // both of which use the Admin SDK and so bypass these rules. That keeps
-      // the queue from being a public write target while still letting a
-      // signed-out member raise a request through the function.
+    // ---------- buildings ----------
+    match /buildings/{code} {
+      // Everyone signed in sees the grouping; only admins change it.
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // ---------- admin activity trail ----------
+    match /admin_actions/{actionId} {
+      // Append-only: an admin may add an entry in their own name, and nobody
+      // may edit or erase one afterwards.
       allow read: if isAdmin();
-      allow write: if false;
+      allow create: if isAdmin()
+                    && request.resource.data.actorUid == request.auth.uid;
+      allow update, delete: if false;
     }
 
     // ---------- access logs ----------

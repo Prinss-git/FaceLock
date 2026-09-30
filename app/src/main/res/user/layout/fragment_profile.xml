@@ -394,6 +394,16 @@
                     app:icon="@drawable/ic_bulb"
                     app:iconGravity="textStart"
                     android:text="@string/action_led_control" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnActivityTrail"
+                    style="@style/Btn.Outline"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="@dimen/space_sm"
+                    app:icon="@drawable/ic_shield"
+                    app:iconGravity="textStart"
+                    android:text="@string/activity_trail" />
             </LinearLayout>
 
             <!-- ===================== Security ===================== -->

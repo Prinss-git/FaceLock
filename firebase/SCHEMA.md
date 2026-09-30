@@ -12,17 +12,47 @@
 | `fcmToken` | string | Device token for alert push |
 | `createdAt` | number | Epoch millis |
 
-## `lockers/{lockerId}`
+## `buildings/{code}`
+The document ID is the building code (1–3 capital letters, e.g. `M`, `ENG`),
+which also prefixes its lockers' IDs. Admins manage these in the app.
+
 | Field | Type | Notes |
 |---|---|---|
-| `label` | string | Human-readable name, e.g. `LKR-01` |
-| `location` | string | Physical placement |
+| `name` | string | Display name, e.g. `Main Building` |
+| `floors` | number | Floor count; floors are stored as `1`…`floors` |
+| `groundFloor` | boolean | `true`: floor 1 is shown as `GF` (then `2F`, `3F`…); `false`: `1F`, `2F`… |
+| `createdAt` | number | Epoch millis |
+
+## `lockers/{lockerId}`
+Locker IDs are `CODE-NNN` (e.g. `M-001`): the building code, then a 3-digit
+number counted per building.
+
+| Field | Type | Notes |
+|---|---|---|
+| `label` | string | Human-readable name; same as the ID for new lockers |
+| `building` | string \| null | Building code; null for lockers made before buildings |
+| `floor` | number \| null | Floor number within the building |
+| `location` | string | Display text, e.g. `Main Building · 1F` (kept in sync on rename) |
+| `formerId` | string \| null | Pre-buildings ID (e.g. `L-011`) it was re-created from; links old access logs |
 | `assignedUid` | string \| null | Current owner |
 | `assignedName` | string \| null | Denormalized for list display |
-| `status` | string | `AVAILABLE` \| `OCCUPIED` \| `LOCKED` \| `OFFLINE` |
+| `status` | string | `AVAILABLE` \| `OCCUPIED` \| `LOCKED` \| `OFFLINE` \| `OUT_OF_SERVICE` (retired; can't be assigned or unlocked) |
 | `lastOpenedAt` | number \| null | Epoch millis |
 | `unlockRequested` | boolean | Set by admin, cleared by the ESP32 |
 | `unlockRequestedAt` | number | Epoch millis |
+
+## `admin_actions/{autoId}`
+Activity trail of admin changes. Append-only: admins create entries in their
+own name; nobody can edit or delete them. Readable by admins only.
+
+| Field | Type | Notes |
+|---|---|---|
+| `actorUid` | string | Admin who made the change (must equal the writer's uid) |
+| `actorName` | string | Denormalized for display |
+| `action` | string | e.g. `LOCKER_ASSIGNED`, `BUILDING_EDITED`, `USER_SUSPENDED` |
+| `target` | string | Locker ID, building, or person's name |
+| `details` | string \| null | e.g. `to Maria Santos` |
+| `timestamp` | number | Epoch millis |
 
 ## `access_logs/{autoId}`
 | Field | Type | Notes |
@@ -42,23 +72,3 @@ Enrollment images land in Storage at `face_templates/{uid}/enroll.jpg`.
 The recognition backend converts each to an embedding vector, stores it in
 the `face_templates` collection, then deletes the raw image. Only the
 embedding is retained, which limits exposure if the database is compromised.
-
-## `password_resets/{autoId}`
-
-Queue of members waiting for an admin to reset their password. Written only by
-the `requestPasswordReset` / `resolvePasswordReset` Cloud Functions; clients
-have read access for admins and no write access at all.
-
-| Field | Type | Notes |
-|---|---|---|
-| `uid` | string | Account the request is for |
-| `email` | string | As held in Firebase Auth |
-| `displayName` | string \| null | Copied from the user profile for display |
-| `status` | string | `PENDING` \| `COMPLETED` \| `REJECTED` |
-| `requestedAt` | number | epoch millis |
-| `handledBy` | string \| null | Admin uid that resolved it |
-| `handledByName` | string \| null | Admin name, for the audit trail |
-| `handledAt` | number \| null | epoch millis |
-
-The temporary password itself is **never stored** — it is returned once, in the
-response to the approving admin.

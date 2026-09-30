@@ -20,9 +20,13 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
+// Wi-Fi credentials and the device key live in secrets.h, which is gitignored.
+// Copy secrets.example.h to secrets.h in this folder and fill it in.
+#include "secrets.h"
+
 // ----------------------- CONFIGURATION -----------------------
-const char* WIFI_SSID     = "8 Pro";
-const char* WIFI_PASSWORD = "qwerty12356";
+const char* WIFI_SSID     = SECRET_WIFI_SSID;
+const char* WIFI_PASSWORD = SECRET_WIFI_PASSWORD;
 
 // Recognition backend endpoint (see /firebase/functions)
 const char* RECOGNIZE_URL = "https://YOUR-REGION-YOUR-PROJECT.cloudfunctions.net/recognizeFace";
@@ -31,7 +35,7 @@ const char* LOCKER_DOC_URL =
   "https://firestore.googleapis.com/v1/projects/YOUR-PROJECT/databases/(default)/documents/lockers/LKR-01";
 
 const char* LOCKER_ID  = "LKR-01";
-const char* DEVICE_KEY = "REPLACE_WITH_DEVICE_SHARED_SECRET";
+const char* DEVICE_KEY = SECRET_DEVICE_KEY;
 
 // ----------------------- PIN MAP (AI Thinker) -----------------------
 #define PWDN_GPIO_NUM     32

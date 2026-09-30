@@ -18,6 +18,7 @@ import com.eldroid.facelock.data.repo.LockerRepository
 import com.eldroid.facelock.data.repo.LogRepository
 import com.eldroid.facelock.data.repo.UserRepository
 import com.eldroid.facelock.databinding.FragmentProfileBinding
+import com.eldroid.facelock.ui.admin.ActivityTrailActivity
 import com.eldroid.facelock.ui.admin.DeviceTestActivity
 import com.eldroid.facelock.ui.admin.LedControlActivity
 import com.eldroid.facelock.ui.auth.ChangePasswordActivity
@@ -72,6 +73,9 @@ class ProfileFragment : Fragment() {
         binding.btnLedControl.setOnClickListener {
             startActivity(Intent(requireContext(), LedControlActivity::class.java))
         }
+        binding.btnActivityTrail.setOnClickListener {
+            startActivity(Intent(requireContext(), ActivityTrailActivity::class.java))
+        }
 
         binding.tvVersion.text = "FaceLock v${BuildConfig.VERSION_NAME}"
 
@@ -111,6 +115,8 @@ class ProfileFragment : Fragment() {
         // paths, so they are admin-only.
         binding.btnDeviceTest.visible(user.roleEnum == Role.ADMIN)
         binding.btnLedControl.visible(user.roleEnum == Role.ADMIN)
+        // The trail is admin-only in firestore.rules too.
+        binding.btnActivityTrail.visible(user.roleEnum == Role.ADMIN)
         if (staff && !statsStarted) {
             statsStarted = true
             observeStats()

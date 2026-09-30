@@ -14,10 +14,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.eldroid.facelock.R
 import com.eldroid.facelock.data.model.Role
 import com.eldroid.facelock.data.model.User
+import com.eldroid.facelock.data.model.AdminActionType
+import com.eldroid.facelock.data.repo.AdminActionRepository
 import com.eldroid.facelock.data.repo.AuthRepository
 import com.eldroid.facelock.data.repo.UserRepository
+import com.eldroid.facelock.domain.usecase.AdminTrail
 import com.eldroid.facelock.databinding.FragmentListBinding
-import com.eldroid.facelock.ui.adapter.UserAdapter
+import com.eldroid.facelock.presenter.common.CollapseState
+import com.eldroid.facelock.presenter.common.Group
+import com.eldroid.facelock.ui.adapter.SectionedAdapter
+import com.eldroid.facelock.ui.adapter.UserRows
+import com.eldroid.facelock.util.SessionManager
 import com.eldroid.facelock.util.snack
 import com.eldroid.facelock.util.catchFirestore
 import com.eldroid.facelock.util.skeleton
@@ -30,11 +37,18 @@ class UserListFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val userRepo = UserRepository()
+    private val trail by lazy {
+        AdminTrail(AdminActionRepository()) { SessionManager(requireContext()).fullName }
+    }
     private val authRepo = AuthRepository()
-    private lateinit var adapter: UserAdapter
+    private lateinit var adapter: SectionedAdapter<User, UserRows.VH>
 
     private var users: List<User> = emptyList()
     private var query: String = ""
+
+    /** Role sections, all open until tapped. */
+    private val sections = CollapseState()
+    private var roleGroups: List<Group<User>> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -44,12 +58,20 @@ class UserListFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        adapter = UserAdapter(
+        sections.restore(
+            savedInstanceState?.getStringArrayList(KEY_OPEN),
+            savedInstanceState?.getStringArrayList(KEY_CLOSED)
+        )
+        val rows = UserRows(
             onToggleActive = { user -> confirmToggleActive(user) },
             onChangeRole = { user -> showRoleDialog(user) },
             onDelete = { user -> confirmDelete(user) },
             currentUid = authRepo.currentUid
         )
+        adapter = SectionedAdapter(rows) { key ->
+            sections.toggle(key, roleGroups)
+            applyFilter()
+        }
         binding.skeleton.root.skeleton(true)
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
         binding.recycler.adapter = adapter
@@ -99,7 +121,16 @@ class UserListFragment : Fragment() {
                     it.lockerId?.contains(query, true) == true
             }
 
-        adapter.submitList(shown)
+        // Staff first: they are few and the ones an admin looks for most.
+        roleGroups = listOf(
+            Role.ADMIN to R.string.users_group_admins,
+            Role.SECURITY to R.string.users_group_security,
+            Role.USER to R.string.users_group_members
+        ).mapNotNull { (role, title) ->
+            shown.filter { it.roleEnum == role }.takeIf { it.isNotEmpty() }
+                ?.let { Group(role.name, getString(title), it) }
+        }
+        adapter.submitList(sections.flatten(roleGroups, forceOpen = query.isNotBlank()) { it.uid })
         binding.tvCount.text =
             resources.getQuantityString(R.plurals.user_count, shown.size, shown.size)
 
@@ -138,15 +169,30 @@ class UserListFragment : Fragment() {
     private fun setActive(user: User, active: Boolean) {
         viewLifecycleOwner.lifecycleScope.launch {
             userRepo.setActive(user.uid, active)
-            snack(
-                if (active) "${user.fullName} reactivated"
-                else "${user.fullName} suspended",
-                actionLabel = "Undo"
-            ) {
-                viewLifecycleOwner.lifecycleScope.launch {
-                    userRepo.setActive(user.uid, !active)
+                .onSuccess {
+                    trail.record(
+                        if (active) AdminActionType.USER_RESTORED else AdminActionType.USER_SUSPENDED,
+                        user.fullName
+                    )
+                    snack(
+                        if (active) "${user.fullName} reactivated"
+                        else "${user.fullName} suspended",
+                        actionLabel = "Undo"
+                    ) {
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            userRepo.setActive(user.uid, !active)
+                                .onSuccess {
+                                    trail.record(
+                                        if (active) AdminActionType.USER_SUSPENDED
+                                        else AdminActionType.USER_RESTORED,
+                                        user.fullName, "undo"
+                                    )
+                                }
+                                .onFailure { snack(it.message ?: "Undo failed") }
+                        }
+                    }
                 }
-            }
+                .onFailure { snack(it.message ?: "Could not update ${user.fullName}") }
         }
     }
 
@@ -165,7 +211,14 @@ class UserListFragment : Fragment() {
             .setSingleChoiceItems(labels, roles.indexOf(user.roleEnum)) { dialog, which ->
                 viewLifecycleOwner.lifecycleScope.launch {
                     userRepo.updateUser(user.uid, mapOf("role" to roles[which].name))
-                    snack("${user.fullName} is now ${labels[which]}")
+                        .onSuccess {
+                            snack("${user.fullName} is now ${labels[which]}")
+                            trail.record(
+                                AdminActionType.USER_ROLE_CHANGED, user.fullName,
+                                "${user.roleEnum.name} → ${roles[which].name}"
+                            )
+                        }
+                        .onFailure { snack(it.message ?: "Could not change the role") }
                 }
                 dialog.dismiss()
             }
@@ -179,8 +232,14 @@ class UserListFragment : Fragment() {
             .setMessage(R.string.remove_body)
             .setPositiveButton(R.string.action_remove_short) { _, _ ->
                 viewLifecycleOwner.lifecycleScope.launch {
-                    userRepo.deleteUser(user.uid)
-                        .onSuccess { snack("${user.fullName} removed") }
+                    userRepo.deleteUser(user)
+                        .onSuccess {
+                            snack("${user.fullName} removed")
+                            trail.record(
+                                AdminActionType.USER_DELETED, user.fullName,
+                                user.lockerId?.let { "freed $it" }
+                            )
+                        }
                         .onFailure { snack(it.message ?: "Delete failed") }
                 }
             }
@@ -202,8 +261,19 @@ class UserListFragment : Fragment() {
         binding.empty.btnEmptyAction.visible(false)
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putStringArrayList(KEY_OPEN, sections.openKeys())
+        outState.putStringArrayList(KEY_CLOSED, sections.closedKeys())
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private companion object {
+        const val KEY_OPEN = "open_roles"
+        const val KEY_CLOSED = "closed_roles"
     }
 }

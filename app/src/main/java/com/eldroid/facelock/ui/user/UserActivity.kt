@@ -2,6 +2,7 @@ package com.eldroid.facelock.ui.user
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.forEach
 import androidx.fragment.app.Fragment
 import com.eldroid.facelock.R
 import com.eldroid.facelock.databinding.ActivityUserBinding
@@ -26,6 +27,13 @@ class UserActivity : AppCompatActivity() {
         binding = ActivityUserBinding.inflate(layoutInflater)
         setContentView(binding.root)
         session = SessionManager(this)
+
+        // After process death the FragmentManager restores the tab fragments on
+        // its own; re-adopt them, or show() would add a second copy on top.
+        binding.bottomNav.menu.forEach { item ->
+            supportFragmentManager.findFragmentByTag(item.itemId.toString())
+                ?.let { tabs[item.itemId] = it }
+        }
 
         binding.bottomNav.setOnItemSelectedListener { item ->
             show(item.itemId)

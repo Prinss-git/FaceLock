@@ -78,8 +78,10 @@ existing admin, and this is enforced in the Firestore rules, not just the UI.
 3. **Promote yourself to admin** — register in the app, then flip your `role`
    field to `ADMIN` in the Firestore console.
 4. **Add lockers** — from the admin dashboard, Lockers tab, **+** button.
-5. **Flash the ESP32-CAM** — see `firmware/WIRING.md`, then set `WIFI_SSID`,
-   `WIFI_PASSWORD`, `RECOGNIZE_URL`, `DEVICE_KEY`, and `LOCKER_ID` in the sketch.
+5. **Flash the ESP32-CAM** — see `firmware/WIRING.md`. Copy
+   `secrets.example.h` to `secrets.h` in the sketch folder and fill in the Wi-Fi
+   credentials and `SECRET_DEVICE_KEY` (`secrets.h` is gitignored). Set
+   `RECOGNIZE_URL` and `LOCKER_ID` in the sketch itself.
 
 ### If Android Studio shows hundreds of red errors
 
@@ -119,9 +121,9 @@ not running its sketch.
 
 To wire up the LED:
 
-1. Open `firmware/LedControl/LedControl.ino` and set `WIFI_SSID`,
-   `WIFI_PASSWORD`, and `DATABASE_SECRET` (Firebase console → Project settings →
-   Service accounts → Database secrets).
+1. In `firmware/LedControl/`, copy `secrets.example.h` to `secrets.h` and fill
+   in the Wi-Fi credentials and `SECRET_DATABASE_SECRET` (Firebase console →
+   Project settings → Service accounts → Database secrets).
 2. Install **"Firebase Arduino Client Library for ESP8266 and ESP32"** by Mobizt
    (Tools → Manage Libraries → search *Firebase ESP Client*).
 3. LED from **GPIO 23** through a 220 Ω resistor to GND — long leg to the pin.
@@ -134,7 +136,7 @@ The sketch polls that one key once a second and logs only when it changes, so a
 
 > The database secret bypasses the database rules — that is how the board reads
 > without signing in — so it is a full-access password. Regenerate it before
-> submission and do not commit a filled-in sketch.
+> submission. It lives only in the gitignored `secrets.h`.
 
 ## One thing you must implement
 
@@ -149,11 +151,15 @@ alerts — is already written and will work once you plug in a provider:
 
 **The functions in `firebase/functions/` are not deployed.** Deploying Cloud
 Functions requires the Blaze (pay-as-you-go) plan, so anything that routes
-through them — `recognizeFace`, the password-reset helpers, denied-attempt push
-alerts — returns 404 against this project today. The app itself does not depend
-on them: it reads and writes Firestore directly, and the ESP32 link runs over the
-Realtime Database (see above). Upgrade the plan and `firebase deploy --only
-functions` to switch the recognition path on.
+through them — `recognizeFace` and denied-attempt push alerts — returns 404
+against this project today. The app itself does not depend on them: it reads and
+writes Firestore directly, password resets use Firebase's own reset email, and
+the ESP32 link runs over the Realtime Database (see above). Upgrade the plan and
+`firebase deploy --only functions` to switch the recognition path on.
+
+Until then, two things never happen: face enrollment photos stay in Storage
+unprocessed (nothing turns them into `face_templates` embeddings), and nothing
+writes `access_logs`, since clients are blocked from writing them.
 
 ## Privacy note
 

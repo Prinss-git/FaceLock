@@ -8,9 +8,11 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.OptIn
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -162,7 +164,9 @@ class FaceEnrollActivity : AppCompatActivity() {
      * failures that actually happen (nobody in frame, or too far away) without
      * making the hint jitter.
      */
-    @androidx.camera.core.ExperimentalGetImage
+    // @OptIn rather than the marker itself: the marker would propagate the
+    // opt-in requirement to the setAnalyzer call site, which lint rejects.
+    @OptIn(ExperimentalGetImage::class)
     private fun analyzeFrame(proxy: ImageProxy) {
         val media = proxy.image
         if (media == null) {
@@ -271,7 +275,7 @@ class FaceEnrollActivity : AppCompatActivity() {
                     .putBytes(bytes)
                     .await()
 
-                userRepo.markFaceEnrolled(uid, true)
+                userRepo.markFaceEnrolled(uid, true).getOrThrow()
                 showSuccess()
             } catch (e: Exception) {
                 showFailure(

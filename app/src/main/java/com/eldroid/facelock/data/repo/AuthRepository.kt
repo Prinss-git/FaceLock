@@ -1,8 +1,11 @@
 package com.eldroid.facelock.data.repo
 
+import android.content.Context
 import com.eldroid.facelock.data.model.Role
 import com.eldroid.facelock.data.model.User
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import kotlinx.coroutines.tasks.await
 
@@ -33,7 +36,59 @@ class AuthRepository {
             .createUserWithEmailAndPassword(email.trim(), password)
             .await()
         val uid = result.user?.uid ?: error("Registration returned no user.")
+        writeProfile(uid, firstName, lastName, email, role)
+    }
 
+    /**
+     * Admin-side account creation.
+     *
+     * [register] cannot be used here: createUserWithEmailAndPassword signs the
+     * new account in, which would replace the admin's session — and the profile
+     * write would then run as the new user, whom the rules only allow to be a
+     * USER. So the account is created on a separate FirebaseApp instance, and
+     * the profile is written from the admin's own session.
+     */
+    suspend fun provisionUser(
+        context: Context,
+        firstName: String,
+        lastName: String,
+        email: String,
+        password: String,
+        role: Role
+    ): Result<User> = runCatching {
+        val provisioningAuth = FirebaseAuth.getInstance(provisioningApp(context))
+        val created = provisioningAuth
+            .createUserWithEmailAndPassword(email.trim(), password)
+            .await()
+            .user ?: error("Registration returned no user.")
+
+        try {
+            writeProfile(created.uid, firstName, lastName, email, role)
+        } catch (e: Exception) {
+            // No profile means an account nobody can use; remove it so the
+            // email address is free for another attempt.
+            runCatching { created.delete().await() }
+            throw e
+        } finally {
+            provisioningAuth.signOut()
+        }
+    }
+
+    private fun provisioningApp(context: Context): FirebaseApp =
+        FirebaseApp.getApps(context).firstOrNull { it.name == PROVISIONING_APP }
+            ?: FirebaseApp.initializeApp(
+                context.applicationContext,
+                FirebaseApp.getInstance().options,
+                PROVISIONING_APP
+            )
+
+    private suspend fun writeProfile(
+        uid: String,
+        firstName: String,
+        lastName: String,
+        email: String,
+        role: Role
+    ): User {
         val first = firstName.trim()
         val last = lastName.trim()
 
@@ -51,7 +106,7 @@ class AuthRepository {
             .document(uid)
             .set(profile)
             .await()
-        profile
+        return profile
     }
 
     suspend fun loadProfile(uid: String): Result<User> = runCatching {
@@ -96,4 +151,8 @@ class AuthRepository {
     }
 
     fun logout() = FirebaseRefs.auth.signOut()
+
+    private companion object {
+        const val PROVISIONING_APP = "provisioning"
+    }
 }

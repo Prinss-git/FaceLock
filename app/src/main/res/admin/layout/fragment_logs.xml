@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Admin / security access log feed: today's counters, filters, list. -->
+<!-- Admin / security access log: one period drives the counters and the list;
+     search, building and result filters narrow it further. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,30 +9,76 @@
     android:orientation="vertical"
     android:background="@color/background">
 
-        <LinearLayout
-            android:id="@+id/headingBlock"
+    <LinearLayout
+        android:id="@+id/headingBlock"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/screen_margin"
+        android:paddingTop="@dimen/space_lg"
+        android:paddingBottom="@dimen/space_xs">
+
+        <TextView
+            style="@style/T.Display"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="26sp"
+            android:text="@string/nav_logs" />
+
+        <TextView
+            style="@style/T.Body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="@dimen/screen_margin"
-            android:paddingTop="@dimen/space_lg"
-            android:paddingBottom="@dimen/space_xs">
+            android:text="@string/heading_sub_logs" />
+    </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvHeading"
-                style="@style/T.Display"
+    <!-- Period: drives both the counters and the list. -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/screen_margin"
+        android:paddingTop="@dimen/space_xs"
+        android:clipToPadding="false"
+        android:scrollbars="none">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/periodGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            app:selectionRequired="true"
+            app:chipSpacingHorizontal="@dimen/space_sm">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipToday"
+                style="@style/Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="26sp"
-                tools:text="Lockers" />
+                android:text="@string/period_today" />
 
-            <TextView
-                android:id="@+id/tvHeadingSub"
-                style="@style/T.Body"
-                android:layout_width="match_parent"
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipWeek"
+                style="@style/Chip.Filter"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                tools:text="Admin dashboard" />
-        </LinearLayout>
+                android:checked="true"
+                android:text="@string/period_week" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipMonth"
+                style="@style/Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/period_month" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipAllTime"
+                style="@style/Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/period_all" />
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -62,13 +109,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_sm"
                 android:textColor="@color/text_primary"
-                tools:text="48" />
+                tools:text="56" />
 
             <TextView
                 style="@style/T.Label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/stat_today" />
+                android:text="@string/stat_total" />
 
             <TextView
                 android:id="@+id/tvPctTotal"
@@ -76,7 +123,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="11sp"
-                tools:text="85.4%" />
+                tools:text="Last 7 days" />
         </LinearLayout>
 
         <LinearLayout
@@ -116,7 +163,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="11sp"
-                tools:text="85.4%" />
+                tools:text="85.7%" />
         </LinearLayout>
 
         <LinearLayout
@@ -142,7 +189,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_sm"
                 android:textColor="@color/denied"
-                tools:text="48" />
+                tools:text="8" />
 
             <TextView
                 style="@style/T.Label"
@@ -156,50 +203,118 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="11sp"
-                tools:text="85.4%" />
+                tools:text="14.3%" />
         </LinearLayout>
+    </LinearLayout>
 
+    <!-- Search and building filter share one row to save height. -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="@dimen/screen_margin"
+        android:paddingTop="@dimen/space_ms">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilSearch"
+            style="@style/Field.Search"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/search_logs"
+            app:endIconMode="clear_text">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etSearch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:imeOptions="actionSearch"
+                android:maxLines="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnBuilding"
+            style="@style/Btn.Small"
+            android:layout_width="wrap_content"
+            android:layout_marginStart="@dimen/space_sm"
+            android:maxWidth="150dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            app:icon="@drawable/ic_location"
+            app:iconGravity="textStart"
+            tools:text="All buildings" />
     </LinearLayout>
 
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingHorizontal="@dimen/screen_margin"
-        android:paddingTop="@dimen/space_ms"
+        android:paddingTop="@dimen/space_sm"
         android:clipToPadding="false"
         android:scrollbars="none">
 
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chipGroup"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:singleSelection="true"
-            app:selectionRequired="true"
-            app:chipSpacingHorizontal="@dimen/space_sm">
+            android:gravity="center_vertical">
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipAll"
-                style="@style/Chip.Filter"
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="@string/filter_all" />
+                app:singleSelection="true"
+                app:selectionRequired="true"
+                app:chipSpacingHorizontal="@dimen/space_sm">
 
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipAll"
+                    style="@style/Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="@string/filter_all" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipGranted"
+                    style="@style/Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/filter_granted" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipFailed"
+                    style="@style/Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/filter_denied" />
+            </com.google.android.material.chip.ChipGroup>
+
+            <!-- Shown while one locker's history is open; ✕ clears it. -->
             <com.google.android.material.chip.Chip
-                android:id="@+id/chipGranted"
-                style="@style/Chip.Filter"
+                android:id="@+id/chipLocker"
+                style="@style/Widget.Material3.Chip.Input"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/filter_granted" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipFailed"
-                style="@style/Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/filter_denied" />
-        </com.google.android.material.chip.ChipGroup>
+                android:layout_marginStart="@dimen/space_sm"
+                android:checkable="false"
+                android:visibility="gone"
+                app:closeIconVisible="true"
+                tools:text="Locker M-003"
+                tools:visibility="visible" />
+        </LinearLayout>
     </HorizontalScrollView>
+
+    <TextView
+        android:id="@+id/tvCapNote"
+        style="@style/T.Caption"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/screen_margin"
+        android:layout_marginTop="@dimen/space_xs"
+        android:visibility="gone"
+        tools:text="Showing the latest 500 in this period."
+        tools:visibility="visible" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -212,7 +327,7 @@
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:paddingHorizontal="@dimen/screen_margin"
-            android:paddingTop="@dimen/space_ms"
+            android:paddingTop="@dimen/space_sm"
             android:paddingBottom="@dimen/space_lg"
             android:scrollbars="none"
             tools:listitem="@layout/item_log" />

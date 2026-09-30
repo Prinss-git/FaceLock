@@ -24,11 +24,17 @@ class SessionManager(context: Context) {
         get() = prefs.getString(KEY_LOCKER, null)
         set(value) = prefs.edit().putString(KEY_LOCKER, value).apply()
 
+    /** Newest denied attempt this device's staff user has already seen. */
+    var deniedSeenAt: Long
+        get() = prefs.getLong(KEY_DENIED_SEEN, 0L)
+        set(value) = prefs.edit().putLong(KEY_DENIED_SEEN, value).apply()
+
     fun clear() = prefs.edit().clear().apply()
 
     companion object {
         private const val KEY_ROLE = "role"
         private const val KEY_NAME = "name"
         private const val KEY_LOCKER = "locker"
+        private const val KEY_DENIED_SEEN = "denied_seen_at"
     }
 }

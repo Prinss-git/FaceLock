@@ -8,7 +8,11 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import com.eldroid.facelock.R
 import com.eldroid.facelock.data.model.Role
+import com.eldroid.facelock.data.model.AdminActionType
+import com.eldroid.facelock.data.repo.AdminActionRepository
 import com.eldroid.facelock.data.repo.AuthRepository
+import com.eldroid.facelock.domain.usecase.AdminTrail
+import com.eldroid.facelock.util.SessionManager
 import com.eldroid.facelock.databinding.ActivityUserFormBinding
 import com.eldroid.facelock.util.PasswordPolicy
 import com.eldroid.facelock.util.authMessage
@@ -174,8 +178,10 @@ class UserFormActivity : AppCompatActivity() {
         setLoading(true)
 
         lifecycleScope.launch {
-            authRepo.register(first, last, email, pass, role)
+            authRepo.provisionUser(applicationContext, first, last, email, pass, role)
                 .onSuccess {
+                    AdminTrail(AdminActionRepository()) { SessionManager(this@UserFormActivity).fullName }
+                        .record(AdminActionType.USER_CREATED, "$first $last", "${role.name}, $email")
                     toast("$first $last created")
                     finish()
                 }

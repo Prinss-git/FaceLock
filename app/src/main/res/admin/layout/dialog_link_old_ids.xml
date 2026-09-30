@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Link old locker IDs": one dropdown per old ID, filled in from code. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/space_lg"
+        android:paddingTop="@dimen/space_sm"
+        android:paddingBottom="@dimen/space_xs">
+
+        <TextView
+            style="@style/T.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/link_form_help" />
+
+        <!-- The how-to-decide tips stay folded until asked for. -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTips"
+            style="@style/Btn.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/touch_target"
+            android:text="@string/link_tips_show"
+            app:icon="@drawable/ic_chevron"
+            app:iconGravity="end"
+            app:iconTint="@color/accent_dark" />
+
+        <TextView
+            android:id="@+id/tvTips"
+            style="@style/T.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/space_sm"
+            android:text="@string/link_form_tips"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/rows"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </LinearLayout>
+</ScrollView>

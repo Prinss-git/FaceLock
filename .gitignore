@@ -16,3 +16,6 @@ firebase/functions/.env
 firebase-debug.log
 .firebase/
 .firebaserc
+
+# Firmware credentials (copy secrets.example.h -> secrets.h in each sketch folder)
+firmware/**/secrets.h

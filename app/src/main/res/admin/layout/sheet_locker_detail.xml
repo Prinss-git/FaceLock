@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Bottom sheet for one locker: where it is, who has it, and admin actions. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/space_lg"
+    android:paddingTop="@dimen/space_sm"
+    android:paddingBottom="@dimen/space_lg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:gravity="center_vertical">
+
+        <FrameLayout
+            android:id="@+id/iconWrap"
+            android:layout_width="@dimen/avatar_size"
+            android:layout_height="@dimen/avatar_size"
+            tools:background="@drawable/pill_accent">
+            <ImageView
+                android:id="@+id/ivLocker"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_lock"
+                android:importantForAccessibility="no" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/space_ms"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvId"
+                style="@style/T.Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="M-001" />
+
+            <TextView
+                android:id="@+id/tvPlace"
+                style="@style/T.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                tools:text="Main Building · 1F" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvStatus"
+            style="@style/Pill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_sm"
+            tools:background="@drawable/pill_accent"
+            tools:text="Occupied" />
+    </LinearLayout>
+
+    <View
+        style="@style/Divider"
+        android:layout_marginVertical="@dimen/space_md" />
+
+    <TextView
+        style="@style/T.Label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/label_holder" />
+
+    <TextView
+        android:id="@+id/tvHolder"
+        style="@style/T.Subtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        tools:text="Gabe Gonon" />
+
+    <TextView
+        android:id="@+id/tvLastOpened"
+        style="@style/T.Caption"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        tools:text="Last opened Today 2:14 PM" />
+
+    <LinearLayout
+        android:id="@+id/actionRow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_lg">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAssign"
+            style="@style/Btn.Small"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            app:icon="@drawable/ic_person"
+            app:iconGravity="textStart"
+            tools:text="Reassign" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnUnlock"
+            style="@style/Btn.Small"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/space_sm"
+            android:text="@string/action_unlock"
+            app:icon="@drawable/ic_lock_open"
+            app:iconGravity="textStart" />
+    </LinearLayout>
+
+    <!-- Admins and security both see where a locker has been opened. -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnHistory"
+        style="@style/Btn.Small"
+        android:layout_width="match_parent"
+        android:layout_marginTop="@dimen/space_sm"
+        android:text="@string/action_view_history"
+        app:icon="@drawable/ic_history"
+        app:iconGravity="textStart" />
+
+    <LinearLayout
+        android:id="@+id/manageRow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_sm">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnService"
+            style="@style/Btn.Small"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            app:icon="@drawable/ic_ban"
+            app:iconGravity="textStart"
+            tools:text="Out of service" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRemove"
+            style="@style/Btn.Small.Danger"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/space_sm"
+            android:text="@string/action_remove_locker"
+            app:icon="@drawable/ic_delete"
+            app:iconGravity="textStart" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvServiceHint"
+        style="@style/T.Caption"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        android:text="@string/service_needs_unassign"
+        android:visibility="gone" />
+</LinearLayout>

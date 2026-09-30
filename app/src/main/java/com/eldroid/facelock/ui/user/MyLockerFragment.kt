@@ -16,6 +16,7 @@ import com.eldroid.facelock.data.repo.LockerRepository
 import com.eldroid.facelock.data.repo.LogRepository
 import com.eldroid.facelock.data.repo.UserRepository
 import com.eldroid.facelock.databinding.FragmentMyLockerBinding
+import com.eldroid.facelock.domain.usecase.ResolveLogLockersUseCase
 import com.eldroid.facelock.ui.adapter.LogAdapter
 import com.eldroid.facelock.util.SessionManager
 import com.eldroid.facelock.util.asRelativeDateTime
@@ -24,6 +25,7 @@ import com.eldroid.facelock.util.skeleton
 import com.eldroid.facelock.util.snack
 import com.eldroid.facelock.util.visible
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -193,7 +195,12 @@ class MyLockerFragment : Fragment() {
     private fun observeRecent() {
         val uid = authRepo.currentUid ?: return
         viewLifecycleOwner.lifecycleScope.launch {
-            logRepo.observeLogsForUser(uid)
+            // Lockers too, so logs show today's locker ID rather than an old one.
+            combine(
+                logRepo.observeLogsForUser(uid),
+                lockerRepo.observeLockers(),
+                ResolveLogLockersUseCase()::invoke
+            )
                 .catchFirestore("your access history") { snack(it) }
                 .collect { logs ->
                     recentAdapter.submitList(logs.take(3))

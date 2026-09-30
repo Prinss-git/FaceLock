@@ -23,6 +23,22 @@ class LogRepository {
         awaitClose { reg.remove() }
     }
 
+    /**
+     * Every attempt from [since] on, newest first, capped at [limit]. A range
+     * and sort on the same single field, so no composite index is needed.
+     */
+    fun observeSince(since: Long, limit: Long): Flow<List<AccessLog>> = callbackFlow {
+        val reg = col
+            .whereGreaterThanOrEqualTo("timestamp", since)
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .limit(limit)
+            .addSnapshotListener { snap, err ->
+                if (err != null) { close(err); return@addSnapshotListener }
+                trySend(snap?.toObjects(AccessLog::class.java).orEmpty())
+            }
+        awaitClose { reg.remove() }
+    }
+
     /** Only the signed-in user's own history. */
     fun observeLogsForUser(uid: String, limit: Long = 100): Flow<List<AccessLog>> = callbackFlow {
         val reg = col

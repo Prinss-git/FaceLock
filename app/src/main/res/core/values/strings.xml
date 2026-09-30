@@ -86,7 +86,6 @@
     <string name="stat_total">Total</string>
     <string name="stat_granted">Granted</string>
     <string name="stat_denied">Denied</string>
-    <string name="stat_today">Today</string>
     <string name="stat_users">Users</string>
     <string name="stat_lockers">Lockers</string>
     <string name="stat_assigned">Assigned</string>
@@ -96,7 +95,6 @@
     <string name="filter_all_n">All (%1$d)</string>
     <string name="filter_granted_n">Granted (%1$d)</string>
     <string name="filter_denied_n">Denied (%1$d)</string>
-    <string name="stat_total_events">total events</string>
     <string name="stat_all_time">all time</string>
     <string name="filter_all">All</string>
     <string name="filter_granted">Granted</string>
@@ -105,14 +103,11 @@
     <!-- Empty states -->
     <string name="empty_my_history_title">No access yet</string>
     <string name="empty_my_history_body">Unlock your locker and your access history will show up here.</string>
-    <string name="empty_logs_title">No activity yet</string>
-    <string name="empty_logs_body">Access attempts will appear here as they happen.</string>
     <string name="empty_denied_title">No denied attempts</string>
     <string name="empty_denied_body">Every access attempt so far has been authorized.</string>
     <string name="empty_granted_title">No granted access yet</string>
     <string name="empty_granted_body">Successful unlocks will be listed here.</string>
     <string name="empty_lockers_title">No lockers yet</string>
-    <string name="empty_lockers_body_admin">Add your first locker unit to start assigning it.</string>
     <string name="empty_lockers_body_staff">An administrator has not configured any lockers.</string>
     <string name="empty_users_title">No users yet</string>
     <string name="empty_users_body">Provision an account to give someone locker access.</string>
@@ -152,25 +147,28 @@
     <string name="role_admin">Administrator</string>
     <string name="role_security">Security</string>
     <string name="role_member">Member</string>
+    <string name="users_group_admins">Administrators</string>
+    <string name="users_group_security">Security staff</string>
+    <string name="users_group_members">Members</string>
 
     <!-- Lockers -->
-    <string name="search_lockers">Search lockers</string>
     <string name="add_locker">Add locker</string>
     <string name="locker_id">Locker ID</string>
-    <string name="locker_id_help">Use the ID printed on the unit, e.g. LKR-01.</string>
-    <string name="locker_id_required">Enter a locker ID</string>
-    <string name="locker_id_taken">A locker with that ID already exists</string>
     <string name="locker_named">Locker %1$s</string>
     <string name="no_location">No location set</string>
     <string name="unassigned">Unassigned</string>
-    <string name="assigned_to">Assigned to %1$s</string>
     <string name="last_opened">Last opened %1$s</string>
     <string name="action_reassign">Reassign</string>
-    <string name="unassign">— Unassign —</string>
+    <string name="unassign">Unassign</string>
+    <string name="assign_unassign_body">Remove %1$s from this locker</string>
+    <string name="assign_unassign_body_generic">Free this locker for someone else</string>
+    <string name="assign_search_hint">Search name or email</string>
+    <string name="assign_tag_current">Current</string>
+    <string name="assign_tag_has">Has %1$s</string>
+    <string name="assign_no_match">No member matches “%1$s”</string>
     <string name="assign_locker">Assign %1$s</string>
-    <string name="no_assignable_users">No active member accounts to assign to.</string>
     <string name="remote_unlock">Remote unlock</string>
-    <string name="remote_unlock_body">Send an unlock command to %1$s? This is recorded in the access log.</string>
+    <string name="remote_unlock_body">Send an unlock command to %1$s?</string>
     <string name="action_add">Add</string>
     <plurals name="locker_count">
         <item quantity="one">%d locker</item>
@@ -191,7 +189,7 @@
     <string name="suspend_title">Suspend %1$s?</string>
     <string name="suspend_body">They will be signed out and refused locker access until you restore the account.</string>
     <string name="remove_title">Remove %1$s?</string>
-    <string name="remove_body">Their profile, locker assignment and face template are deleted. Access logs are kept for audit.</string>
+    <string name="remove_body">Their profile is deleted and their locker is freed. Their sign-in account is not removed, so to only block access, suspend them instead. Access logs are kept for audit.</string>
     <string name="set_role_for">Access level for %1$s</string>
     <plurals name="user_count">
         <item quantity="one">%d user</item>
@@ -252,6 +250,7 @@
     <string name="action_led_control">LED control</string>
 
     <string name="session_timed_out">Could not reach the server. Sign in again.</string>
+    <string name="account_suspended">This account has been suspended. Contact your administrator.</string>
     <string name="session_unreadable">Your session could not be restored. Sign in again.</string>
 
     <!-- Demo seeding (debug builds only) -->
@@ -296,4 +295,123 @@
     <string name="camera_error_title">Camera unavailable</string>
     <string name="camera_error_body">FaceLock could not start the camera. Close any other app using it and try again.</string>
     <string name="camera_retry">Retry</string>
+
+    <!-- Common actions -->
+    <string name="action_ok">OK</string>
+    <string name="action_save">Save</string>
+    <string name="action_delete">Delete</string>
+
+    <!-- Buildings and grouped lockers -->
+    <string name="buildings">Buildings</string>
+    <string name="buildings_subtitle">Lockers are grouped by building and floor. Each building\'s code starts its locker IDs, e.g. M-001.</string>
+    <string name="building">Building</string>
+    <string name="floor">Floor</string>
+    <string name="floor_unknown">Floor not set</string>
+    <string name="building_unsorted">Not in a building</string>
+    <string name="search_lockers_grouped">Search locker, holder or building</string>
+    <string name="locker_id_auto_help">Filled in from the building. You can change it.</string>
+    <string name="label_holder">Assigned to</string>
+    <string name="empty_lockers_body_buildings">Add a building first, then add its lockers.</string>
+    <string name="cd_collapse_building">Collapse %1$s</string>
+    <string name="cd_expand_building">Expand %1$s</string>
+    <string name="expand_all">Expand all</string>
+    <string name="collapse_all">Collapse all</string>
+    <string name="cd_collapse_section">Collapse %1$s (%2$d)</string>
+    <string name="cd_expand_section">Expand %1$s (%2$d)</string>
+    <string name="no_buildings_title">No buildings yet</string>
+    <string name="no_buildings_body">Lockers are added inside a building. Add one, with its code and number of floors.</string>
+    <string name="add_building">Add building</string>
+    <string name="edit_building">Edit building</string>
+    <string name="building_name">Building name</string>
+    <string name="building_code">Code</string>
+    <string name="building_code_help">1–3 letters, e.g. M</string>
+    <string name="building_code_locked">Can\'t change: lockers use it</string>
+    <string name="building_floors">Floors</string>
+    <string name="action_edit_building">Edit building</string>
+    <string name="action_delete_building">Delete building</string>
+    <string name="delete_building_title">Delete %1$s?</string>
+    <string name="delete_building_body">The building has no lockers, so nothing else changes.</string>
+    <string name="building_ground_floor">First floor is called GF</string>
+    <string name="building_ground_floor_help">Floors read GF, 2F, 3F… instead of 1F, 2F, 3F…</string>
+    <string name="quantity">How many</string>
+    <string name="bulk_range_preview">Adds %1$s</string>
+
+    <!-- Locker detail sheet -->
+    <string name="action_view_history">View access history</string>
+    <string name="action_out_of_service">Out of service</string>
+    <string name="action_back_in_service">Back in service</string>
+    <string name="action_remove_locker">Remove</string>
+    <string name="service_needs_unassign">Unassign this locker before taking it out of service.</string>
+    <string name="remove_locker_title">Remove %1$s?</string>
+    <string name="remove_locker_body">The locker is deleted. Its past access logs are kept.</string>
+    <string name="remove_locker_body_held">%1$s holds this locker and will be left without one. The locker is deleted; its past access logs are kept.</string>
+    <plurals name="building_summary">
+        <item quantity="one">%1$d locker · %2$d free</item>
+        <item quantity="other">%1$d lockers · %2$d free</item>
+    </plurals>
+    <plurals name="floor_count">
+        <item quantity="one">%d floor</item>
+        <item quantity="other">%d floors</item>
+    </plurals>
+
+    <!-- Logs: period, search, detail -->
+    <string name="period_today">Today</string>
+    <string name="period_week">7 days</string>
+    <string name="period_month">30 days</string>
+    <string name="period_all">All</string>
+    <string name="period_today_long">Today</string>
+    <string name="period_week_long">Last 7 days</string>
+    <string name="period_month_long">Last 30 days</string>
+    <string name="period_all_long">All time</string>
+    <string name="search_logs">Search person or locker</string>
+    <string name="logs_capped">Showing the latest %1$d in this period.</string>
+    <string name="label_locker">Locker</string>
+    <string name="label_when">When</string>
+    <string name="label_match">Match</string>
+    <string name="label_closest_match">Closest match</string>
+    <string name="empty_logs_period_title">Nothing in this period</string>
+    <string name="empty_logs_period_body">No access attempts were recorded. Try a longer period.</string>
+
+    <!-- Denied-attempt alerts (in-app only; push needs Cloud Functions) -->
+    <string name="alert_denied_at">Denied attempt at %1$s</string>
+    <string name="action_view">View</string>
+
+    <!-- Activity trail -->
+    <string name="activity_trail">Activity trail</string>
+    <string name="activity_trail_subtitle">Changes made by administrators: assignments, unlocks, buildings and accounts.</string>
+    <string name="trail_empty_title">No changes in this period</string>
+    <string name="trail_empty_body">Actions taken by administrators will be listed here.</string>
+
+    <!-- One-time sorting of lockers made before buildings existed -->
+    <plurals name="migration_title">
+        <item quantity="one">%d locker isn\'t in a building yet</item>
+        <item quantity="other">%d lockers aren\'t in a building yet</item>
+    </plurals>
+    <string name="migration_body">Their location text (e.g. \"Main Building · 1F\") is matched to your buildings, and each gets a new ID like M-001. Holders keep their lockers.</string>
+    <string name="migration_action">Sort into buildings</string>
+
+    <!-- Linking old locker IDs found in the access log -->
+    <plurals name="link_title">
+        <item quantity="one">%d old locker ID in the access log isn\'t linked</item>
+        <item quantity="other">%d old locker IDs in the access log aren\'t linked</item>
+    </plurals>
+    <string name="link_body">Tell the app which current locker each one became, and its past logs will show the current ID everywhere.</string>
+    <string name="link_action">Link them</string>
+    <string name="link_form_title">Link old locker IDs</string>
+    <string name="link_form_help">Pick the locker each old ID became. Leave any you\'re unsure of as \"Not linked\".</string>
+    <string name="link_tips_show">How to decide</string>
+    <string name="link_tips_hide">Hide tips</string>
+    <string name="link_form_tips">• Under each old ID is who used it; each locker in the list shows its current holder.\n• Suggestions are filled in where the data matches. Check them before saving.\n• The sort kept the order: within a building, a lower old number got a lower new number.</string>
+    <string name="link_row_hint">%1$s is now…</string>
+    <string name="link_not_linked">Not linked</string>
+    <string name="link_row_used_by">Used by %1$s · last %2$s</string>
+    <string name="link_row_no_one">No one was granted access · last %1$s</string>
+    <string name="link_row_suggested">Suggested: %1$s</string>
+    <string name="migration_confirm_title">Move these lockers?</string>
+    <string name="migration_confirm_body">Locker IDs can\'t be renamed, so each is re-created under its new ID and the old one removed. Old access logs keep the old IDs.</string>
+    <string name="migration_will_skip">%1$d locker(s) can\'t be matched and will be left as they are.</string>
+    <string name="migration_result_title">Sorting finished</string>
+    <string name="migration_moved">%1$d locker(s) moved into buildings.</string>
+    <string name="migration_skipped_header">Left as they are:</string>
+    <string name="migration_skipped_hint">Add or rename a building so its name appears in the locker\'s location, then run this again.</string>
 </resources>

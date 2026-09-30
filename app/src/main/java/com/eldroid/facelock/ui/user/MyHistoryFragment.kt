@@ -10,12 +10,19 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.eldroid.facelock.R
 import com.eldroid.facelock.data.model.AccessLog
 import com.eldroid.facelock.data.repo.AuthRepository
+import com.eldroid.facelock.data.repo.LockerRepository
 import com.eldroid.facelock.data.repo.LogRepository
 import com.eldroid.facelock.databinding.FragmentMyHistoryBinding
-import com.eldroid.facelock.ui.adapter.LogAdapter
+import com.eldroid.facelock.domain.usecase.ResolveLogLockersUseCase
+import com.eldroid.facelock.presenter.common.CollapseState
+import com.eldroid.facelock.presenter.common.Group
+import com.eldroid.facelock.presenter.common.groupByDay
+import com.eldroid.facelock.ui.adapter.LogRows
+import com.eldroid.facelock.ui.adapter.SectionedAdapter
 import com.eldroid.facelock.util.visible
 import com.eldroid.facelock.util.catchFirestore
 import com.eldroid.facelock.util.skeleton
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 /**
@@ -31,9 +38,14 @@ class MyHistoryFragment : Fragment() {
 
     private val authRepo = AuthRepository()
     private val logRepo = LogRepository()
-    private lateinit var adapter: LogAdapter
+    private val lockerRepo = LockerRepository()
+    private lateinit var adapter: SectionedAdapter<AccessLog, LogRows.VH>
 
     private var all: List<AccessLog> = emptyList()
+
+    /** The newest day starts open, older days closed, until tapped. */
+    private val sections = CollapseState { index -> index == 0 }
+    private var days: List<Group<AccessLog>> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -43,7 +55,14 @@ class MyHistoryFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        adapter = LogAdapter()
+        sections.restore(
+            savedInstanceState?.getStringArrayList(KEY_OPEN),
+            savedInstanceState?.getStringArrayList(KEY_CLOSED)
+        )
+        adapter = SectionedAdapter(LogRows()) { key ->
+            sections.toggle(key, days)
+            applyFilter()
+        }
         binding.skeleton.root.skeleton(true)
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
         binding.recycler.adapter = adapter
@@ -59,7 +78,12 @@ class MyHistoryFragment : Fragment() {
     private fun observe() {
         val uid = authRepo.currentUid ?: return
         viewLifecycleOwner.lifecycleScope.launch {
-            logRepo.observeLogsForUser(uid)
+            // Lockers too, so logs show today's locker ID rather than an old one.
+            combine(
+                logRepo.observeLogsForUser(uid),
+                lockerRepo.observeLockers(),
+                ResolveLogLockersUseCase()::invoke
+            )
                 .catchFirestore("your access history") { showLoadError(it) }
                 .collect { logs ->
                     all = logs
@@ -98,7 +122,8 @@ class MyHistoryFragment : Fragment() {
             denied -> all.filter { !it.granted }
             else -> all
         }
-        adapter.submitList(shown)
+        days = groupByDay(shown) { it.timestamp }
+        adapter.submitList(sections.flatten(days) { it.id })
 
         binding.empty.root.visible(shown.isEmpty())
         binding.empty.ivEmpty.setImageResource(
@@ -134,8 +159,19 @@ class MyHistoryFragment : Fragment() {
         binding.empty.btnEmptyAction.visible(false)
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putStringArrayList(KEY_OPEN, sections.openKeys())
+        outState.putStringArrayList(KEY_CLOSED, sections.closedKeys())
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private companion object {
+        const val KEY_OPEN = "open_days"
+        const val KEY_CLOSED = "closed_days"
     }
 }

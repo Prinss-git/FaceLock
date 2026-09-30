@@ -59,6 +59,11 @@ class LoginActivity : AppCompatActivity() {
                     authRepo.logout()
                     toast(getString(R.string.session_timed_out))
                 }
+                // A saved session must not outlive a suspension.
+                result.isSuccess && !result.getOrThrow().active -> {
+                    authRepo.logout()
+                    toast(getString(R.string.account_suspended))
+                }
                 result.isSuccess -> route(result.getOrThrow())
                 else -> {
                     authRepo.logout()
@@ -98,7 +103,7 @@ class LoginActivity : AppCompatActivity() {
                     if (!user.active) {
                         authRepo.logout()
                         setLoading(false)
-                        toast("This account has been suspended. Contact your administrator.")
+                        toast(getString(R.string.account_suspended))
                     } else {
                         route(user)
                     }

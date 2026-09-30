@@ -48,6 +48,11 @@ matching your hardware, e.g. `LKR-01`. The `LOCKER_ID` constant in the
 firmware must match one of these document IDs exactly.
 
 ## 7. Deploy the Cloud Functions
+
+> **Blaze plan only.** Cloud Functions cannot be deployed on the free Spark
+> plan, which this project currently uses. Skip this section until the plan is
+> upgraded; the app works without it.
+
 ```bash
 cd functions
 npm install
@@ -55,7 +60,8 @@ firebase functions:config:set facelock.device_key="SOME_LONG_RANDOM_STRING"
 firebase deploy --only functions
 ```
 
-Copy the same random string into `DEVICE_KEY` in the firmware sketch, and copy
+Copy the same random string into `SECRET_DEVICE_KEY` in the sketch's gitignored
+`secrets.h` (start from `secrets.example.h`), and copy
 the deployed `recognizeFace` URL into `RECOGNIZE_URL`.
 
 > **Note:** `embedFace()` in `functions/index.js` is intentionally left

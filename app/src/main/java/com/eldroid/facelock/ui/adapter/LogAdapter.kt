@@ -11,16 +11,19 @@ import com.eldroid.facelock.databinding.ItemLogBinding
 import com.eldroid.facelock.util.asRelativeDateTime
 import com.eldroid.facelock.util.visible
 
-class LogAdapter : ListAdapter<AccessLog, LogAdapter.VH>(DIFF) {
+/** One access-log row. [onClick] null keeps rows inert, as on the member's own screens. */
+class LogRows(
+    private val onClick: ((AccessLog) -> Unit)? = null
+) : RowBinder<AccessLog, LogRows.VH> {
 
-    inner class VH(val b: ItemLogBinding) : RecyclerView.ViewHolder(b.root)
+    class VH(val b: ItemLogBinding) : RecyclerView.ViewHolder(b.root)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = VH(
+    override fun create(parent: ViewGroup) = VH(
         ItemLogBinding.inflate(LayoutInflater.from(parent.context), parent, false)
     )
 
-    override fun onBindViewHolder(holder: VH, position: Int) {
-        val log = getItem(position)
+    override fun bind(holder: VH, item: AccessLog) {
+        val log = item
         val ctx = holder.b.root.context
         val granted = log.granted
 
@@ -49,6 +52,13 @@ class LogAdapter : ListAdapter<AccessLog, LogAdapter.VH>(DIFF) {
                 tvConfidence.text = ctx.getString(R.string.match_percent, (it * 100).toInt())
             } ?: tvConfidence.visible(false)
 
+            if (onClick != null) {
+                root.setOnClickListener { onClick.invoke(log) }
+            } else {
+                root.setOnClickListener(null)
+                root.isClickable = false
+            }
+
             // Screen readers get the whole row as one sentence.
             root.contentDescription = buildString {
                 append(tvUser.text).append(", ")
@@ -58,6 +68,19 @@ class LogAdapter : ListAdapter<AccessLog, LogAdapter.VH>(DIFF) {
             }
         }
     }
+}
+
+/** Plain, unsectioned log list (My Locker's recent attempts). */
+class LogAdapter(
+    onClick: ((AccessLog) -> Unit)? = null
+) : ListAdapter<AccessLog, LogRows.VH>(DIFF) {
+
+    private val rows = LogRows(onClick)
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = rows.create(parent)
+
+    override fun onBindViewHolder(holder: LogRows.VH, position: Int) =
+        rows.bind(holder, getItem(position))
 
     companion object {
         val DIFF = object : DiffUtil.ItemCallback<AccessLog>() {
