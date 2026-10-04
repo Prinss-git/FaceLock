@@ -1,19 +1,6 @@
 {
   "rules": {
     ".read": false,
-    ".write": false,
-
-    "test": {
-      ".read": "auth != null",
-      ".write": "auth != null"
-    },
-
-    "device": {
-      "led": {
-        ".read": "auth != null",
-        ".write": "auth != null",
-        ".validate": "newData.isBoolean()"
-      }
-    }
+    ".write": false
   }
 }

@@ -12,6 +12,8 @@ import com.eldroid.facelock.domain.usecase.AssignLockerUseCase
 import com.eldroid.facelock.domain.usecase.GroupLockersUseCase
 import com.eldroid.facelock.domain.usecase.LockerGroup
 import com.eldroid.facelock.domain.usecase.NextLockerIdUseCase
+import com.eldroid.facelock.domain.usecase.clock
+import com.eldroid.facelock.domain.usecase.withLiveStatus
 import com.eldroid.facelock.presenter.base.CoroutinePresenter
 import com.eldroid.facelock.presenter.lockers.LockersContract.AddLockerField
 import com.eldroid.facelock.presenter.lockers.LockersContract.EmptyState
@@ -57,8 +59,9 @@ class LockersPresenter(
             combine(
                 lockerRepo.observeLockers(),
                 userRepo.observeUsers(),
-                buildingRepo.observeBuildings()
-            ) { l, u, b -> Triple(l, u, b) }
+                buildingRepo.observeBuildings(),
+                clock()
+            ) { l, u, b, now -> Triple(l.map { it.withLiveStatus(now) }, u, b) }
                 .catchFirestore("the locker list") { view?.showLoadError(it) }
                 .collect { (l, u, b) ->
                     lockers = l

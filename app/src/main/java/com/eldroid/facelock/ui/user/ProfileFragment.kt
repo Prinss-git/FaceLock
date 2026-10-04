@@ -19,8 +19,6 @@ import com.eldroid.facelock.data.repo.LogRepository
 import com.eldroid.facelock.data.repo.UserRepository
 import com.eldroid.facelock.databinding.FragmentProfileBinding
 import com.eldroid.facelock.ui.admin.ActivityTrailActivity
-import com.eldroid.facelock.ui.admin.DeviceTestActivity
-import com.eldroid.facelock.ui.admin.LedControlActivity
 import com.eldroid.facelock.ui.auth.ChangePasswordActivity
 import com.eldroid.facelock.ui.signOutTo
 import com.eldroid.facelock.util.SessionManager
@@ -37,7 +35,7 @@ import kotlinx.coroutines.launch
 /**
  * Account overview, shared by both sides of the app — a bottom-nav tab for
  * every role. Members see their locker and enrollment state; staff get a live
- * system-wide summary and, for admins, the device link test.
+ * system-wide summary and, for admins, the activity trail.
  */
 class ProfileFragment : Fragment() {
 
@@ -67,12 +65,6 @@ class ProfileFragment : Fragment() {
             startActivity(Intent(requireContext(), ChangePasswordActivity::class.java))
         }
         binding.btnLogout.setOnClickListener { confirmLogout() }
-        binding.btnDeviceTest.setOnClickListener {
-            startActivity(Intent(requireContext(), DeviceTestActivity::class.java))
-        }
-        binding.btnLedControl.setOnClickListener {
-            startActivity(Intent(requireContext(), LedControlActivity::class.java))
-        }
         binding.btnActivityTrail.setOnClickListener {
             startActivity(Intent(requireContext(), ActivityTrailActivity::class.java))
         }
@@ -111,10 +103,6 @@ class ProfileFragment : Fragment() {
         binding.btnEnroll.visible(!staff)
 
         binding.adminSection.visible(staff)
-        // Security staff are read-only; both of these write to the device
-        // paths, so they are admin-only.
-        binding.btnDeviceTest.visible(user.roleEnum == Role.ADMIN)
-        binding.btnLedControl.visible(user.roleEnum == Role.ADMIN)
         // The trail is admin-only in firestore.rules too.
         binding.btnActivityTrail.visible(user.roleEnum == Role.ADMIN)
         if (staff && !statsStarted) {

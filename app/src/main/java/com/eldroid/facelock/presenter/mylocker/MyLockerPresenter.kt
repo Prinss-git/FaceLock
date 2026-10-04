@@ -7,6 +7,8 @@ import com.eldroid.facelock.data.repo.LockerRepository
 import com.eldroid.facelock.data.repo.LogRepository
 import com.eldroid.facelock.data.repo.UserRepository
 import com.eldroid.facelock.domain.usecase.ResolveLogLockersUseCase
+import com.eldroid.facelock.domain.usecase.clock
+import com.eldroid.facelock.domain.usecase.withLiveStatus
 import com.eldroid.facelock.presenter.base.CoroutinePresenter
 import com.eldroid.facelock.util.catchFirestore
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -44,8 +46,8 @@ class MyLockerPresenter(
                 .distinctUntilChanged()
                 .flatMapLatest { lockerId ->
                     if (lockerId == null) flowOf(null)
-                    else combine(lockerRepo.observeLocker(lockerId), buildingRepo.observeBuildings()) { locker, buildings ->
-                        card(lockerId, locker, buildings)
+                    else combine(lockerRepo.observeLocker(lockerId), buildingRepo.observeBuildings(), clock()) { locker, buildings, now ->
+                        card(lockerId, locker?.withLiveStatus(now), buildings)
                     }
                 }
                 .catchFirestore("your locker") { view?.showMessage(it) }

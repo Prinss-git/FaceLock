@@ -1,7 +1,0 @@
-// Copy this file to secrets.h in the same folder and fill in real values.
-// secrets.h is gitignored - never commit it.
-#pragma once
-
-#define SECRET_WIFI_SSID     "YOUR_WIFI_SSID"
-#define SECRET_WIFI_PASSWORD "YOUR_WIFI_PASSWORD"
-#define SECRET_DATABASE_SECRET "PASTE_YOUR_DATABASE_SECRET_HERE"

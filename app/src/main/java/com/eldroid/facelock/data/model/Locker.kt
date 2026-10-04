@@ -16,7 +16,9 @@ data class Locker(
     val assignedUid: String? = null,
     val assignedName: String? = null,
     val status: String = STATUS_AVAILABLE,
-    val lastOpenedAt: Long? = null
+    val lastOpenedAt: Long? = null,
+    /** Last heartbeat from the locker's board; null until a board has checked in. */
+    val lastSeenAt: Long? = null
 ) {
     val isAvailable: Boolean get() = assignedUid.isNullOrBlank()
 
@@ -28,11 +30,18 @@ data class Locker(
     @get:Exclude
     val isFree: Boolean get() = isAvailable && isInService
 
+    /** A board has checked in at least once. */
+    @get:Exclude
+    val hasDevice: Boolean get() = lastSeenAt != null
+
     companion object {
         const val STATUS_AVAILABLE = "AVAILABLE"
         const val STATUS_OCCUPIED = "OCCUPIED"
         const val STATUS_LOCKED = "LOCKED"
         const val STATUS_OFFLINE = "OFFLINE"
         const val STATUS_OUT_OF_SERVICE = "OUT_OF_SERVICE"
+
+        /** The firmware heartbeats every minute; two missed beats mean it is gone. */
+        const val DEVICE_TIMEOUT_MS = 2 * 60_000L
     }
 }

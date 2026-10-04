@@ -356,7 +356,12 @@ class LockerListFragment : BaseFragment(), LockersContract.View {
     override fun confirmUnlock(locker: Locker) {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.remote_unlock)
-            .setMessage(getString(R.string.remote_unlock_body, locker.id))
+            .setMessage(
+                getString(
+                    if (locker.hasDevice) R.string.remote_unlock_body else R.string.remote_unlock_body_no_device,
+                    locker.id
+                )
+            )
             .setPositiveButton(R.string.action_unlock) { _, _ ->
                 presenter.onUnlockConfirmed(locker.id)
             }

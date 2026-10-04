@@ -6,6 +6,10 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function hasProfile() {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
     function myProfile() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
@@ -13,11 +17,19 @@ service cloud.firestore {
     // Staff powers end the moment an account is suspended, not at its next
     // sign-in: the app signs them out, and these rules refuse them meanwhile.
     function isAdmin() {
-      return signedIn() && myProfile().role == 'ADMIN' && myProfile().active == true;
+      return signedIn() && hasProfile() && myProfile().role == 'ADMIN' && myProfile().active == true;
     }
 
     function isSecurity() {
-      return signedIn() && myProfile().role == 'SECURITY' && myProfile().active == true;
+      return signedIn() && hasProfile() && myProfile().role == 'SECURITY' && myProfile().active == true;
+    }
+
+    // A locker board signs in with its own account, linked to exactly one
+    // locker by devices/{uid}. Device accounts have no users/ profile.
+    function isDeviceFor(lockerId) {
+      return signedIn()
+          && exists(/databases/$(database)/documents/devices/$(request.auth.uid))
+          && get(/databases/$(database)/documents/devices/$(request.auth.uid)).data.lockerId == lockerId;
     }
 
 
@@ -48,8 +60,23 @@ service cloud.firestore {
     match /lockers/{lockerId} {
       allow read: if signedIn();
       allow create, delete: if isAdmin();
-      // Only admins reassign or remotely unlock.
-      allow update: if isAdmin();
+      // Only admins reassign or request a remote unlock. The locker's own
+      // board may heartbeat, stamp an opening, and clear (never set) the
+      // unlock flag.
+      allow update: if isAdmin()
+                    || (isDeviceFor(lockerId)
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                             .hasOnly(['unlockRequested', 'lastOpenedAt', 'lastSeenAt'])
+                        && (!request.resource.data.diff(resource.data).affectedKeys()
+                              .hasAny(['unlockRequested'])
+                            || request.resource.data.unlockRequested == false));
+    }
+
+    // ---------- devices ----------
+    match /devices/{uid} {
+      // Created in the Firebase console; no client writes them.
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
+      allow write: if false;
     }
 
     // ---------- buildings ----------
@@ -75,9 +102,14 @@ service cloud.firestore {
       allow read: if isAdmin() || isSecurity()
                   || (signedIn() && resource.data.uid == request.auth.uid);
 
-      // Logs are written server-side only (Cloud Function with admin SDK),
-      // so no client may create, edit, or erase the audit trail.
-      allow write: if false;
+      // On the Spark plan the locker's board writes its own attempts. Only
+      // for its own locker, with a fixed shape, and never edited or erased.
+      allow create: if isDeviceFor(request.resource.data.lockerId)
+                    && request.resource.data.keys().hasOnly(
+                         ['lockerId', 'uid', 'userName', 'result', 'confidence', 'timestamp'])
+                    && request.resource.data.result in ['GRANTED', 'DENIED']
+                    && request.resource.data.timestamp is number;
+      allow update, delete: if false;
     }
   }
 }

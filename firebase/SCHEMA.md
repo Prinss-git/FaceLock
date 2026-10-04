@@ -37,9 +37,21 @@ number counted per building.
 | `assignedUid` | string \| null | Current owner |
 | `assignedName` | string \| null | Denormalized for list display |
 | `status` | string | `AVAILABLE` \| `OCCUPIED` \| `LOCKED` \| `OFFLINE` \| `OUT_OF_SERVICE` (retired; can't be assigned or unlocked) |
-| `lastOpenedAt` | number \| null | Epoch millis |
-| `unlockRequested` | boolean | Set by admin, cleared by the ESP32 |
+| `lastOpenedAt` | number \| null | Epoch millis; written by the board |
+| `lastSeenAt` | number \| null | Board heartbeat, every 60 s. The app shows OFFLINE after 2 min of silence; null = no board has checked in yet |
+| `unlockRequested` | boolean | Set by admin, cleared (never set) by the locker's board |
 | `unlockRequestedAt` | number | Epoch millis |
+
+`status` is never set to `OFFLINE` in the database; the app derives it from `lastSeenAt`.
+
+## `devices/{uid}`
+Links a board's Firebase Auth account to one locker. Created in the console
+only; no client may write it.
+
+| Field | Type | Notes |
+|---|---|---|
+| `lockerId` | string | The only locker this board may heartbeat, unlock-clear and log for |
+| `label` | string | Free text, e.g. `Main Building board` |
 
 ## `admin_actions/{autoId}`
 Activity trail of admin changes. Append-only: admins create entries in their
@@ -64,8 +76,9 @@ own name; nobody can edit or delete them. Readable by admins only.
 | `confidence` | number \| null | 0.0–1.0 match score |
 | `timestamp` | number | Epoch millis |
 
-Written exclusively by the Cloud Function using the Admin SDK so the
-audit trail cannot be altered from any client.
+Written by the locker's own board (signed in as its device account), only for
+its own locker and with exactly these fields. Denied attempts omit `uid` and
+`userName`. No client may edit or delete an entry.
 
 ## `face_templates/{uid}` (Cloud Storage + Firestore)
 Enrollment images land in Storage at `face_templates/{uid}/enroll.jpg`.

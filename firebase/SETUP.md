@@ -42,14 +42,23 @@ Self-registration always produces a `USER`, so promote one account manually:
 3. Change `role` from `USER` to `ADMIN`.
 4. Sign out and back in — you will land on the admin dashboard.
 
-## 6. Create lockers
-From the admin dashboard, tap the **+** button on the Lockers tab and add IDs
-matching your hardware, e.g. `LKR-01`. The `LOCKER_ID` constant in the
-firmware must match one of these document IDs exactly.
+## 6. Create lockers and link a board
+1. From the admin dashboard, add a building, then use the **+** button on the
+   Lockers tab. IDs look like `M-001` (building code + number).
+2. **Give the board its own sign-in.** Authentication → Users → Add user, e.g.
+   `board-m-001@facelock.device` with a long random password. Copy its **User UID**.
+3. **Link it to the locker.** Firestore → start collection `devices` → document
+   ID = that UID, fields `lockerId` (string) = `M-001`, `label` (string) =
+   `Main Building board`. The rules only let this account touch `lockers/M-001`.
+4. Put the same email, password, `M-001`, the Web API key and project ID into
+   the sketch's `secrets.h` (and the simulator's `.env`).
 
-## 7. Deploy the Cloud Functions
+One account per board. To retire a board, disable its user in Authentication.
 
-> **Blaze plan only.** Cloud Functions cannot be deployed on the free Spark
+## 7. Deploy the Cloud Functions (not used on Spark)
+
+> **Blaze plan only.** The board already writes logs itself on Spark; if you
+> deploy these, remove that write from the sketch or attempts are logged twice. Cloud Functions cannot be deployed on the free Spark
 > plan, which this project currently uses. Skip this section until the plan is
 > upgraded; the app works without it.
 
@@ -69,8 +78,15 @@ the deployed `recognizeFace` URL into `RECOGNIZE_URL`.
 > Rekognition, Azure Face API, or a self-hosted FaceNet/ArcFace model on Cloud
 > Run). Everything around it — matching, logging, alerting — is already wired.
 
-## 8. Verify
-1. Run the app and register a user.
-2. Promote yourself to admin, add a locker, assign it to a test user.
-3. Enroll that user's face from the user dashboard.
-4. Trigger the ESP32 and confirm a log row appears in the Logs tab.
+## 8. Verify (no hardware needed)
+1. Deploy the rules: `firebase deploy --only firestore:rules,database`.
+2. Register a user, promote yourself to admin, add a locker, assign it.
+3. In `firmware/simulator/`: `node --env-file=.env simulate.js check` — every
+   line must say "refused as expected".
+4. `node --env-file=.env simulate.js run` — the locker loses any Offline label;
+   tap **Unlock** in the app and the simulator opens and clears it.
+5. `simulate.js granted <uid> "<name>"` and `simulate.js denied` — rows appear
+   in Logs and the member's history, and the denied alert badge fires.
+6. Stop the simulator; about 2 minutes later the locker shows **Offline**.
+7. Enroll a face and confirm the upload succeeds. New projects may need Blaze
+   for Storage; if the upload fails with a billing error, that is why.

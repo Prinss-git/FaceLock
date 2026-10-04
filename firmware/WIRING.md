@@ -61,4 +61,6 @@ stepped down to 5V for the ESP32-CAM, relay, PIR, and LCD.
 ## Required libraries
 - `ArduinoJson` (Benoit Blanchon)
 - `LiquidCrystal_I2C` (Frank de Brabander)
+- `Firebase Arduino Client Library for ESP8266 and ESP32` (Mobizt), searched
+  as *Firebase ESP Client*
 - ESP32 board package 2.0.x or newer

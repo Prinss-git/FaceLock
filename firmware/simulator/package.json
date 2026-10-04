@@ -1,0 +1,17 @@
+{
+  "name": "facelock-device-simulator",
+  "private": true,
+  "type": "module",
+  "description": "Stands in for a locker board: same sign-in, same Firestore writes.",
+  "scripts": {
+    "run": "node simulate.js run",
+    "granted": "node simulate.js granted",
+    "denied": "node simulate.js denied"
+  },
+  "dependencies": {
+    "firebase": "^12.19.0"
+  },
+  "engines": {
+    "node": ">=20.6"
+  }
+}

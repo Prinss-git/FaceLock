@@ -18,9 +18,9 @@ FaceLock/
 │   └── src/main/
 │       ├── java/com/eldroid/facelock/
 │       │   ├── data/model/    User, Locker, AccessLog, Role
-│       │   ├── data/repo/     Firebase repositories (Auth, Users, Lockers, Logs, RTDB)
+│       │   ├── data/repo/     Firebase repositories (Auth, Users, Lockers, Logs, Buildings)
 │       │   ├── ui/auth/       Login, Register, Forgot / Change password
-│       │   ├── ui/admin/      Dashboard, Lockers, Users, Logs, Device test, LED control
+│       │   ├── ui/admin/      Dashboard, Lockers, Users, Logs, Buildings, Activity trail
 │       │   ├── ui/user/       My Locker, History, Profile, Face Enrollment
 │       │   ├── ui/adapter/    RecyclerView adapters
 │       │   └── util/          Session, extensions, FCM service
@@ -33,15 +33,14 @@ FaceLock/
 │           ├── adapter/       List row layouts
 │           └── common/        Includes shared between features
 ├── firmware/
-│   ├── FaceLock_ESP32CAM.ino  Capture → recognize → unlock → log
-│   ├── ConnectivityTest/      Proves the board can reach the backend
-│   ├── LedControl/            Follows device/led and drives a GPIO
+│   ├── FaceLock_ESP32CAM/     Capture → recognize → unlock → log → heartbeat
+│   ├── simulator/             Node stand-in for the board, for testing without hardware
 │   └── WIRING.md              Bill of materials and pin connections
 └── firebase/
     ├── SETUP.md               Step-by-step console setup
     ├── SCHEMA.md              Firestore collection reference
-    ├── firestore.rules        Role-based security rules
-    ├── database.rules.json    Realtime Database rules (device paths)
+    ├── firestore.rules        Role-based security rules (incl. device accounts)
+    ├── database.rules.json    Realtime Database rules (unused; denies everything)
     ├── storage.rules          Face image upload rules
     ├── firestore.indexes.json Required composite indexes
     └── functions/             recognizeFace + denied-attempt alerts
@@ -78,10 +77,7 @@ existing admin, and this is enforced in the Firestore rules, not just the UI.
 3. **Promote yourself to admin** — register in the app, then flip your `role`
    field to `ADMIN` in the Firestore console.
 4. **Add lockers** — from the admin dashboard, Lockers tab, **+** button.
-5. **Flash the ESP32-CAM** — see `firmware/WIRING.md`. Copy
-   `secrets.example.h` to `secrets.h` in the sketch folder and fill in the Wi-Fi
-   credentials and `SECRET_DEVICE_KEY` (`secrets.h` is gitignored). Set
-   `RECOGNIZE_URL` and `LOCKER_ID` in the sketch itself.
+5. **Set up the locker board** — see "The locker board" below.
 
 ### If Android Studio shows hundreds of red errors
 
@@ -103,70 +99,78 @@ without it, which leaves the IDE in the same unresolved state.
 After fixing either, run **File → Sync Project with Gradle Files**. The errors
 clear when the sync succeeds.
 
-## Talking to the ESP32
+## The locker board
 
-Two screens under **Profile → (admin only)** exercise the device link, both
-through the Realtime Database rather than Cloud Functions — that path costs
-nothing and works on the free Spark plan.
+The ESP32-CAM talks to Firestore directly, signed in with its **own Firebase
+account**. Nothing here needs Cloud Functions, so it works on the free Spark plan.
 
-| Screen | Key | Direction |
+| What | Who writes it | Where |
 |---|---|---|
-| **Device test** | `test/data` | Board writes a number, phone reads and writes it back |
-| **LED control** | `device/led` | Phone writes a boolean, board reads it and drives a GPIO |
+| Heartbeat | Board, every 60 s | `lockers/{id}.lastSeenAt` |
+| Remote unlock | Admin sets it, board clears it | `lockers/{id}.unlockRequested` |
+| Last opened | Board | `lockers/{id}.lastOpenedAt` |
+| Access attempts | Board | `access_logs/*` (append-only) |
 
-Neither end talks to the other directly: the database key *is* the state, so the
-board does not have to be on the same network as the phone. The LED screen shows
-the raw value alongside the lamp on purpose — when the two disagree, the board is
-not running its sketch.
+The app shows a locker as **Offline** once its board has missed two heartbeats
+(about 2 minutes). A locker whose board has never checked in keeps its normal
+status, so nothing reads as offline before the hardware exists.
 
-To wire up the LED:
+`firestore.rules` only lets a board touch the locker named in its
+`devices/{uid}` document, only those fields, and it can clear the unlock flag
+but never set it. Setup steps are in `firebase/SETUP.md` (step 6).
 
-1. In `firmware/LedControl/`, copy `secrets.example.h` to `secrets.h` and fill
-   in the Wi-Fi credentials and `SECRET_DATABASE_SECRET` (Firebase console →
-   Project settings → Service accounts → Database secrets).
-2. Install **"Firebase Arduino Client Library for ESP8266 and ESP32"** by Mobizt
-   (Tools → Manage Libraries → search *Firebase ESP Client*).
-3. LED from **GPIO 23** through a 220 Ω resistor to GND — long leg to the pin.
-4. Board **ESP32 Dev Module**, Partition Scheme **Huge APP (3MB No OTA)**. The
-   default partition is too small for TLS.
-5. Upload, open the Serial Monitor at 115200, then tap the button in the app.
+### Testing without hardware
 
-The sketch polls that one key once a second and logs only when it changes, so a
-`Read failed:` line is visible rather than buried.
+`firmware/simulator/` signs in with the same device account and makes the same
+writes as the sketch, so the app and the rules can be checked end to end now:
 
-> The database secret bypasses the database rules — that is how the board reads
-> without signing in — so it is a full-access password. Regenerate it before
-> submission. It lives only in the gitignored `secrets.h`.
+```bash
+cd firmware/simulator
+npm install
+cp .env.example .env        # fill in the same values as secrets.h
+node --env-file=.env simulate.js run       # heartbeat + answers remote unlocks
+node --env-file=.env simulate.js granted <uid> "Juan Dela Cruz" 0.93
+node --env-file=.env simulate.js denied 0.41
+node --env-file=.env simulate.js check     # writes the rules must refuse
+```
 
-## One thing you must implement
+### Flashing the real board
 
-`embedFace()` in `firebase/functions/index.js` is deliberately left as a stub.
-It takes a JPEG buffer and should return a face embedding vector. Everything
-downstream — similarity matching, threshold checks, access logging, and push
-alerts — is already written and will work once you plug in a provider:
+1. In `firmware/FaceLock_ESP32CAM/`, copy `secrets.example.h` to `secrets.h`
+   and fill it in (gitignored).
+2. Install the libraries listed in `firmware/WIRING.md`.
+3. Board **AI Thinker ESP32-CAM**, Partition Scheme **Huge APP (3MB No OTA)**.
+4. Upload, open the Serial Monitor at 115200, and check for `Heartbeat failed`
+   or `Unlock poll failed` lines.
 
-- **AWS Rekognition** (`SearchFacesByImage`) — easiest to get running
-- **Azure Face API** (Detect + Verify)
-- **Self-hosted FaceNet / ArcFace** on Cloud Run — no per-call cost, more setup
+## Still missing: face recognition
 
-**The functions in `firebase/functions/` are not deployed.** Deploying Cloud
-Functions requires the Blaze (pay-as-you-go) plan, so anything that routes
-through them — `recognizeFace` and denied-attempt push alerts — returns 404
-against this project today. The app itself does not depend on them: it reads and
-writes Firestore directly, password resets use Firebase's own reset email, and
-the ESP32 link runs over the Realtime Database (see above). Upgrade the plan and
-`firebase deploy --only functions` to switch the recognition path on.
+The board posts each photo to `SECRET_RECOGNIZE_URL` and expects
+`{"granted": bool, "uid": "...", "name": "...", "confidence": 0.0-1.0}`. **That
+server does not exist yet.** Until it does, the board shows "No recognizer" and
+neither opens nor logs; use the simulator to produce log entries.
 
-Until then, two things never happen: face enrollment photos stay in Storage
-unprocessed (nothing turns them into `face_templates` embeddings), and nothing
-writes `access_logs`, since clients are blocked from writing them.
+On Spark, the server must be hosted outside Firebase (for example a small
+Flask + FaceNet/ArcFace service on a laptop or Cloud Run). It would read the
+enrollment photos from Storage with a service account, keep embeddings in
+`face_templates`, and decide `granted` = face matches this locker's
+`assignedUid` and that account is `active`.
+
+`firebase/functions/` holds the older Blaze-only design (`recognizeFace`,
+`onAccessDenied` push alerts). **It is not deployed.** If the project moves to
+Blaze and those are deployed, remove the board's own `access_logs` write or
+every attempt is logged twice.
+
+Without Functions, denied-attempt alerts are **in-app only** (badge + snackbar
+while the app is open); there is no push notification when it is closed.
 
 ## Privacy note
 
 Raw enrollment photos are never readable from any client. They are uploaded to
-Storage, converted to an embedding by the backend, and the original image is
-deleted. Only the embedding vector persists. Access logs are written server-side
-with the Admin SDK so the audit trail cannot be edited or deleted from a device.
+Storage, to be converted to an embedding by the recognition server, after which
+the original image should be deleted so only the embedding vector persists.
+Access logs are append-only: the locker's board may add entries for its own
+locker, and no client can edit or delete one.
 This design supports compliance with the Data Privacy Act of 2012 (RA 10173).
 
 ## Tech stack

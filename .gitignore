@@ -14,8 +14,13 @@ app/google-services.json
 firebase/functions/node_modules/
 firebase/functions/.env
 firebase-debug.log
+firestore-debug.log
 .firebase/
 .firebaserc
 
 # Firmware credentials (copy secrets.example.h -> secrets.h in each sketch folder)
 firmware/**/secrets.h
+
+# Device simulator
+firmware/simulator/node_modules/
+firmware/simulator/.env

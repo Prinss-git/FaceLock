@@ -10,6 +10,10 @@
  * NOT DEPLOYED: the facelock-eldroid project is on the free Spark plan, and
  * Cloud Functions need Blaze. Nothing here runs today; the code is kept for
  * when the plan changes. Password resets use Firebase's reset email instead.
+ *
+ * On Spark the locker board writes access_logs itself (see the sketch). If
+ * these are deployed, remove that write from the firmware, or every attempt
+ * is logged twice.
  */
 
 const functions = require("firebase-functions");
