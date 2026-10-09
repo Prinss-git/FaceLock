@@ -21,6 +21,13 @@
 | 5V | VCC |
 | GND | GND |
 
+> **If the board will not start with the relay connected:** GPIO 12 decides the
+> flash voltage at power-on, and some relay modules hold it HIGH. Move the relay
+> wire to **GPIO 2** and change `#define RELAY_PIN 12` to `2` in the sketch.
+> Test the relay module on the bench before mounting anything.
+
+The onboard white flash LED (GPIO 4) lights each photo; no wiring needed.
+
 ### Relay → Solenoid lock
 | Relay | Wiring |
 |---|---|
@@ -52,6 +59,9 @@ stepped down to 5V for the ESP32-CAM, relay, PIR, and LCD.
 **Tie all grounds together** or the relay will trigger erratically.
 
 ## Flashing notes
+An **ESP32-CAM-MB** USB adapter is easier than an FTDI: plug the camera board
+into it, connect USB, and upload (no GPIO 0 jumper). With an FTDI:
+
 1. Connect FTDI: TX→U0R, RX→U0T, 5V→5V, GND→GND.
 2. Jumper **GPIO 0 to GND** to enter flash mode.
 3. In Arduino IDE select **AI Thinker ESP32-CAM** and partition

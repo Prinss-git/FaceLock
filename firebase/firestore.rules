@@ -79,6 +79,14 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // ---------- config ----------
+    match /config/{docId} {
+      // Written only by the recognition server (admin credentials), e.g.
+      // config/recognizer holds its current address for the boards to find.
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
     // ---------- buildings ----------
     match /buildings/{code} {
       // Everyone signed in sees the grouping; only admins change it.

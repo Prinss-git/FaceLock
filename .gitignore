@@ -24,3 +24,9 @@ firmware/**/secrets.h
 # Device simulator
 firmware/simulator/node_modules/
 firmware/simulator/.env
+
+# Recognition server (also has its own .gitignore)
+recognizer/.env
+recognizer/*.json
+recognizer/.venv/
+recognizer/models/

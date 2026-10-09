@@ -18,8 +18,9 @@
 // Must match the locker's ID in the app exactly, e.g. M-001.
 #define SECRET_LOCKER_ID     "M-001"
 
-// Face recognition server the board posts photos to. Leave "" until one exists:
-// the board then says so on the LCD instead of opening or logging.
+// Leave "" normally: the recognition server publishes its address in
+// Firestore (config/recognizer) and the board reads it from there. Set it only
+// to force a fixed address, e.g. "http://192.168.43.10:5000/recognize".
 #define SECRET_RECOGNIZE_URL ""
-// Shared secret sent as X-Device-Key so the server can refuse strangers.
+// Shared secret sent as X-Device-Key; must match DEVICE_KEY in recognizer/.env.
 #define SECRET_RECOGNIZE_KEY "YOUR_RECOGNIZER_SHARED_SECRET"

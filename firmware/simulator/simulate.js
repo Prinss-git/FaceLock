@@ -100,6 +100,14 @@ async function checkRules() {
       log(`refused as expected: ${what} (${e.code ?? e.message})`);
     }
   }
+  // And the one read the board depends on to find the recognition server.
+  try {
+    const cfg = await getDoc(doc(db, "config", "recognizer"));
+    log(`allowed as expected: read config/recognizer (${cfg.exists() ? cfg.get("url") : "not published yet"})`);
+  } catch (e) {
+    loose++;
+    log(`REFUSED (should be allowed): read config/recognizer (${e.code ?? e.message})`);
+  }
   process.exitCode = loose ? 1 : 0;
 }
 

@@ -78,6 +78,10 @@ the deployed `recognizeFace` URL into `RECOGNIZE_URL`.
 > Rekognition, Azure Face API, or a self-hosted FaceNet/ArcFace model on Cloud
 > Run). Everything around it — matching, logging, alerting — is already wired.
 
+## 7b. Start the recognition server
+Follow `recognizer/README.md`: install, add the service-account key, set
+`DEVICE_KEY` (same as the board's `SECRET_RECOGNIZE_KEY`), `python server.py`.
+
 ## 8. Verify (no hardware needed)
 1. Deploy the rules: `firebase deploy --only firestore:rules,database`.
 2. Register a user, promote yourself to admin, add a locker, assign it.
@@ -90,3 +94,6 @@ the deployed `recognizeFace` URL into `RECOGNIZE_URL`.
 6. Stop the simulator; about 2 minutes later the locker shows **Offline**.
 7. Enroll a face and confirm the upload succeeds. New projects may need Blaze
    for Storage; if the upload fails with a billing error, that is why.
+8. With the server running, the face appears in `face_templates/{uid}` within
+   about 15 s and the photo disappears from Storage.
+9. `python webcam_test.py --uid <uid>` shows MATCH for that member.

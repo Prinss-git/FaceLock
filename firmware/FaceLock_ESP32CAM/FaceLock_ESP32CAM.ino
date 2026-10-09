@@ -5,6 +5,7 @@
  * Responsibilities:
  *   1. Detect a person approaching (PIR) and capture a face image.
  *   2. POST the image to the recognition server, which answers who it is.
+ *      Up to 3 photos per attempt; one DENIED log only if none match.
  *   3. On a match, pulse the relay to open the solenoid lock.
  *   4. Write the attempt to access_logs itself (no Cloud Functions on Spark).
  *   5. Heartbeat lastSeenAt, so the app can show the locker as offline.
@@ -38,7 +39,10 @@
 // ----------------------- CONFIGURATION -----------------------
 const char* LOCKER_ID     = SECRET_LOCKER_ID;
 const char* PROJECT_ID    = SECRET_PROJECT_ID;
-const char* RECOGNIZE_URL = SECRET_RECOGNIZE_URL;
+// Normally empty: the server publishes its address in config/recognizer and
+// the board reads it, so a new laptop IP needs no re-flash. Set it in
+// secrets.h only to force a fixed address.
+const char* RECOGNIZE_URL_OVERRIDE = SECRET_RECOGNIZE_URL;
 
 // ----------------------- PIN MAP (AI Thinker) -----------------------
 #define PWDN_GPIO_NUM     32
@@ -59,9 +63,13 @@ const char* RECOGNIZE_URL = SECRET_RECOGNIZE_URL;
 #define PCLK_GPIO_NUM     22
 
 // Peripherals
+// GPIO 12 is a boot strapping pin: if the relay module holds it HIGH at
+// power-on, the board will not start. If that happens, move the relay wire
+// to GPIO 2 and change this number (see WIRING.md).
 #define RELAY_PIN         12   // Drives the 5V relay -> 12V solenoid lock
 #define PIR_PIN           13   // Motion sensor: wakes the capture routine
 #define STATUS_LED        33   // Onboard red LED (active LOW)
+#define FLASH_LED          4   // Onboard white flash LED, lights the face
 
 const unsigned long UNLOCK_MS          = 3000;    // How long the lock stays open
 const unsigned long COOLDOWN_MS        = 4000;    // Debounce between attempts
@@ -70,6 +78,8 @@ const unsigned long POLL_INTERVAL      = 10000;   // Remote-unlock poll cadence
 // The app calls a board offline after two missed beats (Locker.DEVICE_TIMEOUT_MS).
 const unsigned long HEARTBEAT_INTERVAL = 60000;
 const unsigned long WIFI_RETRY_MS      = 10000;
+const unsigned long URL_RETRY_MS       = 30000;   // Re-read config/recognizer
+const int           MAX_TRIES          = 3;       // Photos per attempt
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 FirebaseData fbdo;
@@ -82,6 +92,21 @@ unsigned long lastPoll      = 0;
 unsigned long lastHeartbeat = 0;
 unsigned long lastWifiTry   = 0;
 bool heartbeatSent          = false;
+unsigned long lastUrlTry    = 0;
+String recognizeUrl;        // From the override, or config/recognizer
+
+// Above setup() on purpose: the Arduino builder inserts function prototypes
+// before the first function, so any type they mention must already exist.
+/** What the server said about one photo. */
+struct Verdict {
+  bool ok;            // false = network/server trouble, not an answer
+  bool granted;
+  bool noFace;        // nobody in the frame: a retake, not a mismatch
+  String uid;
+  String name;
+  bool hasScore;
+  float confidence;
+};
 
 // ----------------------- SETUP -----------------------
 void setup() {
@@ -93,6 +118,8 @@ void setup() {
   pinMode(PIR_PIN, INPUT);
   pinMode(STATUS_LED, OUTPUT);
   digitalWrite(STATUS_LED, HIGH);
+  pinMode(FLASH_LED, OUTPUT);
+  digitalWrite(FLASH_LED, LOW);
 
   Wire.begin(14, 15);                 // SDA, SCL for the I2C LCD
   lcd.init();
@@ -105,6 +132,7 @@ void setup() {
   }
 
   lockerDoc = String("lockers/") + LOCKER_ID;
+  recognizeUrl = RECOGNIZE_URL_OVERRIDE;
 
   connectWiFi();
 
@@ -141,6 +169,11 @@ void loop() {
     if (clockIsSet() && (!heartbeatSent || millis() - lastHeartbeat > HEARTBEAT_INTERVAL)) {
       lastHeartbeat = millis();
       heartbeatSent = sendHeartbeat();
+    }
+
+    // Find the recognition server once signed in, and keep looking until found
+    if (recognizeUrl.length() == 0 && millis() - lastUrlTry > URL_RETRY_MS) {
+      loadRecognizerUrl();
     }
 
     // 3) Admin remote unlock, polled from Firestore
@@ -240,34 +273,100 @@ String nowString() {
 
 // ----------------------- RECOGNITION -----------------------
 void handleRecognition() {
-  if (strlen(RECOGNIZE_URL) == 0) {
-    showMessage("No recognizer", "Set RECOGNIZE_URL");
-    delay(2000);
-    showMessage("FaceLock Ready", "Approach locker");
-    return;
-  }
   if (WiFi.status() != WL_CONNECTED) {
     showMessage("Offline", "Try again later");
     delay(1500);
     showMessage("FaceLock Ready", "Approach locker");
     return;
   }
-
-  showMessage("Face detected", "Verifying...");
-  digitalWrite(STATUS_LED, LOW);
-
-  camera_fb_t* fb = esp_camera_fb_get();
-  if (!fb) {
-    showMessage("Capture failed", "Try again");
-    digitalWrite(STATUS_LED, HIGH);
+  if (recognizeUrl.length() == 0 && Firebase.ready()) loadRecognizerUrl();
+  if (recognizeUrl.length() == 0) {
+    showMessage("No recognizer", "Start the server");
+    delay(2000);
+    showMessage("FaceLock Ready", "Approach locker");
     return;
   }
 
+  // Up to MAX_TRIES photos. The first match opens; a blink or a bad angle on
+  // one photo does not count against anyone. Only real mismatches lead to a
+  // denial, and that is logged once for the whole attempt.
+  int mismatches = 0;
+  Verdict best = {true, false, false, "", "", false, 0.0f};
+
+  for (int attempt = 1; attempt <= MAX_TRIES; attempt++) {
+    showMessage(attempt == 1 ? String("Face detected")
+                             : "Try " + String(attempt) + " of " + String(MAX_TRIES),
+                "Verifying...");
+    Verdict v = recognizeOnce(attempt == MAX_TRIES, mismatches);
+
+    if (!v.ok) {
+      // The laptop may have a new address; look it up again next time.
+      if (strlen(RECOGNIZE_URL_OVERRIDE) == 0) recognizeUrl = "";
+      showMessage("Server error", "Try again");
+      delay(1500);
+      showMessage("FaceLock Ready", "Approach locker");
+      return;   // Infrastructure trouble is not a denial; nothing is logged
+    }
+
+    if (v.granted) {
+      showMessage("Welcome", v.name.substring(0, 16));
+      openLock();
+      stampOpened();
+      writeAccessLog(true, v.uid.c_str(), v.name.c_str(), v.hasScore, v.confidence);
+      showMessage("FaceLock Ready", "Approach locker");
+      return;
+    }
+
+    if (!v.noFace) {
+      mismatches++;
+      if (!best.hasScore || v.confidence > best.confidence) best = v;
+    }
+    if (attempt < MAX_TRIES) {
+      showMessage(v.noFace ? "No face seen" : "Not matched", "Look at camera");
+      delay(800);
+    }
+  }
+
+  if (mismatches == 0) {
+    // Only empty frames: the PIR fired but nobody faced the camera.
+    showMessage("No face seen", "Try again");
+  } else {
+    showMessage("Access denied", "Not recognized");
+    writeAccessLog(false, "", "", best.hasScore, best.confidence);
+  }
+  delay(2500);
+  showMessage("FaceLock Ready", "Approach locker");
+}
+
+/** Takes one photo with the flash and asks the server about it. */
+Verdict recognizeOnce(bool lastTry, int mismatchesSoFar) {
+  Verdict v = {false, false, false, "", "", false, 0.0f};
+
+  digitalWrite(STATUS_LED, LOW);
+  digitalWrite(FLASH_LED, HIGH);
+  delay(150);   // Let the exposure settle under the flash
+  // With two frame buffers the first one can predate the flash; drop it.
+  camera_fb_t* fb = esp_camera_fb_get();
+  if (fb) esp_camera_fb_return(fb);
+  fb = esp_camera_fb_get();
+  digitalWrite(FLASH_LED, LOW);
+
+  if (!fb) {
+    digitalWrite(STATUS_LED, HIGH);
+    Serial.println("Capture failed");
+    v.ok = true;        // Treated like an empty frame: retake
+    v.noFace = true;
+    return v;
+  }
+
   HTTPClient http;
-  http.begin(RECOGNIZE_URL);
+  http.begin(recognizeUrl);
   http.addHeader("Content-Type", "image/jpeg");
   http.addHeader("X-Locker-Id", LOCKER_ID);
   http.addHeader("X-Device-Key", SECRET_RECOGNIZE_KEY);
+  // The server alerts staff only after the final failed photo of an attempt.
+  http.addHeader("X-Last-Try", lastTry ? "1" : "0");
+  http.addHeader("X-Mismatches", String(mismatchesSoFar));
   http.setTimeout(15000);
 
   int status = http.POST(fb->buf, fb->len);
@@ -278,43 +377,44 @@ void handleRecognition() {
 
   if (status != 200) {
     Serial.printf("Recognition HTTP error: %d\n", status);
-    showMessage("Server error", "Try again");
-    delay(1500);
-    showMessage("FaceLock Ready", "Approach locker");
-    return;
+    return v;
   }
 
   // Expected response:
-  //   {"granted":true,"uid":"abc123","name":"Juan Dela Cruz","confidence":0.94}
+  //   {"granted":true,"uid":"abc123","name":"Juan Dela Cruz","confidence":0.94,"noFace":false}
   // The server decides "granted": the face matches the person this locker is
   // assigned to, and their account is active.
   StaticJsonDocument<384> doc;
   if (deserializeJson(doc, payload)) {
-    showMessage("Bad response", "Try again");
-    delay(1500);
-    showMessage("FaceLock Ready", "Approach locker");
+    Serial.println("Bad response: " + payload);
+    return v;
+  }
+
+  v.ok         = true;
+  v.granted    = doc["granted"] | false;
+  v.noFace     = doc["noFace"] | false;
+  v.uid        = (const char*)(doc["uid"] | "");
+  v.name       = (const char*)(doc["name"] | "Unknown");
+  v.hasScore   = doc["confidence"].is<float>();
+  v.confidence = doc["confidence"] | 0.0f;
+  return v;
+}
+
+/** Reads the address the recognition server published in config/recognizer. */
+void loadRecognizerUrl() {
+  lastUrlTry = millis();
+  if (!Firebase.Firestore.getDocument(&fbdo, PROJECT_ID, "", "config/recognizer", "url")) {
+    Serial.println("No recognizer address yet: " + fbdo.errorReason());
     return;
   }
-
-  bool granted     = doc["granted"] | false;
-  const char* uid  = doc["uid"] | "";
-  const char* name = doc["name"] | "Unknown";
-  bool hasScore    = doc["confidence"].is<float>();
-  float confidence = doc["confidence"] | 0.0f;
-
-  if (granted) {
-    showMessage("Welcome", String(name).substring(0, 16));
-    openLock();
-    stampOpened();
-  } else {
-    showMessage("Access denied", "Not recognized");
+  FirebaseJson payload;
+  payload.setJsonData(fbdo.payload());
+  FirebaseJsonData url;
+  payload.get(url, "fields/url/stringValue");
+  if (url.success && url.to<String>().length() > 0) {
+    recognizeUrl = url.to<String>();
+    Serial.println("Recognizer at " + recognizeUrl);
   }
-
-  // Logged after the door decision, so a slow write never delays the lock.
-  writeAccessLog(granted, uid, name, hasScore, confidence);
-
-  if (!granted) delay(2500);
-  showMessage("FaceLock Ready", "Approach locker");
 }
 
 // ----------------------- FIRESTORE -----------------------

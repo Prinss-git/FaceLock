@@ -82,6 +82,23 @@ its own locker and with exactly these fields. Denied attempts omit `uid` and
 
 ## `face_templates/{uid}` (Cloud Storage + Firestore)
 Enrollment images land in Storage at `face_templates/{uid}/enroll.jpg`.
-The recognition backend converts each to an embedding vector, stores it in
-the `face_templates` collection, then deletes the raw image. Only the
-embedding is retained, which limits exposure if the database is compromised.
+The recognition server (`recognizer/`) converts each to a face print, stores it
+here, then deletes the raw image. No client may read or write this collection.
+
+| Field | Type | Notes |
+|---|---|---|
+| `embedding` | number[128] | SFace face print, normalized |
+| `fullName` | string | Denormalized for the server log |
+| `updatedAt` | number | Epoch millis |
+
+If a photo has no usable face, the server sets `users/{uid}.faceEnrolled` back
+to false so the app asks the member to enroll again.
+
+## `config/recognizer`
+Written by the recognition server on start; readable by any signed-in account,
+writable by no client.
+
+| Field | Type | Notes |
+|---|---|---|
+| `url` | string | e.g. `http://192.168.43.10:5000/recognize`; the board posts photos here |
+| `updatedAt` | number | Epoch millis |

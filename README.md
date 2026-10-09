@@ -36,6 +36,7 @@ FaceLock/
 │   ├── FaceLock_ESP32CAM/     Capture → recognize → unlock → log → heartbeat
 │   ├── simulator/             Node stand-in for the board, for testing without hardware
 │   └── WIRING.md              Bill of materials and pin connections
+├── recognizer/                Python face-recognition server (runs on a laptop)
 └── firebase/
     ├── SETUP.md               Step-by-step console setup
     ├── SCHEMA.md              Firestore collection reference
@@ -143,32 +144,60 @@ node --env-file=.env simulate.js check     # writes the rules must refuse
 4. Upload, open the Serial Monitor at 115200, and check for `Heartbeat failed`
    or `Unlock poll failed` lines.
 
-## Still missing: face recognition
+## Face recognition server
 
-The board posts each photo to `SECRET_RECOGNIZE_URL` and expects
-`{"granted": bool, "uid": "...", "name": "...", "confidence": 0.0-1.0}`. **That
-server does not exist yet.** Until it does, the board shows "No recognizer" and
-neither opens nor logs; use the simulator to produce log entries.
+Faces are compared by a small Python program on a laptop, `recognizer/`. The
+free Spark plan cannot run server code, so a laptop on the same Wi-Fi as the
+board does the work. Setup and use are in [`recognizer/README.md`](recognizer/README.md).
 
-On Spark, the server must be hosted outside Firebase (for example a small
-Flask + FaceNet/ArcFace service on a laptop or Cloud Run). It would read the
-enrollment photos from Storage with a service account, keep embeddings in
-`face_templates`, and decide `granted` = face matches this locker's
-`assignedUid` and that account is `active`.
+- The board takes **up to 3 photos** per attempt and opens on the first match.
+  Empty frames are retaken without counting. If none match, it writes **one**
+  DENIED log, and the server pushes **one** alert to admin and security phones.
+- The server compares the photo only with the person the locker is assigned to
+  *right now*, so reassigning a locker in the app takes effect immediately.
+- The server publishes its address in Firestore (`config/recognizer`); the board
+  reads it, so a new laptop IP needs no re-flash.
 
-`firebase/functions/` holds the older Blaze-only design (`recognizeFace`,
-`onAccessDenied` push alerts). **It is not deployed.** If the project moves to
-Blaze and those are deployed, remove the board's own `access_logs` write or
-every attempt is logged twice.
+`firebase/functions/` holds the older Blaze-only design and is **not deployed**;
+the recognizer replaces it. If the project ever moves to Blaze and deploys those
+functions, remove the board's own `access_logs` write or every attempt is logged
+twice.
 
-Without Functions, denied-attempt alerts are **in-app only** (badge + snackbar
-while the app is open); there is no push notification when it is closed.
+## Demo
+
+**The day before**
+1. APK installed on the admin phone (Build → Build APK(s), real
+   `google-services.json` in `app/`).
+2. Accounts: one admin, two members (e.g. Alice and Bob), both faces enrolled
+   in the app. Leave the recognizer running for a minute so it picks them up.
+3. One building with locker `M-001`; the board's account linked to `M-001`
+   (`firebase/SETUP.md` step 6).
+4. Board and laptop both on a **2.4 GHz phone hotspot**. Start
+   `python server.py`, then power the board.
+5. Run `node --env-file=.env simulate.js check` once against the live project.
+6. Full dry run of the script below.
+
+**Script (about 8 minutes)**
+1. Admin app → Lockers: `M-001` is online (the board's heartbeat).
+2. Assign `M-001` to **Alice**. Alice faces the camera → "Welcome" → lock opens
+   → GRANTED in Logs.
+3. **Bob** faces the camera → 3 tries → "Access denied" → one DENIED log, plus
+   the alert on the admin phone.
+4. **Reassign `M-001` to Bob, live.** Now Bob opens it and Alice is denied. No
+   re-flashing, only the app.
+5. **Remote unlock** from the admin app → opens within about 10 s.
+6. **Suspend Bob** → his app signs out by itself and his face is denied.
+7. Logs filters, a member's history, and the Activity trail showing every step.
+8. Unplug the board → `M-001` shows **Offline** about 2 minutes later.
+
+**If the hardware fails:** run the simulator (`run`, `granted`, `denied`) so
+the app side can still be shown.
 
 ## Privacy note
 
 Raw enrollment photos are never readable from any client. They are uploaded to
-Storage, to be converted to an embedding by the recognition server, after which
-the original image should be deleted so only the embedding vector persists.
+Storage, the recognition server converts each into a face print (128 numbers),
+and then deletes the photo, so only the face print persists.
 Access logs are append-only: the locker's board may add entries for its own
 locker, and no client can edit or delete one.
 This design supports compliance with the Data Privacy Act of 2012 (RA 10173).
