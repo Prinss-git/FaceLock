@@ -19,3 +19,7 @@ firebase-debug.log
 
 # Firmware credentials (copy secrets.example.h -> secrets.h in each sketch folder)
 firmware/**/secrets.h
+
+# Seeder service account key - full admin access, never commit
+tools/seed-logs/serviceAccountKey.json
+tools/seed-logs/node_modules/

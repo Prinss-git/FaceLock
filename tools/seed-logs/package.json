@@ -1,0 +1,15 @@
+{
+  "name": "facelock-seed-logs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Seeds demo accounts, lockers and access logs into Firestore for the FaceLock demo video.",
+  "main": "seed-logs.js",
+  "scripts": {
+    "accounts": "node seed-accounts.js",
+    "seed": "node seed-logs.js",
+    "clear": "node seed-logs.js --clear && node seed-accounts.js --clear"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.1.0"
+  }
+}
